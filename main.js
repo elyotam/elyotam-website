@@ -1,10 +1,10 @@
 /* ============================================================
-   VELA ARMON — site runtime
+   VELA ARMON, site runtime
    Lenis for the scroll feel, GSAP/ScrollTrigger for the timeline,
    and the canvas descent pinned across the top of the page.
    ============================================================ */
 
-import { createFrameSequence } from "./hero-frames.js";
+import { createFrameSequence } from "./hero-frames.js?v=24";
 
 const { gsap, ScrollTrigger, Lenis } = window;
 gsap.registerPlugin(ScrollTrigger);
@@ -26,74 +26,25 @@ const EASE = "expo.out";
 const CHAPTERS = [
   { sel: "#chapter-residences", in: 0.2, out: 0.3 },
   { sel: "#chapter-horology", in: 0.4, out: 0.52 },
-  { sel: "#chapter-yachts", in: 0.62, out: 0.74 },
-  { sel: "#chapter-aviation", in: 0.82, out: 0.94 },
+  /* The sequence morphs off the marina and onto an airfield around frame 537
+     (~0.67), so the e-commerce card has to clear before then, at its old
+     0.62-0.74 it spent most of its life sitting over a runway. */
+  { sel: "#chapter-yachts", in: 0.575, out: 0.65 },
+  /* "מכאן ממריאים" has to land while the jet is still on the tarmac. The
+     takeoff roll runs from ~0.70, the jet is framed on the runway at ~0.78 and
+     rotates just past ~0.81, so the card builds over the roll, sits fully
+     readable on the grounded jet, and dissolves as the wheels leave. */
+  { sel: "#chapter-aviation", in: 0.7, out: 0.82 },
 ];
 const CLOSING_AT = 0.96;
 const RAIL_STOPS = [
-  { until: 0.14, label: "I · החזון והרעיון" },
-  { until: 0.32, label: "II · אתרי תדמית & נכסים" },
-  { until: 0.56, label: "III · אוטומציות AI 24/7" },
-  { until: 0.78, label: "IV · חנויות איקומרס" },
-  { until: Infinity, label: "V · פיתוח אפליקציות" },
+  { until: 0.14, label: "הרעיון" },
+  { until: 0.35, label: "אתרי תדמית ודפי נחיתה" },
+  { until: 0.55, label: "אוטומציות AI" },
+  { until: 0.70, label: "חנויות איקומרס" },
+  { until: Infinity, label: "אפליקציות מובייל ו-Web" },
 ];
 const railLabel = (p) => (RAIL_STOPS.find((s) => p < s.until) ?? RAIL_STOPS.at(-1)).label;
-
-/* ------------------------------------------------------------
-   client testimonials
-   ------------------------------------------------------------ */
-const REVIEWS = [
-  {
-    quote: "אליותם הפכו חזון עסקי מורכב לאפליקציה עובדת ומניבה בזמן שיא. האסטרטגיה והביצוע הטכנולוגי שלהם שברו את כל הציפיות.",
-    name: "אלון מזרחי",
-    role: "מייסד & CEO, FinTech Studio",
-  },
-  {
-    quote: "האתר החדש שהם בנו לנו שינה לחלוטין את מותג היוקרה שלנו. יחס ההמרה זינק ב-45% כבר בחודש הראשון.",
-    name: "דניאל כהן",
-    role: "בעלים, Maison Du Luxe",
-  },
-  {
-    quote: "מנועי אוטומציית ה-AI והסוכנים שפותחו עבורנו חוסכים מעל 120 שעות עבודה ידנית בחודש. מדובר בשינוי דרמטי ברווחיות.",
-    name: "מיכל אברהמי",
-    role: "סמנכ״לית תפעול, Apex Global",
-  },
-  {
-    quote: "חנות האיקומרס שלנו עובדת כמו מנגנון שוויצרי. חווית הקנייה המהירה והסליקה המיידית הכפילו את סל הקנייה הממוצע.",
-    name: "יוסי לוי",
-    role: "מנהל מותג, Lumina Fashion",
-  },
-  {
-    quote: "צוות אסטרטגי מהמעלה הראשונה. הם לא רק כותבים קוד, הם מבינים את המודל העסקי שלך ומזניקים אותו קדימה.",
-    name: "רוני שפירא",
-    role: "סמנכ״לית שיווק, Scale Group",
-  },
-  {
-    quote: "השילוב של עיצוב ברמה הבינלאומית הגבוהה ביותר עם מנועי AI מתקדמים הציב אותנו ביתרון תחרותי מובהק.",
-    name: "גילעד פרידמן",
-    role: "מייסד, Prime Real Estate",
-  },
-  {
-    quote: "עבדתי עם הרבה סוכנויות ובתי תוכנה, אבל Elyotam זו ליגה אחרת. דיוק הנדסי, עמידה בזמנים ותוצאות מטורפות.",
-    name: "עדי ברק",
-    role: "מנהלת מוצר, NextGen Tech",
-  },
-  {
-    quote: "הזמינות והתמיכה שלהם 24/7 הן נכס אסטרטגי עבורנו. בכל השקה גלובלית ידענו שיש לנו גב טכנולוגי חזק.",
-    name: "תומר שגיא",
-    role: "VP Digital, Global Logistics",
-  },
-  {
-    quote: "הם לקחו את החלום הכי גדול שלנו והפכו אותו לנכס דיגיטלי מוביל שמושך משקיעים ולקוחות מכל העולם.",
-    name: "נועה קליין",
-    role: "מייסדת, CloudVibe",
-  },
-  {
-    quote: "המקצועיות של Elyotam ניכרת בכל שורת קוד ובכל פיקסל. השותף הטכנולוגי הטוב ביותר שתוכלו לבקש לעסק.",
-    name: "איתי גולן",
-    role: "CTO & יועץ טכנולוגי",
-  },
-];
 
 /* ============================================================
    SMOOTH SCROLL
@@ -128,16 +79,33 @@ function initAnchors(lenis) {
 /* ============================================================
    TEXT SPLITTING
    ============================================================ */
+/** One span per letter, for per-letter staggers; returns the letters in logical
+    order. Letters are grouped into per-word wrappers because the separators used
+    to be non-breaking spaces, which left the gaps between two letter spans as the
+    only legal break points, so a wrapped line snapped words in half ("לאו/ויר").
+    Now words are unbreakable and the spaces between them are the break points. */
 function splitLetters(el) {
   if (!el) return [];
   const text = el.textContent ?? "";
   el.textContent = "";
   const out = [];
-  for (const ch of text) {
-    const s = document.createElement("span");
-    s.textContent = ch === " " ? " " : ch;
-    el.appendChild(s);
-    out.push(s);
+  /* split on plain spaces only, a non-breaking space stays inside its chunk and
+     therefore inside one .letter-word, so `a&nbsp;b` never splits across lines */
+  for (const chunk of text.split(/( )/)) {
+    if (!chunk) continue;
+    if (chunk === " ") {
+      el.appendChild(document.createTextNode(" "));
+      continue;
+    }
+    const word = document.createElement("span");
+    word.className = "letter-word";
+    for (const ch of chunk) {
+      const s = document.createElement("span");
+      s.textContent = ch;
+      word.appendChild(s);
+      out.push(s);
+    }
+    el.appendChild(word);
   }
   return out;
 }
@@ -245,7 +213,7 @@ function buildHeroTimeline(scene, eyebrowLetters) {
     },
   });
 
-  // the descent itself — every other beat is positioned against this
+  // the descent itself, every other beat is positioned against this
   tl.to(
     prog,
     {
@@ -275,7 +243,7 @@ function buildHeroTimeline(scene, eyebrowLetters) {
     .to(brandSub, { opacity: 1, y: 0, duration: 0.035, ease: "power2.out" }, 0.175)
     .to(zoneName, { opacity: 0, duration: 0.035 }, 0.235);
 
-  // III–VI · the four worlds
+  // III-VI · the four worlds
   CHAPTERS.forEach((c) => chapterTween(tl, c));
 
   // VII · the line that ties them together
@@ -411,72 +379,6 @@ function initCounters(isReduced) {
 }
 
 /* ============================================================
-   REVIEW MARQUEES
-   ============================================================ */
-const initials = (name) =>
-  name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-
-const reviewCard = (r) => `
-  <article class="review-card">
-    <p class="review-quote"><span class="qmark" aria-hidden="true">&ldquo;</span>${r.quote}</p>
-    <div class="review-meta">
-      <div class="review-avatar" aria-hidden="true">${initials(r.name)}</div>
-      <div>
-        <div class="review-name">${r.name}</div>
-        <div class="review-role">${r.role}</div>
-      </div>
-    </div>
-  </article>`;
-
-function fillRow(row, items, loop) {
-  const html = items.map(reviewCard).join("");
-  row.innerHTML = loop ? html + html : html;
-}
-
-function marqueeLoop(track, row, dir, duration) {
-  const tween =
-    dir < 0
-      ? gsap.to(track, { xPercent: -50, duration, ease: "none", repeat: -1 })
-      : gsap.fromTo(track, { xPercent: -50 }, { xPercent: 0, duration, ease: "none", repeat: -1 });
-  row.addEventListener("pointerenter", () => gsap.to(tween, { timeScale: 0.18, duration: 0.6 }));
-  row.addEventListener("pointerleave", () => gsap.to(tween, { timeScale: 1, duration: 0.6 }));
-  return tween;
-}
-
-function makeScrollable(row) {
-  if (!row) return;
-  row.setAttribute("tabindex", "0");
-  row.setAttribute("role", "group");
-  row.setAttribute("aria-label", "Client testimonials, scroll to read more");
-}
-
-function initMarquees(isReduced) {
-  const a = q("#marquee-a");
-  const b = q("#marquee-b");
-  if (!a || !b) return [];
-  const rowA = a.closest(".marquee-row");
-  const rowB = b.closest(".marquee-row");
-
-  if (isReduced) {
-    fillRow(a, REVIEWS.slice(0, 5), false);
-    fillRow(b, REVIEWS.slice(5, 10), false);
-    makeScrollable(rowA);
-    makeScrollable(rowB);
-    return [];
-  }
-
-  fillRow(a, REVIEWS.slice(0, 5), true);
-  fillRow(b, REVIEWS.slice(5, 10), true);
-  if (!rowA || !rowB) return [];
-  return [marqueeLoop(a, rowA, -1, 46), marqueeLoop(b, rowB, 1, 52)];
-}
-
-/* ============================================================
    FINALE
    ============================================================ */
 function initFinale(isReduced) {
@@ -543,7 +445,7 @@ function initCursor() {
     { passive: true }
   );
 
-  const hot = "a, button, [data-magnetic], [data-magnetic-soft], .review-card, .house-card";
+  const hot = "a, button, [data-magnetic], [data-magnetic-soft].house-card";
   document.addEventListener("pointerover", (e) => {
     if (e.target instanceof Element && e.target.closest(hot)) ring.classList.add("is-active");
   });
@@ -602,7 +504,7 @@ async function waitForFonts() {
   try {
     await document.fonts?.ready;
   } catch {
-    /* font loading API unavailable — carry on */
+    /* font loading API unavailable, carry on */
   }
   ScrollTrigger.refresh();
 }
@@ -641,7 +543,6 @@ async function boot() {
     setProgress(1);
     scene.resize();
     staticHero(scene);
-    initMarquees(true);
     initReveals(true);
     initCounters(true);
     initFinale(true);
@@ -665,7 +566,6 @@ async function boot() {
   const eyebrowLetters = splitLetters(q("[data-split-letters]"));
   buildHeroTimeline(scene, eyebrowLetters);
 
-  initMarquees(false);
   initReveals(false);
   initCounters(false);
   initFinale(false);

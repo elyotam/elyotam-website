@@ -1,5 +1,5 @@
 /* ============================================================
-   VELA ARMON — reference build
+   VELA ARMON, reference build
    Palette, type scale and motion language of the source site.
    ============================================================ */
 
@@ -179,6 +179,10 @@ html.is-loading body {
   display: inline-block;
   will-change: transform;
 }
+/* keeps a letter-split word from breaking between its own letters */
+.letter-word {
+  white-space: nowrap;
+}
 .split-word {
   display: inline-block;
   overflow: hidden;
@@ -238,13 +242,16 @@ html.is-loading body {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  font-family: Heebo, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--chalk-faint);
+}
+/* the readout is digits, so it keeps the mono treatment the label can't take */
+#loader .loader-pct {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.7rem;
-  letter-spacing: 0.25em;
-  color: var(--chalk-faint);
-  text-transform: uppercase;
-}
-#loader .loader-pct {
+  letter-spacing: 0.2em;
   color: var(--chalk);
 }
 
@@ -289,7 +296,7 @@ body.has-custom-cursor [data-magnetic-soft] {
 }
 
 /* ---------- focus ---------- */
-:where(a, button, [data-magnetic], [data-magnetic-soft], .finale-cta):focus-visible {
+:where(a, button, [data-magnetic], [data-magnetic-soft].finale-cta):focus-visible {
   outline: 2px solid var(--electric-soft);
   outline-offset: 4px;
   border-radius: 2px;
@@ -300,10 +307,6 @@ body.has-custom-cursor [data-magnetic-soft] {
 .foot-link:focus-visible::after {
   transform: scaleX(1);
   transform-origin: left;
-}
-.marquee-row:focus-visible {
-  outline: 2px solid var(--electric-soft);
-  outline-offset: 6px;
 }
 
 /* ============================================================
@@ -361,7 +364,7 @@ body.has-custom-cursor [data-magnetic-soft] {
   font-family: Heebo, sans-serif;
   font-weight: 700;
   font-size: clamp(0.95rem, 1.25vw, 1.2rem);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
   color: #ffffff;
   background: rgba(8, 10, 16, 0.78);
   backdrop-filter: blur(20px);
@@ -392,10 +395,10 @@ body.has-custom-cursor [data-magnetic-soft] {
 .brand-reveal .brand-sub {
   display: block;
   margin-top: 1.5rem;
-  font-family: Heebo, "JetBrains Mono", monospace;
+  font-family: Heebo, sans-serif;
   font-weight: 600;
   font-size: clamp(0.85rem, 1.1vw, 1.05rem);
-  letter-spacing: 0.18em;
+  letter-spacing: 0.05em;
   color: var(--electric-soft);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
 }
@@ -467,12 +470,11 @@ body.has-custom-cursor [data-magnetic-soft] {
 }
 .chapter-index {
   display: inline-block;
-  font-family: Heebo, "JetBrains Mono", monospace;
-  font-size: 0.85rem;
+  font-family: Heebo, sans-serif;
+  font-size: clamp(0.95rem, 1.1vw, 1.15rem);
   font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--electric-soft);
+  letter-spacing: 0.02em;
+  color: var(--electric);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
 }
 .chapter-word-mask {
@@ -489,6 +491,11 @@ body.has-custom-cursor [data-magnetic-soft] {
   color: #ffffff;
   text-shadow: 0 2px 15px rgba(0, 0, 0, 0.95);
   will-change: transform;
+}
+/* a three-word headline steps down so it holds two lines inside the card */
+.chapter-word.is-long {
+  font-size: clamp(2.3rem, 4.4vw, 3.9rem);
+  line-height: 1.08;
 }
 .chapter-rule {
   display: block;
@@ -551,9 +558,9 @@ html.is-static .chapter-zone {
   top: 0%;
   transform: translateY(-50%);
   white-space: nowrap;
-  font-family: Heebo, "JetBrains Mono", monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.15em;
+  font-family: Heebo, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
   color: var(--chalk-dim);
   text-transform: uppercase;
 }
@@ -567,11 +574,9 @@ html.is-static .chapter-zone {
   flex-direction: column;
   align-items: center;
   gap: 0.7rem;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.4em;
-  text-indent: 0.4em;
-  text-transform: uppercase;
+  font-family: Heebo, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
   color: var(--chalk-dim);
   transition: opacity 0.6s var(--ease-expo);
 }
@@ -609,11 +614,9 @@ html.is-static .chapter-zone {
   left: 50%;
   bottom: 2.2rem;
   transform: translate(-50%);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.34em;
-  text-indent: 0.34em;
-  text-transform: uppercase;
+  font-family: Heebo, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
   color: var(--chalk-dim);
   text-shadow: 0 1px 16px rgba(6, 8, 13, 0.8);
   z-index: 6;
@@ -637,7 +640,7 @@ html.is-static .chapter-zone {
 .section {
   position: relative;
   padding-block: clamp(7rem, 14vh, 12rem);
-  /* the ambient glows are deliberately oversized — keep them from
+  /* the ambient glows are deliberately oversized, keep them from
      widening the document */
   overflow: hidden;
 }
@@ -648,18 +651,18 @@ html.is-static .chapter-zone {
   padding-inline: var(--gutter);
 }
 .section-index {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.3em;
+  font-family: Heebo, sans-serif;
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
   color: var(--electric);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 .kicker {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
+  font-family: Heebo, sans-serif;
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
   color: var(--chalk-faint);
 }
 .h-mega {
@@ -729,10 +732,10 @@ html.is-static .chapter-zone {
 }
 .stat-label {
   margin-top: 0.85rem;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
+  font-family: Heebo, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
   color: var(--chalk-faint);
 }
 
@@ -759,10 +762,9 @@ html.is-static .chapter-zone {
 }
 .consult-meta {
   margin-top: 1.2rem;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  font-family: Heebo, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
   color: var(--chalk-faint);
 }
 
@@ -845,9 +847,10 @@ html.is-static .chapter-zone {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-family: Heebo, sans-serif;
+  font-weight: 500;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--chalk-faint);
   transition: color 0.4s var(--ease-expo), gap 0.4s var(--ease-expo);
@@ -855,97 +858,6 @@ html.is-static .chapter-zone {
 .house-card:hover .house-arrow {
   color: var(--cyan);
   gap: 1.1rem;
-}
-
-/* reviews */
-#reviews {
-  overflow: hidden;
-}
-.reviews-head {
-  text-align: center;
-  max-width: 46rem;
-  margin-inline: auto;
-  margin-bottom: clamp(3.5rem, 7vw, 6rem);
-}
-.marquee {
-  position: relative;
-  display: flex;
-  width: max-content;
-  will-change: transform;
-}
-.marquee-row {
-  position: relative;
-  overflow: visible;
-}
-.marquee-mask {
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
-}
-.review-card {
-  flex: 0 0 auto;
-  width: clamp(360px, 30vw, 470px);
-  margin-right: 1.6rem;
-  padding: 2.3rem 2.3rem 2.1rem;
-  border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background: var(--glass);
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  display: flex;
-  flex-direction: column;
-  gap: 1.7rem;
-  transition: border-color 0.5s var(--ease-expo), transform 0.5s var(--ease-expo);
-}
-.review-card:hover {
-  border-color: rgba(234, 217, 184, 0.4);
-  transform: translateY(-4px);
-}
-.review-quote {
-  font-family: "Clash Display", sans-serif;
-  font-weight: 400;
-  font-size: 1.16rem;
-  line-height: 1.5;
-  color: var(--chalk);
-  letter-spacing: -0.005em;
-}
-.review-quote .qmark {
-  color: var(--electric);
-  font-size: 1.4em;
-  line-height: 0;
-  margin-right: 0.1em;
-}
-.review-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  margin-top: auto;
-}
-.review-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-family: "Clash Display", sans-serif;
-  font-weight: 600;
-  font-size: 0.92rem;
-  color: #fff;
-  background: linear-gradient(140deg, var(--electric-deep), var(--electric));
-  border: 1px solid rgba(244, 236, 219, 0.4);
-  flex: 0 0 auto;
-}
-.review-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #fff;
-}
-.review-role {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.64rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--chalk-faint);
-  margin-top: 0.25rem;
 }
 
 /* finale */
@@ -998,17 +910,20 @@ html.is-static .chapter-zone {
   gap: clamp(1.8rem, 3.5vw, 3rem);
 }
 .finale-eyebrow {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.5em;
-  text-indent: 0.5em;
-  text-transform: uppercase;
+  font-family: Heebo, sans-serif;
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
   color: var(--chalk-faint);
 }
 .finale-wordmark-wrap {
   overflow: visible;
 }
 .finale-wordmark {
+  /* Split into one span per letter, each span is its own bidi run, inside the
+     RTL document that reversed the wordmark to MATOYLE. The Latin name has to
+     carry its own direction. */
+  direction: ltr;
   font-family: "Clash Display", sans-serif;
   font-weight: 500;
   font-size: clamp(2.6rem, 9.6vw, 10rem);
@@ -1024,13 +939,15 @@ html.is-static .chapter-zone {
   will-change: transform, opacity, filter;
 }
 .finale-tagline {
-  font-family: "Clash Display", sans-serif;
+  font-family: Heebo, "Clash Display", sans-serif;
   font-weight: 400;
   font-size: clamp(1.3rem, 2.6vw, 2.3rem);
   line-height: 1.3;
   letter-spacing: -0.005em;
   color: var(--chalk-dim);
-  max-width: 30rem;
+  /* each .reveal-line is a one-line mask, so the Hebrew sentences must not wrap
+     inside it, 30rem forced a wrap and the two lines slid through as one block */
+  max-width: min(44rem, 92vw);
 }
 .finale-cta {
   position: relative;
@@ -1104,13 +1021,19 @@ html.is-static .chapter-zone {
 }
 .foot-link {
   position: relative;
+  font-family: Heebo, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  color: var(--chalk-dim);
+  text-decoration: none;
+  transition: color 0.4s var(--ease-expo);
+}
+/* the social row is Latin, so it can carry the mono treatment the rest can't */
+.foot-link.is-latin {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--chalk-dim);
-  text-decoration: none;
-  transition: color 0.4s var(--ease-expo);
 }
 .foot-link::after {
   content: "";
@@ -1138,10 +1061,9 @@ html.is-static .chapter-zone {
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: clamp(2.5rem, 5vh, 4rem);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.66rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-family: Heebo, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
   color: var(--chalk-faint);
 }
 
@@ -1149,14 +1071,6 @@ html.is-static .chapter-zone {
    RESPONSIVE
    ============================================================ */
 .mobile-only {
-  display: none;
-}
-html.is-static .marquee-row {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-html.is-static .marquee-row::-webkit-scrollbar {
   display: none;
 }
 
@@ -1197,11 +1111,14 @@ html.is-static .marquee-row::-webkit-scrollbar {
     max-width: 88%;
   }
   .chapter-index {
-    font-size: 0.64rem;
-    letter-spacing: 0.26em;
+    font-size: 0.88rem;
+    letter-spacing: 0.01em;
   }
   .chapter-word {
     font-size: clamp(2.4rem, 13vw, 3.6rem);
+  }
+  .chapter-word.is-long {
+    font-size: clamp(1.9rem, 9vw, 2.6rem);
   }
   .chapter-rule {
     width: clamp(90px, 26vw, 150px);
@@ -1213,9 +1130,8 @@ html.is-static .marquee-row::-webkit-scrollbar {
   }
   .brand-reveal .brand-sub {
     margin-top: 1rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.28em;
-    text-indent: 0.28em;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
   }
   .section {
     padding-block: clamp(4.5rem, 9vh, 7rem);
@@ -1243,15 +1159,6 @@ html.is-static .marquee-row::-webkit-scrollbar {
   .house-head {
     align-items: flex-start;
   }
-  .review-card {
-    width: 80vw;
-    max-width: 360px;
-    padding: 1.9rem 1.8rem 1.6rem;
-    margin-right: 1rem;
-  }
-  .review-quote {
-    font-size: 1.06rem;
-  }
   #finale {
     min-height: auto;
     padding-block: clamp(6rem, 16vh, 10rem);
@@ -1275,6 +1182,17 @@ html.is-static .marquee-row::-webkit-scrollbar {
   .finale-cta {
     min-height: 44px;
     padding-block: 0.8rem;
+  }
+}
+
+/* Below ~390px the tagline font is already pinned at its clamp minimum while the
+   container keeps shrinking with the viewport, so the longest line wrapped, and
+   each .reveal-line is a one-visual-line mask, so a wrap makes both lines slide
+   in as a single block. One more size step keeps every line whole. */
+@media (max-width: 460px) {
+  .finale-tagline {
+    font-size: clamp(0.9rem, 4.4vw, 1.3rem);
+    max-width: 94vw;
   }
 }
 

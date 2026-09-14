@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="he" dir="rtl" class="lenis">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elyotam · אתר תדמית, דפי נחיתה, פיתוח אפליקציות, אוטומציות AI וחנויות E-commerce ו-Dropshipping</title>
+    <meta
+      name="description"
+      content="Elyotam בונה אתרי תדמית, דפי נחיתה, אפליקציות, אוטומציות AI וחנויות E-commerce ו-Dropshipping. יחידה אחת, פיקוד אחד, אחריות מלאה לתוצאה."
+    />
+    <meta name="theme-color" content="#08080a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Elyotam · הבית לבניית העסק המושלם שלך" />
+    <meta
+      property="og:description"
+      content="אתר תדמית, דפי נחיתה, פיתוח אפליקציות, אוטומציות AI וחנויות E-commerce ו-Dropshipping. יחידה אחת, פיקוד אחד."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2308080a'/%3E%3Ctext x='16' y='23' font-family='sans-serif' font-size='19' font-weight='700' fill='%23ead9b8' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E"
+    />
+
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Rubik:wght@400;500;600;700;800;900&family=Karantina:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css?v=3" />
+    <link rel="stylesheet" href="./field.css?v=8" />
+    <link rel="stylesheet" href="./lang.css?v=4" />
+    <!-- language: set direction before first paint, hide until English is applied -->
+    <script>
+      (function () {
+        var l = new URLSearchParams(location.search).get("lang");
+        if (l !== "en" && l !== "he") { try { l = localStorage.getItem("lang"); } catch (e) {} }
+        if (l === "en") {
+          var h = document.documentElement;
+          h.lang = "en"; h.dir = "ltr"; h.classList.add("i18n-pending");
+        }
+      })();
+    </script>
+    <style>.i18n-pending body { visibility: hidden; }</style>
+  </head>
+  <body>
+    <!-- ============ LOADER ============ -->
+    <div id="loader" aria-hidden="true">
+      <div class="loader-inner">
+        <div class="loader-mark">ELYOTAM</div>
+        <div class="loader-track"><div class="loader-fill" id="loader-fill"></div></div>
+        <div class="loader-row">
+          <span>הכוח נערך למבצע</span>
+          <span class="loader-pct" id="loader-pct">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ LANGUAGE ============ -->
+    <div class="lang-switch lang-switch--float" role="group" aria-label="Language / שפה">
+      <button type="button" data-set-lang="he" lang="he">HE</button>
+      <button type="button" data-set-lang="en" lang="en">EN</button>
+    </div>
+
+    <!-- ============ ATMOSPHERE + CURSOR ============ -->
+    <div class="grain" aria-hidden="true"></div>
+    <div class="cursor-ring desktop-only" id="cursor-ring" aria-hidden="true"></div>
+    <div class="cursor-dot desktop-only" id="cursor-dot" aria-hidden="true"></div>
+
+    <!-- ============ HERO CHROME ============ -->
+    <div class="hero-rail desktop-only" id="hero-rail" aria-hidden="true">
+      <div class="rail-fill" id="rail-fill"></div>
+      <div class="rail-node" id="rail-node"></div>
+      <div class="rail-label" id="rail-label">שעת אפס</div>
+    </div>
+    <div class="scroll-hint desktop-only" id="scroll-hint" aria-hidden="true">
+      <span>גלילה לגילוי</span>
+      <div class="scroll-track"><div class="scroll-bead"></div></div>
+    </div>
+
+    <main id="app">
+      <!-- ============ HERO ============ -->
+      <section id="hero" aria-label="מסע דיגיטלי לבניית עסק מושלם ב-Elyotam">
+        <canvas
+          id="hero-canvas"
+          role="img"
+          aria-label="מבצע אחד ברצף: צניחה מגובה, מסוקים, טנקים, צלף, רחפנים ושיגור, דרך אתרים, דפי נחיתה, אוטומציות AI, חנויות דרופשיפינג ואפליקציות"
+        ></canvas>
+        <div class="hero-scrim"></div>
+        <div class="hero-overlays">
+          <!-- I · the cargo bay, ramp open -->
+          <div class="hero-zone" id="zone-eyebrow">
+            <p class="eyebrow" data-split-letters>שלושים&nbsp;אלף&nbsp;רגל מעל&nbsp;המתחרים.</p>
+          </div>
+
+          <!-- II · the name over the helicopters -->
+          <div class="hero-zone" id="zone-name">
+            <h1 class="brand-reveal" id="brand-reveal">
+              <span class="brand-name">ELYOTAM</span>
+              <span class="brand-sub">אתר תדמית · דפי נחיתה · פיתוח אפליקציות · אוטומציות <bdi>AI</bdi> · חנויות <bdi>E-commerce</bdi> ו-<bdi>Dropshipping</bdi></span>
+            </h1>
+          </div>
+
+          <!-- III · freefall, the supply drop -> e-commerce and dropshipping -->
+          <div class="chapter-zone" id="chapter-drop" aria-hidden="true">
+            <div class="chapter-card">
+              <span class="chapter-index">חנויות דרופשיפינג</span>
+              <div class="chapter-word-mask"><span class="chapter-word">דרופ מדויק</span></div>
+              <span class="chapter-rule"></span>
+              <p class="chapter-caption">מהספק ישר ללקוח. בלי מחסן ובלי מלאי.</p>
+            </div>
+          </div>
+
+          <!-- IV · the tank holding the street -> business website -->
+          <div class="chapter-zone" id="chapter-web" aria-hidden="true">
+            <div class="chapter-card">
+              <span class="chapter-index">אתרי תדמית</span>
+              <div class="chapter-word-mask"><span class="chapter-word is-long">פורצים קדימה</span></div>
+              <span class="chapter-rule"></span>
+              <p class="chapter-caption">אתר שמציב את העסק בחזית.</p>
+            </div>
+          </div>
+
+          <!-- V · the sniper's scope -> landing pages -->
+          <div class="chapter-zone" id="chapter-landing" aria-hidden="true">
+            <div class="chapter-card">
+              <span class="chapter-index">דפי נחיתה</span>
+              <div class="chapter-word-mask"><span class="chapter-word">בול פגיעה</span></div>
+              <span class="chapter-rule"></span>
+              <p class="chapter-caption">דף אחד, מטרה אחת:</p>
+            </div>
+          </div>
+
+          <!-- V½ · through the scope and into the blast: the target is the client -->
+          <div class="hero-zone" id="zone-target" aria-hidden="true">
+            <div class="kill-mark">
+              <span class="km-veil"></span>
+              <span class="km-flash"></span>
+              <svg class="km-reticle" viewBox="0 0 400 400" aria-hidden="true">
+                <g class="km-spin">
+                  <circle cx="200" cy="200" r="176" class="km-ring km-ring--dash" />
+                </g>
+                <circle cx="200" cy="200" r="150" class="km-ring" />
+                <g class="km-ticks">
+                  <line x1="200" y1="14" x2="200" y2="88" />
+                  <line x1="200" y1="312" x2="200" y2="386" />
+                  <line x1="14" y1="200" x2="88" y2="200" />
+                  <line x1="312" y1="200" x2="386" y2="200" />
+                </g>
+                <g class="km-marks">
+                  <line x1="306" y1="94" x2="318" y2="82" />
+                  <line x1="94" y1="94" x2="82" y2="82" />
+                  <line x1="306" y1="306" x2="318" y2="318" />
+                  <line x1="94" y1="306" x2="82" y2="318" />
+                </g>
+              </svg>
+              <span class="km-hit" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></span>
+              <span class="km-word">לקוח</span>
+              <span class="km-stamp">המטרה הושגה</span>
+            </div>
+          </div>
+
+          <!-- VI · the squad under the drones -> AI automation -->
+          <div class="chapter-zone" id="chapter-ai" aria-hidden="true">
+            <div class="chapter-card">
+              <span class="chapter-index">אוטומציות <bdi>AI</bdi></span>
+              <div class="chapter-word-mask"><span class="chapter-word is-long">חוליה שלא ישנה</span></div>
+              <span class="chapter-rule"></span>
+              <p class="chapter-caption">סוכני <bdi>AI</bdi> שמטפלים בכל פנייה, מסביב לשעון.</p>
+            </div>
+          </div>
+
+          <!-- VII · the rocket salvo -> app development -->
+          <div class="chapter-zone" id="chapter-apps" aria-hidden="true">
+            <div class="chapter-card">
+              <span class="chapter-index">פיתוח אפליקציות</span>
+              <div class="chapter-word-mask"><span class="chapter-word is-long">עליונות אווירית</span></div>
+              <span class="chapter-rule"></span>
+              <p class="chapter-caption">כשהאפליקציה שלך באוויר, למתחרים אין שמיים.</p>
+            </div>
+          </div>
+
+          <!-- VIII · above the clouds -->
+          <div class="hero-zone" id="zone-closing">
+            <p class="closing-line">המבצע שלך <em>מתחיל בשיחה אחת.</em></p>
+          </div>
+        </div>
+        <div class="mobile-scroll-cue mobile-only" aria-hidden="true">גלילה לגילוי</div>
+      </section>
+
+      <!-- ============ WHO WE ARE ============ -->
+      <section class="section" id="whoweare">
+        <div class="glow desktop-only" style="width:560px;height:560px;background:rgba(234,217,184,0.13);top:-140px;right:-140px"></div>
+        <div class="wrap">
+          <div class="who-grid">
+            <div class="who-head" data-reveal="fade">
+              <span class="section-index">01 · פיקוד ושליטה</span>
+              <span class="hairline" data-hairline></span>
+            </div>
+
+            <div class="who-title">
+              <h2 class="h-mega" data-reveal="words">יחידה אחת. פיקוד אחד.</h2>
+            </div>
+
+            <div class="who-copy">
+              <p class="lead" data-reveal="lines">
+                <span class="reveal-line"><span>ספק לאתר. ספק לאפליקציה.</span></span>
+                <span class="reveal-line"><span>ספק לחנות. ספק לאוטומציות.</span></span>
+                <span class="reveal-line"><span>וכשמשהו נופל בשטח,</span></span>
+                <span class="reveal-line"><span>כולם מצביעים אחד על השני.</span></span>
+              </p>
+              <p class="body-dim mt-8" data-reveal="fade">
+                כאן יש שרשרת פיקוד אחת. מי שבונה את אתר התדמית ואת דפי הנחיתה הוא מי שמחבר אליהם את
+                האוטומציות, את החנות ואת האפליקציה. אחריות מלאה, מהתדריך ועד השיגור.
+              </p>
+            </div>
+
+            <!-- stats -->
+            <div class="who-stats">
+              <div class="hairline mb-14" data-hairline></div>
+              <div class="stat-row">
+                <div data-reveal="fade">
+                  <div class="stat-value">24/7</div>
+                  <div class="stat-label">כוננות מבצעית, בלי הפסקה</div>
+                </div>
+                <div data-reveal="fade">
+                  <div class="stat-value"><span data-count="5">0</span></div>
+                  <div class="stat-label">כוחות תחת פיקוד אחד</div>
+                </div>
+                <div data-reveal="fade">
+                  <div class="stat-value"><span data-count="1">0</span></div>
+                  <div class="stat-label">איש קשר אחד לכל המבצע</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SERVICES ============ -->
+      <section class="section" id="whoweserve">
+        <div class="wrap">
+          <div class="house-head">
+            <div>
+              <div class="mb-6" data-reveal="fade"><span class="section-index">02 · סדר הכוחות</span></div>
+              <h2 class="h-mega" data-reveal="words">חמישה כוחות. מבצע אחד.</h2>
+            </div>
+            <p class="body-dim house-head-note" data-reveal="fade">
+              כל כוח פועל גם לבד. ביחד הם מכסים את כל הגזרה, מהקליק הראשון ועד המכירה.
+            </p>
+          </div>
+
+          <div class="house-grid" id="serve-grid">
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">01</div>
+              <h3 class="house-title">אתר תדמית</h3>
+              <p class="house-desc">
+                הבסיס של העסק ברשת. נבנה מאפס סביב מה שהעסק מוכר, לא תבנית שהחליפו בה תמונות.
+              </p>
+              <span class="house-arrow">שולטים בשטח</span>
+            </article>
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">02</div>
+              <h3 class="house-title">דפי נחיתה</h3>
+              <p class="house-desc">
+                דף אחד, יעד אחד: להפוך כל כניסה מקמפיין לפנייה.
+              </p>
+              <span class="house-arrow">המטרה ננעלה</span>
+            </article>
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">03</div>
+              <h3 class="house-title">פיתוח אפליקציות</h3>
+              <p class="house-desc">
+                אפליקציה לאייפון, לאנדרואיד ול-<bdi>Web</bdi>, שעוברת את הביקורת של אפל וגוגל ולא קורסת תחת עומס.
+              </p>
+              <span class="house-arrow">אישור לשיגור</span>
+            </article>
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">04</div>
+              <h3 class="house-title">אוטומציות <bdi>AI</bdi></h3>
+              <p class="house-desc">
+                סוכן שמקבל פנייה, עונה, מתאם פגישה ומעדכן את ה-<bdi>CRM</bdi>. בלי יד אדם.
+              </p>
+              <span class="house-arrow">כוננות 24/7</span>
+            </article>
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">05</div>
+              <h3 class="house-title">חנויות <bdi>E-commerce</bdi> ו-<bdi>Dropshipping</bdi></h3>
+              <p class="house-desc">
+                חנות שמוכרת מסביב לשעון: סליקה, מלאי ומשלוחים. בדרופשיפינג ההזמנה יוצאת מהספק ישר ללקוח, בלי מחסן.
+              </p>
+              <span class="house-arrow">קו אספקה פתוח</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ HOW WE WORK ============ -->
+      <section class="section" id="approach">
+        <div class="glow desktop-only" style="width:520px;height:520px;background:rgba(234,217,184,0.10);bottom:-140px;right:-140px"></div>
+        <div class="wrap">
+          <div class="house-head">
+            <div>
+              <div class="mb-6" data-reveal="fade"><span class="section-index">03 · פקודת מבצע</span></div>
+              <h2 class="h-mega" data-reveal="words">תדריך. ביצוע. שיגור.</h2>
+            </div>
+            <p class="body-dim house-head-note" data-reveal="fade">
+              שלושה שלבים. בסוף כל שלב יש משהו חי בשטח, לא מצגת.
+            </p>
+          </div>
+
+          <div class="house-grid" id="approach-grid">
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">01</div>
+              <h3 class="house-title">תדריך</h3>
+              <p class="house-desc">
+                איסוף מודיעין: מאיפה מגיע הכסף היום, מי המתחרים ומה היעד. לפני שורת קוד אחת.
+              </p>
+              <span class="house-arrow">מודיעין ותכנון</span>
+            </article>
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">02</div>
+              <h3 class="house-title">ביצוע</h3>
+              <p class="house-desc">
+                הכוח נכנס לפעולה. גרסה חיה עולה כל שבוע, ורואים התקדמות בשטח, לא דוחות.
+              </p>
+              <span class="house-arrow">פיתוח, עיצוב ו-<bdi>AI</bdi></span>
+            </article>
+            <article class="house-card" data-reveal="rise" data-magnetic-soft>
+              <div class="house-num">03</div>
+              <h3 class="house-title">שיגור</h3>
+              <p class="house-desc">
+                עולים לאוויר, מודדים פגיעות ומתקנים כיוון. הליווי לא נגמר ביום ההשקה.
+              </p>
+              <span class="house-arrow">השקה ושליטה</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONSULTATION ============ -->
+      <section class="section" id="consultation">
+        <div class="glow desktop-only" style="width:520px;height:520px;background:rgba(234,217,184,0.10);top:-120px;left:-160px"></div>
+        <div class="wrap">
+          <div class="who-grid">
+            <div class="who-head" data-reveal="fade">
+              <span class="section-index">04 · תדריך פתיחה</span>
+              <span class="hairline" data-hairline></span>
+            </div>
+
+            <div class="who-title">
+              <h2 class="h-mega" data-reveal="words">חצי שעה של תדריך</h2>
+            </div>
+
+            <div class="who-copy">
+              <p class="body-dim" data-reveal="fade">
+                בלי מצגת ובלי מכירות. מספרים מה המצב בשטח ומה תקוע, ומקבלים פקודת מבצע:
+                מה בונים, באיזה סדר, ומתי עולים לאוויר. אם זה לא מתאים, נגיד את זה.
+              </p>
+              <a
+                class="consult-cta"
+                data-reveal="fade"
+                data-magnetic-soft
+                href="./contact.html"
+              >
+                לתיאום תדריך <span aria-hidden>←</span>
+              </a>
+              <p class="consult-meta" data-reveal="fade">30 דקות · וידאו או טלפון · ללא עלות</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FINALE ============ -->
+      <section id="finale" aria-label="לסיום">
+        <div class="finale-aurora" aria-hidden="true"></div>
+        <div class="finale-inner">
+          <span class="finale-eyebrow">המבצע הבא שלך</span>
+          <div class="finale-wordmark-wrap">
+            <div class="finale-wordmark">ELYOTAM</div>
+          </div>
+          <p class="finale-tagline">
+            <span class="reveal-line"><span>הרעיון לא יחכה בבסיס לנצח.</span></span>
+            <span class="reveal-line"><span>בוא נוציא אותו לשטח.</span></span>
+          </p>
+          <a href="./contact.html" class="finale-cta" data-magnetic>
+            <span class="finale-cta-label">קשר לחמ״ל</span>
+            <span class="finale-cta-line"></span>
+          </a>
+        </div>
+      </section>
+
+      <!-- ============ MINIMAL FOOTER ============ -->
+      <footer id="footer">
+        <div class="wrap">
+          <div class="hairline footer-divider" data-hairline></div>
+          <div class="footer-row">
+            <a class="footer-brand" href="#" data-magnetic-soft>ELYOTAM</a>
+            <div class="footer-nav">
+              <nav class="footer-links">
+                <a class="foot-link" href="#whoweare" data-magnetic-soft>פיקוד ושליטה</a>
+                <a class="foot-link" href="#whoweserve" data-magnetic-soft>סדר הכוחות</a>
+                <a class="foot-link" href="#approach" data-magnetic-soft>פקודת מבצע</a>
+                <a class="foot-link" href="#consultation" data-magnetic-soft>תדריך פתיחה</a>
+                <a class="foot-link" href="./contact.html" data-magnetic-soft>החמ״ל</a>
+              </nav>
+              <div class="footer-social">
+                <a class="foot-link is-latin" href="https://www.instagram.com/yotamcohenn/" target="_blank" rel="noopener" data-magnetic-soft>Instagram</a>
+                <a class="foot-link is-latin" href="https://www.facebook.com/Elyotamcohen" target="_blank" rel="noopener" data-magnetic-soft>Facebook</a>
+                <a class="foot-link is-latin" href="https://wa.me/972522057074" target="_blank" rel="noopener" data-magnetic-soft>WhatsApp</a>
+              </div>
+            </div>
+          </div>
+          <div class="footer-fine">
+            <span>© 2026 ELYOTAM. כל הזכויות שמורות.</span>
+            <span>אתר תדמית · דפי נחיתה · פיתוח אפליקציות · אוטומציות <bdi>AI</bdi> · חנויות <bdi>E-commerce</bdi> ו-<bdi>Dropshipping</bdi></span>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js"></script>
+    <script src="./i18n.js?v=3"></script>
+    <script type="module" src="./main.js?v=4"></script>
+  </body>
+</html>

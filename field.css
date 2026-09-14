@@ -1,0 +1,961 @@
+/* ============================================================
+   FIELD THEME
+   Everything below the film, and the contact page, in field colours:
+   dark olive grounds, sand type, one signal orange for anything that
+   asks for action. A faint contour map and stencil-style tags carry the
+   military language without costume.
+
+   Loaded after styles.css and only overrides what sits under the hero,
+   plus the closing line that hands over into it.
+   ============================================================ */
+
+:root {
+  --olive-950: #0e110b;
+  --olive-900: #12160f;
+  --olive-850: #161b12;
+  --olive-800: #1a1f16;
+  --olive-700: #232a1d;
+  --olive-600: #2e3726;
+  --sand: #e8dcc0;
+  --sand-dim: #bfb396;
+  --sand-faint: #8e8570;
+  --signal: #ff7a1a;
+  --signal-soft: rgba(255, 122, 26, 0.14);
+  --field-line: rgba(232, 220, 192, 0.1);
+  --field-line-strong: rgba(232, 220, 192, 0.24);
+  --font-stencil: Karantina, Rubik, Heebo, ui-sans-serif, sans-serif;
+  /* a contour map, drawn once and tiled very faintly behind every section */
+  --topo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640' viewBox='0 0 640 640' fill='none' stroke='%23e8dcc0' stroke-width='1'%3E%3Cpath d='M-20 120c80-40 150 30 240 0s140-80 230-40 130 60 210 20'/%3E%3Cpath d='M-20 160c90-30 160 40 250 10s150-70 230-30 120 50 200 20'/%3E%3Cpath d='M-20 205c100-20 170 45 255 18s160-60 235-25 115 40 190 18'/%3E%3Cpath d='M80 330c40-60 140-70 190-20s30 120-40 140-190-60-150-120z'/%3E%3Cpath d='M115 340c30-40 105-45 140-10s20 85-30 98-140-40-110-88z'/%3E%3Cpath d='M150 350c20-22 70-25 92-4s12 52-20 60-92-26-72-56z'/%3E%3Cpath d='M380 420c60-50 170-30 190 40s-60 130-150 110-100-100-40-150z'/%3E%3Cpath d='M410 440c45-35 125-20 140 30s-45 95-110 80-75-75-30-110z'/%3E%3Cpath d='M-20 560c110-40 190 20 290-5s170-60 250-20 90 30 140 10'/%3E%3Cpath d='M-20 600c120-30 200 25 300 0s180-55 250-15 80 25 130 8'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------- the handover */
+/* the last line of the film: smaller, squared off, with sighting corners */
+.closing-line {
+  font-size: clamp(1.15rem, 2.3vw, 2rem);
+  padding: 1.05rem 1.9rem 1.15rem;
+  border-radius: 3px;
+  background: rgba(14, 17, 11, 0.8);
+  border: 1px solid rgba(232, 220, 192, 0.22);
+  color: var(--sand);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.7);
+  background-image:
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal));
+  background-size: 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px;
+  background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-color: rgba(14, 17, 11, 0.82);
+}
+.closing-line em {
+  color: var(--signal);
+}
+
+/* -------------------------------------------------------------- grounds */
+.section,
+#finale,
+#footer {
+  background-color: var(--olive-800);
+  color: var(--sand);
+}
+#whoweserve {
+  background-color: var(--olive-900);
+}
+#approach {
+  background-color: var(--olive-850);
+}
+#consultation {
+  background-color: var(--olive-700);
+}
+.section::before,
+#finale::before,
+#footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--topo);
+  background-size: 640px 640px;
+  opacity: 0.05;
+}
+.section > .wrap,
+#footer > .wrap {
+  position: relative;
+  z-index: 1;
+}
+/* a dashed boundary between sectors */
+.section + .section,
+#finale,
+#footer {
+  border-top: 1px dashed var(--field-line-strong);
+}
+/* the ambient glows turn from gold to a low signal warmth */
+.section .glow {
+  background: rgba(255, 122, 26, 0.07) !important;
+}
+
+/* ----------------------------------------------------------------- type */
+.section-index,
+.finale-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 0.95em 0.45em;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  color: var(--signal);
+  background: var(--signal-soft);
+  border: 1px solid rgba(255, 122, 26, 0.42);
+}
+.section-index::before,
+.finale-eyebrow::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  background: var(--signal);
+  box-shadow: 0 0 10px rgba(255, 122, 26, 0.8);
+}
+.h-mega {
+  text-wrap: balance;
+  font-family: var(--font-stencil);
+  font-weight: 700;
+  font-size: clamp(3.6rem, 9.5vw, 9.5rem);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+  color: var(--sand);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+.lead {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--sand);
+}
+.body-dim {
+  color: var(--sand-dim);
+}
+.hairline {
+  background: repeating-linear-gradient(90deg, var(--field-line-strong) 0 12px, transparent 12px 20px) !important;
+  height: 1px;
+}
+
+/* ---------------------------------------------------------------- stats */
+.stat-row > div {
+  position: relative;
+  padding-top: 1.4rem;
+}
+.stat-row > div::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 42px;
+  height: 3px;
+  background: var(--signal);
+}
+.stat-value {
+  font-family: var(--font-stencil);
+  font-size: clamp(4.4rem, 9vw, 8.5rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  background: linear-gradient(180deg, var(--sand) 30%, #b7a77f);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.stat-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: var(--sand-dim);
+}
+
+/* ---------------------------------------------------------------- cards */
+.house-card {
+  border: 1px solid var(--field-line);
+  background-color: var(--olive-700);
+  background-image:
+    linear-gradient(var(--sand-faint), var(--sand-faint)), linear-gradient(var(--sand-faint), var(--sand-faint)),
+    linear-gradient(var(--sand-faint), var(--sand-faint)), linear-gradient(var(--sand-faint), var(--sand-faint)),
+    linear-gradient(180deg, rgba(232, 220, 192, 0.03), transparent 60%);
+  background-size: 18px 2px, 2px 18px, 18px 2px, 2px 18px, 100% 100%;
+  background-position: 100% 0, 100% 0, 0 100%, 0 100%, 0 0;
+  background-repeat: no-repeat;
+}
+#whoweserve .house-card {
+  background-color: var(--olive-800);
+}
+.house-card::before {
+  background: var(--signal);
+  height: 3px;
+  transform-origin: right;
+}
+/* styles.css sets the hover with the background shorthand, which resets
+   background-size to auto: without restating the sizes here, the four corner
+   layers each grew to fill the whole card and it turned solid orange. The hover
+   is a quiet lift: orange corners and edge, and only a faint warm tint. */
+.house-card:hover {
+  border-color: rgba(255, 122, 26, 0.35);
+  background-color: var(--olive-600);
+  background-image:
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(180deg, rgba(255, 122, 26, 0.07), transparent 65%);
+  background-size: 18px 2px, 2px 18px, 18px 2px, 2px 18px, 100% 100%;
+  background-position: 100% 0, 100% 0, 0 100%, 0 100%, 0 0;
+  background-repeat: no-repeat;
+}
+/* selected text in the field sections: the same orange, toned down so the
+   words stay readable */
+.section ::selection,
+#finale ::selection,
+#footer ::selection,
+.field-page ::selection {
+  background: rgba(255, 122, 26, 0.32);
+  color: var(--sand);
+}
+.house-num {
+  display: inline-block;
+  padding: 0.3em 0.6em;
+  font-weight: 500;
+  color: var(--olive-900);
+  background: var(--sand);
+  letter-spacing: 0.12em;
+}
+.house-title {
+  color: var(--sand);
+}
+.house-desc {
+  color: var(--sand-dim);
+}
+.house-arrow {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+}
+.house-arrow::before {
+  content: "";
+  width: 0.45em;
+  height: 0.45em;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+.house-card:hover .house-arrow {
+  color: #ffa15c;
+}
+
+/* --------------------------------------------------------- consultation */
+.consult-cta,
+.finale-cta,
+.field-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.05rem 2.3rem 1.1rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  color: var(--olive-950);
+  background: var(--signal);
+  border: 0;
+  text-decoration: none;
+  cursor: pointer;
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  box-shadow: 0 14px 34px rgba(255, 122, 26, 0.22);
+  transition: background 0.35s var(--ease-expo), transform 0.35s var(--ease-expo);
+}
+.consult-cta:hover,
+.finale-cta:hover,
+.field-btn:hover {
+  background: #ff9a4a;
+  color: var(--olive-950);
+  border-color: transparent;
+}
+.consult-meta {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--sand-faint);
+}
+
+/* --------------------------------------------------------------- finale */
+#finale {
+  background: radial-gradient(90% 80% at 50% 45%, #1f2618 0%, var(--olive-900) 55%, var(--olive-950) 100%);
+}
+.finale-aurora {
+  background: radial-gradient(36% 46% at 32% 40%, rgba(255, 122, 26, 0.1), transparent 70%),
+    radial-gradient(40% 44% at 70% 62%, rgba(232, 220, 192, 0.07), transparent 72%);
+}
+#finale::after {
+  background: radial-gradient(70% 70% at 50% 50%, transparent 55%, rgba(8, 10, 6, 0.75) 100%);
+}
+.finale-eyebrow {
+  letter-spacing: 0.18em;
+}
+.finale-wordmark {
+  color: var(--sand);
+  text-shadow: 0 0 60px rgba(255, 122, 26, 0.16), 0 0 110px rgba(232, 220, 192, 0.14);
+}
+.finale-tagline {
+  font-weight: 500;
+  color: var(--sand-dim);
+}
+.finale-cta {
+  flex-direction: row;
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+}
+.finale-cta-label {
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+.finale-cta:hover .finale-cta-label {
+  color: inherit;
+}
+.finale-cta-line {
+  display: none;
+}
+
+/* --------------------------------------------------------------- footer */
+#footer {
+  background-color: var(--olive-950);
+}
+.footer-divider {
+  display: none;
+}
+.footer-brand {
+  color: var(--sand);
+}
+.foot-link {
+  color: var(--sand-dim);
+}
+.foot-link::after {
+  background: var(--signal);
+}
+.foot-link:hover {
+  color: var(--sand);
+}
+.footer-fine {
+  color: var(--sand-faint);
+  border-top: 1px dashed var(--field-line);
+}
+
+/* ============================================================
+   CONTACT PAGE · החמ״ל
+   ============================================================ */
+.field-page {
+  min-height: 100vh;
+  color: var(--sand);
+  background: radial-gradient(80% 60% at 70% 0%, #232b1c 0%, var(--olive-900) 55%, var(--olive-950) 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+.field-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--topo);
+  background-size: 640px 640px;
+  opacity: 0.05;
+}
+.field-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.6rem;
+  border-bottom: 1px dashed var(--field-line-strong);
+}
+.field-brand {
+  direction: ltr;
+  font-family: var(--font-brand);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  color: var(--sand);
+  text-decoration: none;
+}
+.field-bar-end {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.field-back {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sand-dim);
+  text-decoration: none;
+}
+.field-back:hover {
+  color: var(--signal);
+}
+.field-main {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(3rem, 8vh, 6rem) clamp(4rem, 10vh, 7rem);
+}
+.field-head {
+  max-width: 50rem;
+  margin-bottom: clamp(2.5rem, 6vh, 4rem);
+}
+.field-head .h-mega {
+  margin-top: 1.2rem;
+}
+.field-head .body-dim {
+  margin-top: 1.2rem;
+  font-size: 1.1rem;
+  max-width: 40rem;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-items: start;
+}
+.field-panel {
+  position: relative;
+  padding: clamp(1.6rem, 3vw, 2.6rem);
+  background-color: rgba(35, 42, 29, 0.85);
+  border: 1px solid var(--field-line);
+  background-image:
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal));
+  background-size: 22px 2px, 2px 22px, 22px 2px, 2px 22px;
+  background-position: 100% 0, 100% 0, 0 100%, 0 100%;
+  background-repeat: no-repeat;
+}
+.panel-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--sand);
+  margin-bottom: 1.4rem;
+}
+.field-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem 1.2rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.field.is-wide {
+  grid-column: 1 / -1;
+}
+.field label,
+.field legend {
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--sand-dim);
+}
+.field label .req {
+  color: var(--signal);
+}
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font: 500 1rem var(--font-text);
+  color: var(--sand);
+  background: rgba(14, 17, 11, 0.65);
+  border: 1px solid var(--field-line-strong);
+  border-radius: 0;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(191, 179, 150, 0.45);
+}
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--signal);
+  background: rgba(14, 17, 11, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.18);
+}
+.field input[aria-invalid="true"],
+.field textarea[aria-invalid="true"] {
+  border-color: #ff5a4a;
+  box-shadow: 0 0 0 3px rgba(255, 90, 74, 0.14);
+}
+.field-chips[aria-invalid="true"] .chip span {
+  border-color: rgba(255, 90, 74, 0.75);
+}
+.field-chips[aria-invalid="true"] legend {
+  color: #ffb3a8;
+}
+.field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+.field input[type="tel"],
+.field input[type="email"] {
+  direction: ltr;
+  text-align: right;
+}
+.field-chips {
+  display: flex;
+  /* it also carries .field, which stacks its children; the chips run in rows */
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.field-chips legend {
+  margin-bottom: 0.55rem;
+}
+.chip {
+  position: relative;
+}
+.chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.chip span {
+  display: inline-block;
+  padding: 0.55rem 0.95rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sand-dim);
+  background: rgba(14, 17, 11, 0.5);
+  border: 1px solid var(--field-line-strong);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+.chip input:checked + span {
+  color: var(--olive-950);
+  background: var(--sand);
+  border-color: var(--sand);
+}
+.chip input:focus-visible + span {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+.field-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem 1.2rem;
+  margin-top: 0.4rem;
+}
+.field-btn[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+.field-btn.is-ghost {
+  color: var(--sand);
+  background: transparent;
+  /* a clipped corner would cut the outline, so the ghost keeps square corners */
+  clip-path: none;
+  border: 1px solid var(--field-line-strong);
+  box-shadow: none;
+}
+.field-btn.is-ghost:hover {
+  color: var(--olive-950);
+  background: #25d366;
+  box-shadow: none;
+}
+.field-note {
+  font-size: 0.8rem;
+  color: var(--sand-faint);
+}
+.field-status {
+  grid-column: 1 / -1;
+  display: none;
+  padding: 1rem 1.2rem;
+  font-weight: 600;
+  border: 1px solid var(--field-line-strong);
+  background: rgba(14, 17, 11, 0.6);
+}
+.field-status.is-shown {
+  display: block;
+}
+.field-status.is-ok {
+  border-color: rgba(120, 200, 110, 0.6);
+  color: #c8f0bd;
+}
+.field-status.is-error {
+  border-color: rgba(255, 90, 74, 0.6);
+  color: #ffc4bc;
+}
+/* hidden from people, visible to bots. Clipped in place rather than pushed
+   off to the left: in an RTL page an element at left:-9999px becomes scrollable
+   width and the whole page scrolls sideways. */
+.hp {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.side-steps {
+  list-style: none;
+  margin: 0 0 1.8rem;
+  padding: 0;
+  display: grid;
+  gap: 1.1rem;
+}
+.side-steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  align-items: start;
+}
+.side-steps .house-num {
+  margin-top: 0.1rem;
+}
+.side-steps strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--sand);
+}
+.side-steps span:not(.house-num) {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.92rem;
+  color: var(--sand-dim);
+  line-height: 1.55;
+}
+.side-meta {
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--field-line-strong);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--sand-faint);
+}
+.field-page .field-btn.is-wa {
+  width: 100%;
+  color: var(--olive-950);
+  background: #25d366;
+  box-shadow: 0 12px 30px rgba(37, 211, 102, 0.18);
+}
+.field-page .field-btn.is-wa:hover {
+  background: #4be283;
+}
+.field-foot {
+  position: relative;
+  z-index: 1;
+  padding-block: 1.6rem 2.2rem;
+  border-top: 1px dashed var(--field-line);
+  font-size: 0.8rem;
+  color: var(--sand-faint);
+}
+
+@media (max-width: 900px) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .field-form {
+    grid-template-columns: 1fr;
+  }
+  .field-actions .field-btn {
+    width: 100%;
+  }
+  .stat-row > div::before {
+    right: 0;
+  }
+}
+
+/* ============================================================
+   HERO IN FIELD COLOURS
+   From the loader and the first line in the cargo bay to the end of the
+   film. Colour, frame and corner treatment only: sizes, spacing and every
+   animation stay as styles.css defines them. The closing line and all that
+   follows it are styled above and are not touched here.
+   ============================================================ */
+
+/* ---------------------------------------------------------------- loader */
+#loader {
+  background: radial-gradient(120% 120% at 50% 40%, #1d2417, var(--olive-950) 70%);
+}
+#loader .loader-mark {
+  color: var(--sand);
+}
+#loader .loader-track {
+  background: var(--field-line-strong);
+}
+#loader .loader-fill {
+  background: linear-gradient(90deg, var(--signal), #ffb070);
+  box-shadow: 0 0 18px rgba(255, 122, 26, 0.6);
+}
+#loader .loader-row {
+  color: var(--sand-faint);
+}
+#loader .loader-pct {
+  color: var(--sand);
+}
+
+/* ---------------------------------------------------------------- scrims */
+/* the darkening at the frame edges shifts from blue-black to olive-black */
+.hero-scrim {
+  background: radial-gradient(120% 80% at 50% 28%, transparent 38%, rgba(14, 17, 11, 0.36) 100%),
+    linear-gradient(to bottom, rgba(14, 17, 11, 0.3) 0%, transparent 20%, transparent 60%, rgba(14, 17, 11, 0.6) 100%);
+}
+@media (max-width: 1023px) {
+  .hero-scrim {
+    background: radial-gradient(120% 80% at 50% 30%, transparent 30%, rgba(14, 17, 11, 0.44) 100%),
+      linear-gradient(to bottom, rgba(14, 17, 11, 0.38) 0%, transparent 30%, transparent 50%, rgba(14, 17, 11, 0.68) 100%);
+  }
+}
+#zone-eyebrow::before {
+  background: radial-gradient(46% 26% at 50% 50%, rgba(14, 17, 11, 0.5), transparent 70%);
+}
+.chapter-zone::before {
+  background: linear-gradient(to top, rgba(14, 17, 11, 0.68) 0%, rgba(14, 17, 11, 0.18) 26%, transparent 50%),
+    radial-gradient(70% 60% at 12% 92%, rgba(14, 17, 11, 0.55), transparent 60%);
+}
+
+/* the same squared box with orange sighting corners as the closing line */
+#zone-eyebrow .eyebrow,
+.chapter-card {
+  border-radius: 3px;
+  border: 1px solid rgba(232, 220, 192, 0.22);
+  background-color: rgba(14, 17, 11, 0.8);
+  background-image:
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal));
+  background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+#zone-eyebrow .eyebrow {
+  background-size: 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px;
+  color: var(--sand);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.75);
+}
+.chapter-card {
+  background-size: 20px 2px, 2px 20px, 20px 2px, 2px 20px, 20px 2px, 2px 20px, 20px 2px, 2px 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(232, 220, 192, 0.08);
+}
+
+/* ---------------------------------------------------------- card content */
+.chapter-index {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  color: var(--signal);
+}
+.chapter-index::before {
+  content: "";
+  width: 0.45em;
+  height: 0.45em;
+  background: var(--signal);
+  box-shadow: 0 0 10px rgba(255, 122, 26, 0.8);
+}
+.chapter-word {
+  color: var(--sand);
+}
+.chapter-rule {
+  background: linear-gradient(270deg, var(--signal), rgba(255, 122, 26, 0.45), transparent);
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.45);
+}
+.chapter-caption {
+  color: var(--sand-dim);
+}
+
+/* ------------------------------------------------------------ brand line */
+.brand-reveal {
+  color: var(--sand);
+  text-shadow: 0 0 60px rgba(255, 122, 26, 0.22), 0 0 120px rgba(232, 220, 192, 0.12);
+}
+.brand-reveal .brand-sub {
+  color: var(--sand);
+}
+
+/* ---------------------------------------------------- "לקוח" in the blast */
+.target-lock {
+  --lock: var(--signal);
+}
+.target-lock::before {
+  background: rgba(14, 17, 11, 0.6);
+  box-shadow: inset 0 0 40px rgba(255, 122, 26, 0.2), 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+.target-lock::after {
+  border-color: rgba(255, 122, 26, 0.6);
+}
+.tl-word {
+  color: var(--sand);
+  text-shadow: 0 0 28px rgba(255, 122, 26, 0.75), 0 0 3px rgba(232, 220, 192, 0.9);
+}
+.tl-corner {
+  filter: drop-shadow(0 0 10px rgba(255, 122, 26, 0.9));
+}
+.tl-scan {
+  background: linear-gradient(180deg, transparent, rgba(255, 150, 70, 0.95), transparent);
+  box-shadow: 0 0 16px rgba(255, 122, 26, 0.9);
+}
+
+/* --------------------------------------------------- rail and scroll cues */
+.hero-rail {
+  background: var(--field-line-strong);
+}
+.hero-rail .rail-fill {
+  background: linear-gradient(to bottom, #ffb070, var(--signal));
+  box-shadow: 0 0 14px rgba(255, 122, 26, 0.6);
+}
+.hero-rail .rail-node {
+  background: var(--signal);
+  box-shadow: 0 0 16px rgba(255, 122, 26, 0.9);
+}
+.hero-rail .rail-label {
+  color: var(--sand-dim);
+}
+.scroll-hint,
+.mobile-scroll-cue {
+  color: var(--sand-dim);
+}
+.scroll-hint .scroll-track {
+  background: var(--field-line-strong);
+}
+.scroll-hint .scroll-bead {
+  background: linear-gradient(to bottom, transparent, var(--signal));
+}
+
+/* ============================================================
+   KILL MARK · "לקוח" confirmed in the blast
+   A reticle that snaps on, a hit marker X, a flash and a stamp. Sizes are
+   one square that scales with the viewport; everything inside is relative.
+   ============================================================ */
+#zone-target {
+  display: grid;
+  place-items: center;
+}
+.kill-mark {
+  --km: clamp(250px, 32vw, 460px);
+  position: relative;
+  width: var(--km);
+  height: var(--km);
+  display: grid;
+  place-items: center;
+}
+.km-veil {
+  /* a dark pool behind the mark, so it reads over bright dust */
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(14, 17, 11, 0.72), rgba(14, 17, 11, 0.35) 60%, transparent);
+}
+.km-flash {
+  position: absolute;
+  inset: -40%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 190, 120, 0.95), rgba(255, 122, 26, 0.55) 40%, transparent 72%);
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+.km-reticle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--signal);
+  stroke-linecap: square;
+  filter: drop-shadow(0 0 8px rgba(255, 122, 26, 0.85));
+}
+.km-ring {
+  stroke-width: 3;
+}
+.km-ring--dash {
+  stroke-width: 2;
+  stroke-dasharray: 6 14;
+  opacity: 0.7;
+}
+.km-spin {
+  transform-origin: 200px 200px;
+  animation: km-spin 9s linear infinite;
+}
+@keyframes km-spin {
+  to { transform: rotate(360deg); }
+}
+.km-ticks line {
+  stroke-width: 4;
+}
+.km-marks line {
+  stroke-width: 3;
+  opacity: 0.8;
+}
+.km-hit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.km-hit i {
+  /* four arms of the hit marker along the diagonals, with a gap in the middle
+     for the word. The <i> holds the angle; the <b> inside is what animates, so
+     the scroll tween never overwrites the rotation. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--km) * 0.022);
+  height: calc(var(--km) * 0.2);
+  margin-left: calc(var(--km) * -0.011);
+  transform-origin: 50% 0;
+}
+.km-hit b {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #fff4e3;
+  box-shadow: 0 0 12px rgba(255, 122, 26, 1), 0 0 26px rgba(255, 122, 26, 0.7);
+  transform-origin: 50% 0;
+}
+.km-hit i:nth-child(1) { transform: rotate(45deg) translateY(calc(var(--km) * 0.36)); }
+.km-hit i:nth-child(2) { transform: rotate(135deg) translateY(calc(var(--km) * 0.36)); }
+.km-hit i:nth-child(3) { transform: rotate(225deg) translateY(calc(var(--km) * 0.36)); }
+.km-hit i:nth-child(4) { transform: rotate(315deg) translateY(calc(var(--km) * 0.36)); }
+.km-word {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: calc(var(--km) * 0.2);
+  line-height: 1;
+  color: var(--sand);
+  text-shadow: 0 0 22px rgba(255, 122, 26, 0.8), 0 3px 0 rgba(0, 0, 0, 0.35);
+}
+.km-stamp {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: calc(var(--km) * 0.04);
+  padding: 0.18em 0.6em 0.1em;
+  font-family: var(--font-stencil);
+  font-weight: 700;
+  font-size: calc(var(--km) * 0.13);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--signal);
+  border: calc(var(--km) * 0.012) solid var(--signal);
+  background: rgba(14, 17, 11, 0.7);
+  box-shadow: 0 0 24px rgba(255, 122, 26, 0.35), inset 0 0 18px rgba(255, 122, 26, 0.18);
+  /* centring and tilt are set by the scroll tween (xPercent -50, rotate -7) */
+}
+@media (prefers-reduced-motion: reduce) {
+  .km-spin {
+    animation: none;
+  }
+}

@@ -1,0 +1,132 @@
+/* ============================================================
+   LANGUAGE SWITCH + LTR
+   The HE/EN switch, and the handful of rules that were written for a
+   right-to-left page and need mirroring when the page is English.
+   Everything that uses flex, grid or logical properties mirrors by itself.
+   ============================================================ */
+
+/* ------------------------------------------------------------ the switch */
+.lang-switch {
+  display: inline-flex;
+  align-items: stretch;
+  direction: ltr;
+  border: 1px solid rgba(232, 220, 192, 0.3);
+  background: rgba(14, 17, 11, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+.lang-switch button {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0.5rem 0.85rem 0.45rem;
+  font-family: var(--font-mono, monospace);
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  color: #bfb396;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.25s, background 0.25s;
+}
+.lang-switch button + button {
+  border-left: 1px solid rgba(232, 220, 192, 0.22);
+}
+.lang-switch button:hover {
+  color: #e8dcc0;
+}
+.lang-switch button[aria-pressed="true"] {
+  color: #0e110b;
+  background: #ff7a1a;
+  cursor: default;
+}
+.lang-switch button:focus-visible {
+  outline: 2px solid #ff7a1a;
+  outline-offset: 2px;
+}
+/* on the home page it floats in the corner, on the side opposite the text start */
+.lang-switch--float {
+  position: fixed;
+  top: clamp(0.9rem, 2vw, 1.6rem);
+  inset-inline-end: clamp(0.9rem, 2vw, 1.6rem);
+  z-index: 100;
+}
+
+/* ------------------------------------------------------------- mirroring */
+html[dir="ltr"] .chapter-card {
+  text-align: left;
+}
+html[dir="ltr"] .chapter-rule {
+  margin-left: 0;
+  margin-right: auto;
+  background: linear-gradient(90deg, var(--signal, #ff7a1a), rgba(255, 122, 26, 0.45), transparent);
+}
+html[dir="ltr"] .stat-row > div::before {
+  right: auto;
+  left: 0;
+}
+html[dir="ltr"] .house-card::before {
+  transform-origin: left;
+}
+html[dir="ltr"] .field input[type="tel"],
+html[dir="ltr"] .field input[type="email"] {
+  text-align: left;
+}
+/* the card corners sit top-inline-end and bottom-inline-start in Hebrew */
+html[dir="ltr"] .house-card,
+html[dir="ltr"] .house-card:hover {
+  background-position: 0 0, 0 0, 100% 100%, 100% 100%, 0 0;
+}
+html[dir="ltr"] .field-panel {
+  background-position: 0 0, 0 0, 100% 100%, 100% 100%;
+}
+/* the rail sits on the right in both languages; its label reads away from it */
+html[dir="ltr"] .hero-rail .rail-label {
+  left: auto;
+  right: 18px;
+}
+
+/* English copy runs a little longer than the Hebrew in a few spots */
+html[lang="en"] .km-word {
+  font-size: calc(var(--km) * 0.17);
+}
+html[lang="en"] .km-stamp {
+  font-size: calc(var(--km) * 0.115);
+}
+
+/* English words run longer than the Hebrew ones, so every film headline takes the
+   size the long Hebrew headlines use; at the full Hebrew size "Precision Drop"
+   ran out of its card on a phone */
+html[lang="en"] .chapter-word {
+  font-size: clamp(2.3rem, 4.4vw, 3.9rem);
+  line-height: 1.06;
+}
+@media (max-width: 1023px) {
+  html[lang="en"] .chapter-word {
+    font-size: clamp(1.8rem, 8.4vw, 2.5rem);
+  }
+}
+
+/* each line of the lead is a one-line reveal mask: in English the lines must
+   stay on one row, so the lead runs a size smaller than the Hebrew */
+html[lang="en"] .lead {
+  font-size: clamp(1.15rem, 1.75vw, 1.7rem);
+}
+html[lang="en"] .finale-tagline {
+  font-size: clamp(1.15rem, 2.2vw, 2rem);
+}
+@media (max-width: 480px) {
+  html[lang="en"] .lead {
+    font-size: 1.05rem;
+  }
+  html[lang="en"] .finale-tagline {
+    font-size: 1.05rem;
+  }
+}
+@media (max-width: 359px) {
+  html[lang="en"] .lead,
+  html[lang="en"] .finale-tagline {
+    font-size: 0.92rem;
+  }
+}

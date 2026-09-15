@@ -959,3 +959,379 @@
     animation: none;
   }
 }
+
+/* a service name never breaks inside itself (E-commerce used to split at its
+   hyphen on a phone); a whole service moves to the next row instead */
+.nobr {
+  white-space: nowrap;
+}
+
+/* on a phone the film captions run a touch smaller and balance their lines, so a
+   last word never sits alone on its own row */
+@media (max-width: 1023px) {
+  .chapter-caption {
+    font-size: 0.94rem;
+    text-wrap: balance;
+  }
+}
+
+/* captions balance their lines at every width, and a caption phrase held
+   together with .nobr may still wrap on the narrowest phones rather than overflow */
+.chapter-caption {
+  text-wrap: balance;
+}
+@media (max-width: 359px) {
+  .chapter-caption .nobr {
+    white-space: normal;
+  }
+}
+
+/* ============================================================
+   VENDOR RUN · section 01 lead as a column, with a jet flying the line
+   ============================================================ */
+.vendor-run {
+  --vr-col: clamp(2.4rem, 3.6vw, 3.4rem);
+  --vr-plane: clamp(2.1rem, 3.1vw, 2.9rem);
+  position: relative;
+}
+.vr-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(0.7rem, 1.4vw, 1.15rem);
+}
+.vr-row {
+  display: grid;
+  grid-template-columns: var(--vr-col) 1fr;
+  align-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 2.4vw, 2.3rem);
+  line-height: 1.2;
+  color: var(--sand);
+  opacity: 0.24;
+  transition: opacity 0.5s var(--ease-expo), color 0.5s var(--ease-expo);
+}
+.vr-row.is-past {
+  opacity: 0.72;
+}
+.vr-row.is-active {
+  opacity: 1;
+}
+.vr-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  transition: transform 0.55s var(--ease-expo), text-shadow 0.5s;
+}
+.vr-row.is-active .vr-text {
+  transform: translateX(-0.35em);
+  text-shadow: 0 0 26px rgba(255, 122, 26, 0.28);
+}
+.vr-row--last.is-active .vr-text {
+  color: #fff4e3;
+}
+
+/* the orange arrow at the start of each line, pointing into the text */
+.vr-arrow {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 0.62em;
+  height: 0.62em;
+}
+.vr-arrow svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 3.2;
+  stroke-linecap: square;
+  opacity: 0.35;
+  transition: opacity 0.4s;
+}
+.vr-row.is-past .vr-arrow svg {
+  opacity: 0.7;
+}
+.vr-row.is-active .vr-arrow svg {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(255, 122, 26, 0.9));
+  animation: vr-nudge 0.9s ease-in-out infinite;
+}
+@keyframes vr-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-0.18em); }
+}
+
+/* the waypoint on the flight line for each row */
+.vr-node {
+  justify-self: center;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--sand-faint);
+  background: var(--olive-800);
+  transform: rotate(45deg);
+  transition: background 0.35s, border-color 0.35s, box-shadow 0.35s;
+}
+.vr-row.is-past .vr-node,
+.vr-row.is-active .vr-node {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+.vr-row.is-active .vr-node {
+  box-shadow: 0 0 0 5px rgba(255, 122, 26, 0.18), 0 0 14px rgba(255, 122, 26, 0.8);
+}
+
+/* the flight line: dashed, with the travelled part filled in orange */
+.vr-track {
+  position: absolute;
+  inset-inline-start: calc(var(--vr-col) / 2 - 1px);
+  width: 2px;
+  background: repeating-linear-gradient(180deg, var(--field-line-strong) 0 6px, transparent 6px 12px);
+  pointer-events: none;
+}
+.vr-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 122, 26, 0.15), var(--signal));
+  box-shadow: 0 0 10px rgba(255, 122, 26, 0.45);
+  transform-origin: 50% 0;
+  transform: scaleY(0);
+}
+
+/* the jet */
+.vr-plane {
+  position: absolute;
+  top: 0;
+  inset-inline-start: calc(var(--vr-col) / 2 - var(--vr-plane) / 2);
+  width: var(--vr-plane);
+  height: var(--vr-plane);
+  margin-top: calc(var(--vr-plane) / -2);
+  z-index: 2;
+  pointer-events: none;
+  will-change: transform;
+}
+.vr-plane::before {
+  /* a dark halo, so the jet reads cleanly over the waypoints */
+  content: "";
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(26, 31, 22, 0.95), rgba(26, 31, 22, 0.6) 60%, transparent);
+}
+.vr-plane svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(180deg);
+  transition: transform 0.45s var(--ease-expo);
+  filter: drop-shadow(0 0 8px rgba(255, 122, 26, 0.75));
+}
+.vr-plane.is-up svg {
+  transform: rotate(0deg);
+}
+.vr-jet {
+  fill: var(--signal);
+}
+.vr-flame {
+  fill: #ffd29a;
+  transform-origin: 12px 22px;
+  animation: vr-flame 0.12s ease-in-out infinite alternate;
+}
+@keyframes vr-flame {
+  from { transform: scaleY(0.7); opacity: 0.7; }
+  to { transform: scaleY(1.15); opacity: 1; }
+}
+.vendor-run.is-static .vr-plane,
+.vendor-run.is-static .vr-track {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vr-row.is-active .vr-arrow svg,
+  .vr-flame {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   OPENING LINE · stencil impact typing
+   A war-film title: the picture fades up from black inside letterbox bars,
+   the operation name flickers on, then the line is typed in huge stencil
+   letters that each land like a blow with a spray of sparks. The full stop
+   is the hit: the camera shakes, dust rolls out, an orange flash, a rule.
+   ============================================================ */
+.intro-veil {
+  position: absolute;
+  inset: 0;
+  background: #030302;
+  z-index: 3;
+  pointer-events: none;
+}
+.intro-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background: radial-gradient(80% 60% at 50% 52%, rgba(255, 130, 40, 0.55), transparent 70%);
+}
+.intro-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+/* letterbox bars close in on load, like the first frame of a feature */
+.letterbox i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: clamp(20px, 7vh, 72px);
+  background: #030302;
+  transform: scaleY(0);
+  z-index: 2;
+}
+.letterbox i:first-child {
+  top: 0;
+  transform-origin: top;
+}
+.letterbox i:last-child {
+  bottom: 0;
+  transform-origin: bottom;
+}
+#zone-eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 var(--gutter);
+  z-index: 4;
+}
+/* a wide, soft pool of shade behind the centred credit, so it reads on any frame */
+#zone-eyebrow::before {
+  background: radial-gradient(64% 42% at 50% 50%, rgba(8, 9, 6, 0.62), rgba(8, 9, 6, 0.2) 55%, transparent 78%);
+}
+.credit {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  max-width: 100%;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.credit-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: clamp(0.2rem, 0.8vw, 0.6rem);
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: clamp(0.8rem, 1.1vw, 1rem);
+  letter-spacing: 0.08em;
+  color: var(--signal);
+  text-shadow: 0 0 12px rgba(255, 122, 26, 0.5), 0 2px 10px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  opacity: 0;
+}
+.credit-kicker bdi {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  letter-spacing: 0.3em;
+}
+html[lang="en"] .credit-kicker {
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+/* the line itself: huge stencil letters straight on the picture */
+#zone-eyebrow .eyebrow {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-family: var(--font-stencil);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 6.5vw, 6.5rem);
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #efe4cc;
+  text-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 4px 0 rgba(0, 0, 0, 0.5);
+}
+html[lang="en"] #zone-eyebrow .eyebrow {
+  font-size: clamp(1.9rem, 5.1vw, 5.1rem);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+#zone-eyebrow .eyebrow .letter-word {
+  white-space: nowrap;
+}
+.credit-rule {
+  display: block;
+  width: clamp(180px, 38vw, 560px);
+  height: 3px;
+  margin-top: clamp(0.5rem, 1vw, 0.8rem);
+  background: var(--signal);
+  box-shadow: 0 0 16px rgba(255, 122, 26, 0.8);
+  transform: scaleX(0);
+  transform-origin: center;
+}
+/* the block cursor that runs ahead of the typing; it takes no width, so the line never shifts */
+#zone-eyebrow .type-cursor {
+  display: inline-block;
+  width: 0.42em;
+  height: 0.78em;
+  margin-inline-start: 0.04em;
+  margin-inline-end: -0.46em;
+  vertical-align: -0.02em;
+  background: var(--signal);
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.85);
+}
+#zone-eyebrow .type-cursor.is-idle {
+  animation: cursor-blink 0.9s steps(1) infinite;
+}
+@keyframes cursor-blink {
+  50% { opacity: 0; }
+}
+/* the page holds still until the opening line is fully written */
+html.is-intro,
+html.is-intro body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+html.is-intro body {
+  touch-action: none;
+}
+.scroll-hint,
+.mobile-scroll-cue {
+  transition: opacity 0.8s ease;
+}
+html.is-intro .scroll-hint,
+html.is-intro .mobile-scroll-cue {
+  opacity: 0 !important;
+}
+/* phones: the small title size, and the English line never wider than the screen */
+@media (max-width: 600px) {
+  #zone-eyebrow .eyebrow {
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+  }
+  html[lang="en"] #zone-eyebrow .eyebrow {
+    font-size: min(clamp(1.72rem, 7.8vw, 2.5rem), 10.3vw);
+  }
+}
+/* a swipe up past the top must never pull-to-refresh the film and start the page over */
+html,
+body {
+  overscroll-behavior-y: none;
+}

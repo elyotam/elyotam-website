@@ -60,16 +60,44 @@ const railLabel = (p) => (RAIL_STOPS.find((s) => p < s.until) ?? RAIL_STOPS.at(-
 /* ============================================================
    SMOOTH SCROLL
    ============================================================ */
+/* While the page loads and while the opening credit is written, the scroll is held.
+   Lenis itself is never stopped for that: stopping and restarting it could leave its
+   target out of step with the page, so a later wheel moved nothing. Instead Lenis
+   ignores input while this flag is up, and the CSS on html.is-loading / html.is-intro
+   holds the native scroll. */
+let scrollHeld = true;
+
 function initLenis() {
   const lenis = new Lenis({
     duration: 1.15,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
     touchMultiplier: 1.6,
+    virtualScroll: () => !scrollHeld,
   });
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
+
+  /* a safety net: if a wheel ever leaves Lenis chasing a target the page is not
+     moving toward, resync it to where the page really is so the next wheel works */
+  let lastWheel = 0;
+  window.addEventListener(
+    "wheel",
+    () => {
+      if (scrollHeld) return;
+      const before = window.scrollY;
+      const at = (lastWheel = performance.now());
+      setTimeout(() => {
+        if (at !== lastWheel || scrollHeld) return;
+        const target = lenis.targetScroll;
+        const outOfRange = !Number.isFinite(target) || target < 0 || target > lenis.limit + 1;
+        const going = Math.abs(target - window.scrollY) > 2;
+        if (outOfRange || (going && Math.abs(window.scrollY - before) < 1)) lenis.resize();
+      }, 350);
+    },
+    { passive: true }
+  );
   return lenis;
 }
 
@@ -97,13 +125,19 @@ function initAnchors(lenis) {
     Now words are unbreakable and the spaces between them are the break points. */
 function splitLetters(el) {
   if (!el) return [];
+  // a <br> in the copy survives the split as a real line break
+  el.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
   const text = el.textContent ?? "";
   el.textContent = "";
   const out = [];
   /* split on plain spaces only, a non-breaking space stays inside its chunk and
      therefore inside one .letter-word, so `a&nbsp;b` never splits across lines */
-  for (const chunk of text.split(/( )/)) {
+  for (const chunk of text.split(/( |\n)/)) {
     if (!chunk) continue;
+    if (chunk === "\n") {
+      el.appendChild(document.createElement("br"));
+      continue;
+    }
     if (chunk === " ") {
       el.appendChild(document.createTextNode(" "));
       continue;
@@ -183,7 +217,7 @@ function buildHeroTimeline(scene, eyebrowLetters) {
 
   // the eyebrow greets the visitor on load, so it is already up at scroll 0
   gsap.set(zoneEyebrow, { opacity: 1 });
-  gsap.set(eyebrowLetters, { yPercent: 120, opacity: 0 });
+  gsap.set(eyebrowLetters, { opacity: 0 });
   gsap.set(brandSub, { opacity: 0, y: 16 });
   gsap.set(zoneClosing, { opacity: 0, y: 30 });
   if (rail) gsap.to(rail, { opacity: 1, duration: 0.8, delay: 0.2 });
@@ -305,6 +339,162 @@ function targetLockTween(tl, sel, at, out) {
     .to(zone, { opacity: 0, duration: 0.01, ease: "power2.in" }, out);
 }
 
+/* ============================================================
+   OPENING TITLE CREDIT · field typewriter with an impact
+   The picture fades up from black as the letterbox closes in, the operation
+   name flickers on, then an orange block cursor runs ahead while the stencil
+   letters strike on at an uneven, human typing rhythm, each key nudging the
+   line. The full stop is the hit: the camera shakes, dust rolls out, an
+   orange flash, the bars kick, the rule snaps open. Resolves once the hit has
+   settled, which is when the page lets go of the scroll.
+   ============================================================ */
+function typeEyebrow(letters) {
+  const kicker = q("#zone-eyebrow .credit-kicker");
+  const rule = q("#zone-eyebrow .credit-rule");
+  const credit = q("#zone-eyebrow .credit");
+  const line = q("#zone-eyebrow .eyebrow");
+  const fx = q("#intro-fx");
+  if (!line || !letters.length) return Promise.resolve();
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const camera = [q("#hero-canvas"), q(".hero-overlays")].filter(Boolean);
+
+  /* a small particle system on its own canvas; the loop only runs while there is something to draw */
+  const ctx = fx?.getContext("2d");
+  let parts = [];
+  let running = false;
+  const fit = () => {
+    if (!fx) return;
+    fx.width = fx.clientWidth * devicePixelRatio;
+    fx.height = fx.clientHeight * devicePixelRatio;
+  };
+  fit();
+  window.addEventListener("resize", fit);
+  const tick = () => {
+    const d = devicePixelRatio;
+    ctx.clearRect(0, 0, fx.width, fx.height);
+    parts = parts.filter((p) => p.life > 0);
+    for (const p of parts) {
+      p.vx *= p.drag;
+      p.vy = p.vy * p.drag + p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= p.decay;
+      const a = Math.max(0, p.life) * p.alpha;
+      ctx.globalCompositeOperation = p.soft ? "source-over" : "lighter";
+      if (p.soft) {
+        // dust: a soft puff that swells as it thins, never a hard disc
+        const rad = p.size * d * (2 - p.life);
+        const g = ctx.createRadialGradient(p.x * d, p.y * d, 0, p.x * d, p.y * d, rad);
+        g.addColorStop(0, `rgba(${p.color},${a})`);
+        g.addColorStop(1, `rgba(${p.color},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x * d, p.y * d, rad, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = `rgba(${p.color},${a})`;
+        ctx.beginPath();
+        ctx.arc(p.x * d, p.y * d, p.size * d, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    if (parts.length) requestAnimationFrame(tick);
+    else {
+      running = false;
+      ctx.clearRect(0, 0, fx.width, fx.height);
+    }
+  };
+  const emit = (p) => {
+    if (!ctx) return;
+    parts.push({ vx: 0, vy: 0, life: 1, decay: 0.02, size: 1, drag: 0.97, g: 0, color: "255,255,255", alpha: 1, ...p });
+    if (!running) {
+      running = true;
+      requestAnimationFrame(tick);
+    }
+  };
+  const centre = (el) => {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height };
+  };
+
+  const shakeHit = (power, dur) => {
+    const t = gsap.timeline();
+    t.set(camera, { scale: 1.03 });
+    for (let i = 0; i < 8; i++) {
+      t.to(camera, { x: (Math.random() - 0.5) * power, y: (Math.random() - 0.5) * power, duration: dur / 8, ease: "none" });
+    }
+    t.to(camera, { x: 0, y: 0, scale: 1, duration: dur / 2, ease: "power2.out", clearProps: "transform" });
+  };
+
+  const run = async () => {
+    gsap.to("#intro-veil", { opacity: 0, duration: 1.8, ease: "power2.inOut" });
+    gsap.to("#letterbox i", { scaleY: 1, duration: 1.6, ease: "expo.out" });
+    await wait(1100);
+    if (kicker) {
+      // the operation name comes on like a faulty sign, then holds
+      gsap.timeline()
+        .to(kicker, { opacity: 1, duration: 0.06, repeat: 5, yoyo: true, ease: "none" })
+        .set(kicker, { opacity: 1 });
+      await wait(750);
+    }
+
+    // the cursor blinks on the empty line for a beat, then runs ahead of the keys
+    const cursor = document.createElement("span");
+    cursor.className = "type-cursor is-idle";
+    cursor.setAttribute("aria-hidden", "true");
+    letters[0].before(cursor);
+    await wait(700);
+    cursor.classList.remove("is-idle");
+    const between = (a, b) => a + Math.random() * (b - a);
+    for (const letter of letters) {
+      const endOfWord = letter === letter.parentElement?.lastElementChild;
+      gsap.set(letter, { opacity: 1 });
+      letter.after(cursor);
+      gsap.fromTo(letter, { y: -4 }, { y: 0, duration: 0.08 });
+      gsap.fromTo(line, { x: 1.5 }, { x: 0, duration: 0.06 });
+      // at the end of the first sentence the cursor stops and blinks for a beat before the second
+      if (endOfWord && letter.parentElement.nextSibling?.nodeName === "BR") {
+        cursor.classList.add("is-idle");
+        await wait(850);
+        cursor.classList.remove("is-idle");
+        continue;
+      }
+      await wait(/\s/.test(letter.textContent) ? between(160, 240) : endOfWord ? between(200, 300) : between(50, 130));
+    }
+    cursor.classList.add("is-idle");
+    gsap.to(cursor, { opacity: 0, duration: 0.3, delay: 1.2, onComplete: () => cursor.remove() });
+    await wait(150);
+
+    // the hit
+    await wait(100);
+    shakeHit(narrow ? 16 : 26, 0.6);
+    const r = centre(line);
+    for (let k = 0; k < (narrow ? 40 : 70); k++) {
+      const a = Math.random() * Math.PI * 2;
+      const s = Math.random() * 9 + 1;
+      emit({
+        x: r.x + (Math.random() - 0.5) * r.w * 0.8, y: r.y + r.h * 0.45, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.5 - 1.5,
+        drag: 0.94, g: 0.02, size: Math.random() * 60 + 30, decay: 0.007 + Math.random() * 0.008, color: "120,108,90", alpha: 0.22, soft: true,
+      });
+    }
+    for (let k = 0; k < (narrow ? 36 : 60); k++) {
+      const a = Math.random() * Math.PI * 2;
+      const s = Math.random() * 12 + 3;
+      emit({
+        x: r.x, y: r.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 2, drag: 0.96, g: 0.18,
+        size: Math.random() * 1.8 + 0.6, decay: 0.015 + Math.random() * 0.02, color: "255,140,40",
+      });
+    }
+    gsap.fromTo("#intro-flash", { opacity: 0 }, { opacity: 1, duration: 0.07, yoyo: true, repeat: 1 });
+    gsap.fromTo("#letterbox i", { scaleY: 1.35 }, { scaleY: 1, duration: 0.5, ease: "power3.out" });
+    if (rule) gsap.to(rule, { scaleX: 1, duration: 0.7, delay: 0.25, ease: "expo.out" });
+    if (credit) gsap.fromTo(credit, { scale: 1 }, { scale: narrow ? 1.02 : 1.04, duration: 12, ease: "sine.out" });
+    await wait(900);
+  };
+  return run();
+}
+
 /** reduced-motion / no-JS-motion fallback: hold the final frame */
 function staticHero(scene) {
   document.documentElement.classList.add("is-static");
@@ -312,7 +502,7 @@ function staticHero(scene) {
   gsap.set("#zone-name", { opacity: 1 });
   gsap.set("#brand-reveal", { clipPath: "inset(0 0% 0 0)" });
   gsap.set(".brand-sub", { opacity: 1, y: 0 });
-  gsap.set("#zone-eyebrow", { opacity: 0 });
+  gsap.set(["#zone-eyebrow", "#letterbox", "#intro-veil"], { opacity: 0 });
   // no pinned descent here, so the scroll chrome has nothing to report
   gsap.set(["#scroll-hint", ".mobile-scroll-cue"], { display: "none" });
 }
@@ -406,6 +596,90 @@ function initReveals(isReduced) {
       ease: "none",
       scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: true },
     });
+  });
+}
+
+/* ============================================================
+   VENDOR RUN
+   The jet flies the flight line beside the six lead rows, scrubbed by scroll.
+   Row centres are measured on every ScrollTrigger refresh, so wrapping and
+   font loading never put the jet between two rows.
+   ============================================================ */
+function initVendorRun(isReduced) {
+  const run = q("#vendor-run");
+  if (!run) return;
+  const rows = qa(".vr-row", run);
+  const plane = q(".vr-plane", run);
+  const track = q(".vr-track", run);
+  const fill = q(".vr-fill", run);
+  if (!rows.length) return;
+
+  if (isReduced) {
+    run.classList.add("is-static");
+    rows.forEach((r) => r.classList.add("is-past"));
+    return;
+  }
+
+  let centers = [];
+  const measure = () => {
+    const top = run.getBoundingClientRect().top;
+    centers = rows.map((r) => {
+      const b = r.getBoundingClientRect();
+      return b.top - top + b.height / 2;
+    });
+    track.style.top = `${centers[0]}px`;
+    track.style.height = `${centers[centers.length - 1] - centers[0]}px`;
+  };
+
+  let active = -2;
+  const setActive = (i) => {
+    if (i === active) return;
+    active = i;
+    rows.forEach((r, k) => {
+      r.classList.toggle("is-active", k === i);
+      r.classList.toggle("is-past", k < i);
+    });
+  };
+
+  const state = { p: 0 };
+  let last = 0;
+  /* each row owns an equal slice of the scroll: the jet holds on the row for
+     the first part of its slice, then flies to the next one */
+  const HOLD = 0.55;
+  const flight = (t) => (t <= HOLD ? 0 : gsap.parseEase("power2.inOut")((t - HOLD) / (1 - HOLD)));
+  const render = () => {
+    if (!centers.length) measure();
+    const n = centers.length;
+    const first = centers[0];
+    const span = centers[n - 1] - first || 1;
+    const seg = Math.min(state.p * n, n - 0.0001);
+    const i = Math.floor(seg);
+    const y = i < n - 1 ? centers[i] + (centers[i + 1] - centers[i]) * flight(seg - i) : centers[n - 1];
+    gsap.set(plane, { y });
+    gsap.set(fill, { scaleY: (y - first) / span });
+    if (state.p !== last) plane.classList.toggle("is-up", state.p < last);
+    last = state.p;
+    if (state.p <= 0.001) return setActive(-1);
+    setActive(i);
+  };
+
+  measure();
+  render();
+  gsap.to(state, {
+    p: 1,
+    ease: "none",
+    onUpdate: render,
+    scrollTrigger: {
+      trigger: run,
+      start: narrow ? "top 78%" : "top 72%",
+      end: narrow ? "bottom 48%" : "bottom 40%",
+      scrub: 0.7,
+      invalidateOnRefresh: true,
+      onRefresh: () => {
+        measure();
+        render();
+      },
+    },
   });
 }
 
@@ -599,6 +873,7 @@ async function boot() {
     scene.resize();
     staticHero(scene);
     initReveals(true);
+    initVendorRun(true);
     initCounters(true);
     initFinale(true);
     await waitForFonts();
@@ -609,7 +884,6 @@ async function boot() {
 
   const lenis = initLenis();
   document.documentElement.classList.add("is-loading");
-  lenis.stop();
   window.scrollTo(0, 0);
 
   // walk the whole descent once so the first scrub is already warm
@@ -622,6 +896,7 @@ async function boot() {
   buildHeroTimeline(scene, eyebrowLetters);
 
   initReveals(false);
+  initVendorRun(false);
   initCounters(false);
   initFinale(false);
   initAnchors(lenis);
@@ -629,18 +904,63 @@ async function boot() {
   if (!coarse && !narrow) initCursor();
 
   await waitForFonts();
+  // the page always opens at the top of the film, whatever scroll the browser remembered
+  window.scrollTo(0, 0);
+  lenis.resize();
   await hideLoader();
-  document.documentElement.classList.remove("is-loading");
-  lenis.start();
-  ScrollTrigger.refresh();
+  const html = document.documentElement;
+  html.classList.remove("is-loading");
 
-  // the eyebrow writes itself across the clouds as the curtain lifts
-  gsap.to(eyebrowLetters, {
-    yPercent: 0,
-    opacity: 1,
-    duration: 1.4,
-    stagger: 0.022,
-    ease: EASE,
+  /* The opening credit is a one-time show: the first visit in a tab types it and holds the
+     scroll until it lands. After that (a reload, a return from the contact page) the credit is
+     simply there, finished, and the page scrolls freely from the first moment. */
+  const SEEN_KEY = "introSeen";
+  let seen = false;
+  try {
+    seen = sessionStorage.getItem(SEEN_KEY) === "1";
+  } catch (e) {
+    /* storage blocked: play the intro */
+  }
+  const unlock = () => {
+    try {
+      sessionStorage.setItem(SEEN_KEY, "1");
+    } catch (e) {
+      /* storage blocked: nothing to remember */
+    }
+    if (!html.classList.contains("is-intro")) return;
+    html.classList.remove("is-intro");
+    window.scrollTo(0, 0);
+    lenis.resize();
+    scrollHeld = false;
+    ScrollTrigger.refresh();
+  };
+  if (seen) {
+    gsap.set(eyebrowLetters, { opacity: 1 });
+    gsap.set("#zone-eyebrow .credit-kicker", { opacity: 1 });
+    gsap.set("#zone-eyebrow .credit-rule", { scaleX: 1 });
+    gsap.set("#intro-veil", { opacity: 0 });
+    gsap.set("#letterbox i", { scaleY: 1 });
+    lenis.resize();
+    scrollHeld = false;
+    ScrollTrigger.refresh();
+  } else {
+    // the opening credit holds the page: no scrolling until the whole line is written
+    html.classList.add("is-intro");
+    ScrollTrigger.refresh();
+    typeEyebrow(eyebrowLetters).then(unlock, unlock);
+    // a safety net, in case a background tab stalls the timers
+    setTimeout(unlock, 20000);
+  }
+
+  // like the first shot of a film widening out: the letterbox opens to full frame the moment
+  // the scroll starts, and closes again only when the page is back at the very top
+  let barsOn = true;
+  lenis.on("scroll", ({ scroll }) => {
+    if (html.classList.contains("is-intro")) return;
+    const want = scroll < 4;
+    if (want === barsOn) return;
+    barsOn = want;
+    gsap.to("#letterbox i", { scaleY: want ? 1 : 0, duration: want ? 0.9 : 1.3, ease: "expo.inOut", overwrite: true });
   });
 
   window.addEventListener("load", () => ScrollTrigger.refresh());

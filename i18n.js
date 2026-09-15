@@ -32,7 +32,7 @@
   var LANG = readLang();
   window.SITE_LANG = LANG;
 
-  var SERVICES = "Business Websites · Landing Pages · App Development · AI Automation · E-commerce &amp; Dropshipping Stores";
+  var SERVICES = '<span class="nobr">Business Websites</span> · <span class="nobr">Landing Pages</span> · <span class="nobr">App Development</span> · <span class="nobr">AI Automation</span> · <span class="nobr">E-commerce &amp; Dropshipping Stores</span>';
 
   /* --------------------------------------------------------- home page */
   var INDEX = {
@@ -52,59 +52,59 @@
       [".mobile-scroll-cue", "Scroll to discover"],
 
       // the film
-      ["#zone-eyebrow .eyebrow", "Thirty&nbsp;thousand&nbsp;feet above&nbsp;the&nbsp;competition."],
+      ["#zone-eyebrow .credit-kicker", "Zero Hour"],
+      ["#zone-eyebrow .eyebrow", "This isn't just another&nbsp;website.<br />It's&nbsp;an&nbsp;operation."],
       ["#zone-name .brand-sub", SERVICES],
       ["#chapter-drop .chapter-index", "Dropshipping Stores"],
       ["#chapter-drop .chapter-word", "Precision Drop"],
-      ["#chapter-drop .chapter-caption", "Straight from the supplier to the customer. No warehouse, no inventory."],
+      ["#chapter-drop .chapter-caption", "Straight from the supplier to the customer.<br />No warehouse, no inventory!"],
       ["#chapter-web .chapter-index", "Business Websites"],
       ["#chapter-web .chapter-word", "Breaking Through"],
       ["#chapter-web .chapter-caption", "A website that puts your business on the front line."],
       ["#chapter-landing .chapter-index", "Landing Pages"],
       ["#chapter-landing .chapter-word", "Direct Hit"],
-      ["#chapter-landing .chapter-caption", "One page, one target:"],
+      ["#chapter-landing .chapter-caption", "One page, one target."],
       ["#zone-target .km-word", "Client"],
       ["#zone-target .km-stamp", "Target acquired"],
       ["#chapter-ai .chapter-index", "AI Automation"],
       ["#chapter-ai .chapter-word", "The Squad That Never Sleeps"],
-      ["#chapter-ai .chapter-caption", "AI agents handling every enquiry, around the clock."],
+      ["#chapter-ai .chapter-caption", 'AI agents handling every enquiry, <span class="nobr">around the clock.</span>'],
       ["#chapter-apps .chapter-index", "App Development"],
       ["#chapter-apps .chapter-word", "Air Superiority"],
-      ["#chapter-apps .chapter-caption", "When your app is in the air, your competitors have no sky."],
+      ["#chapter-apps .chapter-caption", '<span class="nobr">When your app is in the air,</span> <span class="nobr">your competitors have no sky.</span>'],
       ["#zone-closing .closing-line", "Your mission <em>starts with one call.</em>"],
 
       // 01 · command and control
       ["#whoweare .section-index", "01 · Command &amp; Control"],
       ["#whoweare .h-mega", "One Unit. One Command."],
-      ["#whoweare .lead",
-        '<span class="reveal-line"><span>A site vendor. An app vendor.</span></span>' +
-        '<span class="reveal-line"><span>A store vendor. An AI vendor.</span></span>' +
-        '<span class="reveal-line"><span>Something goes down in the field,</span></span>' +
-        '<span class="reveal-line"><span>and everyone blames everyone else.</span></span>'],
-      ["#whoweare .who-copy .body-dim", "Here there is one chain of command. Whoever builds your business website and landing pages is the one who connects the automation, the store and the app to them. Full accountability, from briefing to launch."],
-      ["#whoweare .stat-row > div:nth-child(1) .stat-label", "Operational readiness, no breaks"],
-      ["#whoweare .stat-row > div:nth-child(2) .stat-label", "Forces under one command"],
-      ["#whoweare .stat-row > div:nth-child(3) .stat-label", "Single point of contact for the whole operation"],
+      ["#vendor-run .vr-list > li:nth-child(1) .vr-text", '<span class="vr-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 4 L8 12 L16 20" /></svg></span>A site vendor.'],
+      ["#vendor-run .vr-list > li:nth-child(2) .vr-text", '<span class="vr-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 4 L8 12 L16 20" /></svg></span>An app vendor.'],
+      ["#vendor-run .vr-list > li:nth-child(3) .vr-text", '<span class="vr-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 4 L8 12 L16 20" /></svg></span>A store vendor.'],
+      ["#vendor-run .vr-list > li:nth-child(4) .vr-text", '<span class="vr-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 4 L8 12 L16 20" /></svg></span>An AI vendor.'],
+      ["#whoweare .who-copy .body-dim", "Whoever controls the digital ground controls the market. We lead the entire sector: a website that attracts, landing pages that convert, an app that brings customers back, a store that sells and AI automation that works around the clock."],
+      ["#whoweare .stat-row > div:nth-child(1) .stat-label", "Operational readiness"],
+      ["#whoweare .stat-row > div:nth-child(2) .stat-label", "Special forces"],
+      ["#whoweare .stat-row > div:nth-child(3) .stat-label", "Command"],
 
       // 02 · order of battle
       ["#whoweserve .section-index", "02 · Order of Battle"],
-      ["#whoweserve .h-mega", "Five Forces. One Operation."],
-      ["#whoweserve .house-head-note", "Each force can operate on its own. Together they cover the entire sector, from the first click to the sale."],
+      ["#whoweserve .h-mega", "Your Forces in the Field."],
+      ["#whoweserve .house-head-note", "No sector left open: presence, conversion, sales, retention and automation."],
       ["#serve-grid .house-card:nth-child(1) .house-title", "Business Website"],
-      ["#serve-grid .house-card:nth-child(1) .house-desc", "Your business's base online. Built from scratch around what you sell, not a template with the photos swapped."],
+      ["#serve-grid .house-card:nth-child(1) .house-desc", "Taking the digital ground: a custom-designed website that presents your brand, a clear message for the customer and a contact form that sends every lead straight to HQ."],
       ["#serve-grid .house-card:nth-child(1) .house-arrow", "Holding the ground"],
       ["#serve-grid .house-card:nth-child(2) .house-title", "Landing Pages"],
-      ["#serve-grid .house-card:nth-child(2) .house-desc", "One page, one objective: turn every visit from a campaign into an enquiry."],
-      ["#serve-grid .house-card:nth-child(2) .house-arrow", "Target locked"],
+      ["#serve-grid .house-card:nth-child(2) .house-desc", "Precision targeting of your audience: no distractions, no noise, just a sharp message that leads straight to leaving contact details."],
+      ["#serve-grid .house-card:nth-child(2) .house-arrow", "Sniper unit"],
       ["#serve-grid .house-card:nth-child(3) .house-title", "App Development"],
-      ["#serve-grid .house-card:nth-child(3) .house-desc", "Apps for iPhone, Android and the Web that pass Apple and Google review and don't crash under load."],
-      ["#serve-grid .house-card:nth-child(3) .house-arrow", "Cleared for launch"],
+      ["#serve-grid .house-card:nth-child(3) .house-desc", "A full development operation: specification, design, development and launch to the App Store and Google Play, with control at every stage."],
+      ["#serve-grid .house-card:nth-child(3) .house-arrow", "Air superiority"],
       ["#serve-grid .house-card:nth-child(4) .house-title", "AI Automation"],
-      ["#serve-grid .house-card:nth-child(4) .house-desc", "An agent that takes the enquiry, replies, books the meeting and updates the CRM. No human hands."],
-      ["#serve-grid .house-card:nth-child(4) .house-arrow", "On call 24/7"],
+      ["#serve-grid .house-card:nth-child(4) .house-desc", "AI agents on permanent standby: answering customers, sending reminders, following up on leads and updating systems, with no manual work."],
+      ["#serve-grid .house-card:nth-child(4) .house-arrow", "The squad that never sleeps"],
       ["#serve-grid .house-card:nth-child(5) .house-title", "E-commerce &amp; Dropshipping Stores"],
-      ["#serve-grid .house-card:nth-child(5) .house-desc", "A store that sells around the clock: payments, inventory and shipping. With dropshipping, the order ships straight from the supplier to the customer, no warehouse."],
-      ["#serve-grid .house-card:nth-child(5) .house-arrow", "Supply line open"],
+      ["#serve-grid .house-card:nth-child(5) .house-desc", "End-to-end store setup, run like a logistics operation: design, product upload, secure checkout and shipping management."],
+      ["#serve-grid .house-card:nth-child(5) .house-arrow", "Precision drop"],
 
       // 03 · operation order
       ["#approach .section-index", "03 · Operation Order"],

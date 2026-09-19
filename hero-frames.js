@@ -17,9 +17,13 @@ export function createFrameSequence(canvas, options = {}) {
   if (!ctx) throw new Error("createFrameSequence: 2D context unavailable");
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
-  const config = isMobile
-    ? { folder: "frames-mobile", count: 1175, ahead: 22, behind: 8, cap: 140, inflight: 4 }
-    : { folder: "frames", count: 1175, ahead: 28, behind: 10, cap: 120, inflight: 6 };
+  // the hero film by default; another scene passes its own folder and count per device
+  const config = {
+    ...(isMobile
+      ? { folder: "frames-mobile", count: 1175, ahead: 22, behind: 8, cap: 140, inflight: 4 }
+      : { folder: "frames", count: 1175, ahead: 28, behind: 10, cap: 120, inflight: 6 }),
+    ...(isMobile ? options.mobile : options.desktop),
+  };
 
   /** decoded frames, keyed by index */
   const cache = new Map();

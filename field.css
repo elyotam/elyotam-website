@@ -1335,3 +1335,308 @@ html,
 body {
   overscroll-behavior-y: none;
 }
+
+/* ============================================================
+   04 · OPERATIONS FILE
+   Each real project is a classified operation file: a code bar with a
+   "completed" stamp, the site itself in a browser frame with the phone view
+   laid over its corner, and the brief beside it.
+   ============================================================ */
+#operations {
+  background-color: var(--olive-900);
+}
+.ops-list {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+.op-file {
+  position: relative;
+  border: 1px solid var(--field-line);
+  background-color: var(--olive-800);
+  background-image:
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--signal), var(--signal)),
+    linear-gradient(180deg, rgba(232, 220, 192, 0.035), transparent 55%);
+  background-size: 22px 2px, 2px 22px, 22px 2px, 2px 22px, 100% 100%;
+  background-position: 100% 0, 100% 0, 0 100%, 0 100%, 0 0;
+  background-repeat: no-repeat;
+  transition: border-color 0.5s ease;
+}
+.op-file:hover {
+  border-color: rgba(255, 122, 26, 0.35);
+}
+.op-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem clamp(1.1rem, 2.4vw, 2rem);
+  border-bottom: 1px dashed var(--field-line-strong, rgba(232, 220, 192, 0.24));
+}
+.op-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--signal);
+  white-space: nowrap;
+}
+html[lang="he"] .op-code {
+  font-family: var(--font-text);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.op-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to left, rgba(255, 122, 26, 0.5), transparent);
+}
+html[dir="ltr"] .op-line {
+  background: linear-gradient(to right, rgba(255, 122, 26, 0.5), transparent);
+}
+.op-stamp {
+  font-family: var(--font-stencil);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--signal);
+  border: 2px solid var(--signal);
+  padding: 0.3em 0.7em 0.25em;
+  transform: rotate(-4deg);
+  opacity: 0.9;
+}
+.op-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3.5vw, 3.5rem);
+  align-items: center;
+  padding: clamp(1.4rem, 3vw, 2.6rem) clamp(1.1rem, 2.4vw, 2rem) clamp(2rem, 4vw, 3.2rem);
+}
+/* the site in a browser frame, with the phone view laid over its lower corner */
+.op-media {
+  position: relative;
+  display: block;
+  padding-bottom: 9%;
+  padding-inline-end: 9%;
+}
+.op-desktop {
+  position: relative;
+  display: block;
+  border: 1px solid rgba(232, 220, 192, 0.18);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0b0d09;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+}
+.op-chrome {
+  display: flex;
+  gap: 6px;
+  padding: 9px 12px;
+  background: #151912;
+  border-bottom: 1px solid rgba(232, 220, 192, 0.1);
+  direction: ltr;
+}
+.op-chrome i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(232, 220, 192, 0.25);
+}
+.op-chrome i:first-child {
+  background: var(--signal);
+}
+.op-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.op-phone {
+  position: absolute;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 26%;
+  border: 1px solid rgba(232, 220, 192, 0.22);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0d09;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.7);
+  outline: 5px solid var(--olive-800);
+}
+.op-file:hover .op-desktop img {
+  transform: scale(1.025);
+}
+.op-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+}
+.op-type::before {
+  content: "";
+  width: 0.45em;
+  height: 0.45em;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+.op-client {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  line-height: 1.2;
+  color: var(--sand);
+  text-wrap: balance;
+}
+.op-desc {
+  margin-top: 1rem;
+  color: var(--sand-dim);
+  line-height: 1.75;
+}
+.op-facts {
+  list-style: none;
+  margin: 1.4rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.op-facts li {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  color: var(--sand);
+  font-size: 0.95rem;
+}
+.op-facts li::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 2px;
+  background: var(--signal);
+}
+.op-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: 1.8rem;
+  padding: 0.95rem 1.6rem;
+  font-weight: 800;
+  color: var(--olive-950);
+  background: var(--signal);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  transition: background 0.3s;
+}
+.op-cta:hover {
+  background: #ff9445;
+}
+@media (max-width: 899px) {
+  .op-body {
+    grid-template-columns: 1fr;
+  }
+  .op-phone {
+    width: 28%;
+    border-radius: 12px;
+    outline-width: 4px;
+  }
+}
+@media (max-width: 480px) {
+  .op-bar {
+    gap: 0.7rem;
+  }
+  .op-stamp {
+    font-size: 1rem;
+  }
+}
+
+/* operations 02-05: a two-up grid of compact files, the screenshot above the brief */
+.ops-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+.op-file--compact .op-body {
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: clamp(1.3rem, 2.4vw, 2rem);
+}
+.op-file--compact .op-client {
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+}
+.op-file--compact .op-facts {
+  margin-top: 1.1rem;
+}
+.op-file--compact .op-cta {
+  margin-top: 1.4rem;
+}
+@media (max-width: 899px) {
+  .ops-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------- the hangar reveal */
+#operations {
+  padding-top: 0;
+}
+.reveal-stage {
+  position: relative;
+}
+.reveal-pin {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #0c1016;
+}
+.reveal-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* the picture falls into the olive of the section below, so the files follow on without a seam */
+.reveal-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, var(--olive-900) 0%, rgba(18, 22, 15, 0.78) 16%, rgba(18, 22, 15, 0.25) 38%, transparent 55%),
+    linear-gradient(to bottom, rgba(14, 17, 11, 0.45), transparent 18%);
+}
+.reveal-head {
+  position: absolute;
+  inset-inline: 0;
+  bottom: clamp(2.2rem, 7vh, 4.5rem);
+  display: grid;
+  justify-items: center;
+  gap: clamp(0.7rem, 1.4vw, 1.1rem);
+  padding: 0 var(--gutter);
+  text-align: center;
+}
+.reveal-head .h-mega {
+  font-size: clamp(2.6rem, 6.4vw, 6.4rem);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.85);
+}
+.reveal-head .house-head-note {
+  max-width: 34rem;
+  color: var(--sand);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+}
+.reveal-stage.is-static .reveal-canvas {
+  display: none;
+}
+.reveal-stage.is-static .reveal-pin {
+  background: #0c1016 url("reveal-frames/frame_0158.webp") center / cover no-repeat;
+}
+@media (max-width: 768px) {
+  .reveal-stage.is-static .reveal-pin {
+    background-image: url("reveal-frames-mobile/frame_0158.webp");
+  }
+}
+#operations .ops-list {
+  margin-top: clamp(3rem, 6vw, 5rem);
+}

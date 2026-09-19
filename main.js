@@ -4,7 +4,7 @@
    and the canvas descent pinned across the top of the page.
    ============================================================ */
 
-import { createFrameSequence } from "./hero-frames.js?v=4";
+import { createFrameSequence } from "./hero-frames.js?v=5";
 
 const { gsap, ScrollTrigger, Lenis } = window;
 gsap.registerPlugin(ScrollTrigger);
@@ -530,6 +530,83 @@ function typeEyebrow(letters) {
   return run();
 }
 
+/* ============================================================
+   THE HANGAR REVEAL (04 · תיק מבצעים)
+   A second frame scene, 158 frames of its own. The stage pins for a few
+   screens; the scroll opens the hangar doors and reveals the F-35, and once
+   the jet stands framed in the light the section title rises over it. A
+   ticker keeps easing toward the target frame while the stage is on screen,
+   so the doors never stop a few frames short of where the scroll left them.
+   ============================================================ */
+function initHangarReveal(isReduced) {
+  const stage = q("#reveal-stage");
+  const canvas = q("#reveal-canvas");
+  if (!stage || !canvas) return;
+  const pin = q(".reveal-pin", stage);
+  const head = q(".reveal-head", stage);
+
+  if (isReduced) {
+    // no scrub: the doors are simply open (the last frame, set in CSS), the title in place
+    stage.classList.add("is-static");
+    gsap.set(head, { opacity: 1, y: 0 });
+    return;
+  }
+
+  const seq = createFrameSequence(canvas, {
+    desktop: { folder: "reveal-frames", count: 158, ahead: 26, behind: 8, cap: 160, inflight: 4 },
+    mobile: { folder: "reveal-frames-mobile", count: 158, ahead: 22, behind: 8, cap: 160, inflight: 3 },
+  });
+  window.addEventListener("resize", () => seq.resize());
+
+  /* the doors are fully open around frame 112; the film ends at DOORS of the
+     pinned scroll and holds on the revealed jet under the title for the rest */
+  const DOORS = 0.8;
+  const state = { p: 0 };
+  let target = 0;
+  let onScreen = false;
+  gsap.ticker.add(() => {
+    if (onScreen) seq.drawAt(target);
+  });
+
+  gsap.set(head, { opacity: 0, y: 40 });
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: stage,
+      start: "top top",
+      end: () => "+=" + Math.round(window.innerHeight * (narrow ? 2.2 : 2.6)),
+      pin,
+      scrub: 0.5,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      onToggle: (self) => {
+        onScreen = self.isActive;
+      },
+    },
+  });
+  tl.to(state, { p: 1, duration: DOORS, ease: "none", onUpdate: () => (target = state.p) }, 0)
+    .to(head, { opacity: 1, y: 0, duration: 0.12, ease: "power2.out" }, 0.62)
+    .to({}, { duration: 1 - DOORS }, DOORS);
+
+  // start loading the first frames a couple of screens before the stage arrives
+  ScrollTrigger.create({
+    trigger: stage,
+    start: "top 300%",
+    once: true,
+    onEnter: () => seq.preloadAll(null, 30),
+  });
+  // keep the canvas drawing while it is anywhere near the viewport, pinned or not
+  ScrollTrigger.create({
+    trigger: stage,
+    start: "top bottom",
+    end: "bottom top",
+    onToggle: (self) => {
+      if (self.isActive) onScreen = true;
+    },
+    onLeave: () => (onScreen = false),
+    onLeaveBack: () => (onScreen = false),
+  });
+}
+
 /** reduced-motion / no-JS-motion fallback: hold the final frame */
 function staticHero(scene) {
   document.documentElement.classList.add("is-static");
@@ -909,6 +986,7 @@ async function boot() {
     staticHero(scene);
     initReveals(true);
     initVendorRun(true);
+    initHangarReveal(true);
     initCounters(true);
     initFinale(true);
     await waitForFonts();
@@ -932,6 +1010,7 @@ async function boot() {
 
   initReveals(false);
   initVendorRun(false);
+  initHangarReveal(false);
   initCounters(false);
   initFinale(false);
   initAnchors(lenis);

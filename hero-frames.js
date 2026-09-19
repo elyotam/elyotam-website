@@ -18,8 +18,8 @@ export function createFrameSequence(canvas, options = {}) {
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
   const config = isMobile
-    ? { folder: "frames-mobile", count: 1100, ahead: 22, behind: 8, cap: 140, inflight: 4 }
-    : { folder: "frames", count: 1100, ahead: 28, behind: 10, cap: 120, inflight: 6 };
+    ? { folder: "frames-mobile", count: 1175, ahead: 22, behind: 8, cap: 140, inflight: 4 }
+    : { folder: "frames", count: 1175, ahead: 28, behind: 10, cap: 120, inflight: 6 };
 
   /** decoded frames, keyed by index */
   const cache = new Map();

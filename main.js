@@ -4,7 +4,7 @@
    and the canvas descent pinned across the top of the page.
    ============================================================ */
 
-import { createFrameSequence } from "./hero-frames.js?v=2";
+import { createFrameSequence } from "./hero-frames.js?v=4";
 
 const { gsap, ScrollTrigger, Lenis } = window;
 gsap.registerPlugin(ScrollTrigger);
@@ -20,39 +20,72 @@ const EASE = "expo.out";
 /* ------------------------------------------------------------
    hero choreography constants
    ------------------------------------------------------------ */
-/* Placed against the frames themselves (progress = frame / 1099), not by
-   eye. The 1100-frame sequence is seven 158-frame clips joined on their shared
-   frame: cargo bay 0-0.05, freefall 0.075-0.165, into the cloud 0.175-0.20,
-   helicopters 0.225-0.325, the dive to the street 0.35, tanks 0.375-0.45, the
-   climb 0.475-0.525, the scope 0.55-0.585, through it and down at 0.60, the
-   squad 0.65-0.725, over the rooftops 0.75-0.80, the rocket salvo
-   0.825-0.875, jets and cloud from 0.875, above the clouds from 0.925. Each
-   card lands on its subject and clears before the camera leaves it. */
+/* The 1175-frame sequence is eight clips joined on their shared frame: five of
+   158 frames, the two F-35 clips of 121, and the landing of 150. Every beat
+   below is written as the frame it lands on, not by eye, and at(frame) turns
+   it into a timeline position. The film reaches its last frame at FILM_END of
+   the scroll and holds there for the rest, under the closing line.
+   Frames: cargo bay 0-55, freefall 83-182, into the cloud 193-220, helicopters
+   248-358, the dive to the street 386, tanks 413-496, the climb 523-579, the
+   scope 606-645, through it and down at 656, the squad 716-803, the F-35s roar
+   in over the squad at 817, the bay opens and the bombs drop 845-905, the dive
+   after them to the impact at 960, black smoke 968-990, the climb out of it
+   992-1012, above the clouds at sunrise 1013-1060, down through the clouds to
+   the desert 1067-1100, touchdown 1125-1140, the jets roll to a stop in front
+   of the hangar 1144-1174. Each card lands on its subject and clears before
+   the camera leaves it. */
+const FRAMES = 1175;
+const FILM_END = 0.94;
+/* Scenes that get more scroll than the rest: inside a slow zone each frame takes
+   `rate` times the scroll of a normal frame. The sunrise climb above the clouds
+   carries "עליונות אווירית", so it plays at half speed and the card can be read. */
+const SLOW = [{ from: 1008, to: 1068, rate: 2.2 }];
+const weight = (frame) =>
+  SLOW.reduce((w, z) => w + (z.rate - 1) * Math.min(Math.max(frame - z.from, 0), z.to - z.from), frame);
+const TOTAL = weight(FRAMES - 1);
+const at = (frame) => (weight(frame) / TOTAL) * FILM_END;
+/* the inverse: a timeline position back to the frame it shows */
+const frameAt = (pos) => {
+  let w = (Math.min(pos, FILM_END) / FILM_END) * TOTAL;
+  let frame = 0;
+  for (const z of SLOW) {
+    if (w <= z.from - frame) return frame + w;
+    w -= z.from - frame;
+    frame = z.from;
+    const span = (z.to - z.from) * z.rate;
+    if (w <= span) return frame + w / z.rate;
+    w -= span;
+    frame = z.to;
+  }
+  return Math.min(frame + w, FRAMES - 1);
+};
 const CHAPTERS = [
-  { sel: "#chapter-drop", in: 0.08, out: 0.172 },
-  /* the lead tank kicks up its dust around 0.40-0.45 */
-  { sel: "#chapter-web", in: 0.375, out: 0.465 },
+  { sel: "#chapter-drop", in: at(88), out: at(189) },
+  /* the lead tank kicks up its dust around 440-496 */
+  { sel: "#chapter-web", in: at(412), out: at(511) },
   /* opens as the room comes into view and clears as the camera leaves
      through the hole in the wall, before the blast */
-  { sel: "#chapter-landing", in: 0.505, out: 0.59 },
-  { sel: "#chapter-ai", in: 0.648, out: 0.74 },
-  /* the salvo fires around 0.85, so the headline is up just before it */
-  { sel: "#chapter-apps", in: 0.815, out: 0.905 },
+  { sel: "#chapter-landing", in: at(555), out: at(648) },
+  /* over the squad, clear before the jets come in over the wall */
+  { sel: "#chapter-ai", in: at(712), out: at(803) },
+  /* "air superiority" as the two F-35s climb out of the smoke above the clouds at sunrise */
+  { sel: "#chapter-apps", in: at(1010), out: at(1066) },
 ];
 /* "לקוח" on its own, over the explosion: acquired as the charge goes off at
-   0.597, locked on the blast's peak, held through the dust, gone by 0.642 */
-const TARGET = { in: 0.597, out: 0.632 };
-const CLOSING_AT = 0.93;
+   656, locked on the blast's peak, held through the dust, gone by 695 */
+const TARGET = { in: at(656), out: at(695) };
+/* the jets roll to a stop in front of the hangar, canopies lifting */
+const CLOSING_AT = at(1144);
 /* labels come through i18n.js, which sets window.t before this module runs */
 const t = window.t ?? ((key, hebrew) => hebrew);
 const RAIL_STOPS = [
-  { until: 0.075, label: t("rail.zero", "שעת אפס") },
-  { until: 0.2, label: t("rail.drop", "חנויות דרופשיפינג") },
-  { until: 0.34, label: "ELYOTAM" },
-  { until: 0.49, label: t("rail.web", "אתרי תדמית") },
-  { until: 0.615, label: t("rail.landing", "דפי נחיתה") },
-  { until: 0.76, label: t("rail.ai", "אוטומציות AI") },
-  { until: 0.915, label: t("rail.apps", "פיתוח אפליקציות") },
+  { until: at(83), label: t("rail.zero", "שעת אפס") },
+  { until: at(220), label: t("rail.drop", "חנויות דרופשיפינג") },
+  { until: at(374), label: "ELYOTAM" },
+  { until: at(539), label: t("rail.web", "אתרי תדמית") },
+  { until: at(676), label: t("rail.landing", "דפי נחיתה") },
+  { until: at(818), label: t("rail.ai", "אוטומציות AI") },
+  { until: at(1070), label: t("rail.apps", "פיתוח אפליקציות") },
   { until: Infinity, label: t("rail.done", "המשימה הושלמה") },
 ];
 const railLabel = (p) => (RAIL_STOPS.find((s) => p < s.until) ?? RAIL_STOPS.at(-1)).label;
@@ -223,7 +256,8 @@ function buildHeroTimeline(scene, eyebrowLetters) {
   if (rail) gsap.to(rail, { opacity: 1, duration: 0.8, delay: 0.2 });
 
   // one screen of scroll per chapter, plus room for the descent between them
-  const length = Math.round(window.innerHeight * (narrow ? 4.6 : 6));
+  // scroll length grows with the film, so each scene keeps its pace (1175 frames)
+  const length = Math.round(window.innerHeight * (narrow ? 5.5 : 7.2));
   const prog = { v: 0 };
   let last = -1;
   let hintHidden = false;
@@ -268,25 +302,26 @@ function buildHeroTimeline(scene, eyebrowLetters) {
       onUpdate: () => {
         if (Math.abs(prog.v - last) < 0.0004) return;
         last = prog.v;
-        scene.render(prog.v);
+        // the film runs to its last frame at FILM_END, slower through the slow zones, then holds
+        scene.render(frameAt(prog.v) / (FRAMES - 1));
       },
     },
     0
   );
 
   // I · the eyebrow lifts away as the first paratrooper leaves the ramp
-  tl.to(zoneEyebrow, { opacity: 0, y: -26, duration: 0.03, ease: "power2.in" }, 0.05);
+  tl.to(zoneEyebrow, { opacity: 0, y: -26, duration: 0.03, ease: "power2.in" }, at(55));
 
   // II · the name, as the helicopters come out of the smoke
-  tl.to(zoneName, { opacity: 1, duration: 0.02 }, 0.222)
+  tl.to(zoneName, { opacity: 1, duration: 0.02 }, at(244))
     .fromTo(
       brand,
       { clipPath: "inset(0 100% 0 0)" },
       { clipPath: "inset(0 0% 0 0)", duration: 0.05, ease: "power3.inOut" },
-      0.23
+      at(253)
     )
-    .to(brandSub, { opacity: 1, y: 0, duration: 0.03, ease: "power2.out" }, 0.265)
-    .to(zoneName, { opacity: 0, duration: 0.025 }, 0.315);
+    .to(brandSub, { opacity: 1, y: 0, duration: 0.03, ease: "power2.out" }, at(291))
+    .to(zoneName, { opacity: 0, duration: 0.025 }, at(346));
 
   // III-VII · the five services
   CHAPTERS.forEach((c) => chapterTween(tl, c));

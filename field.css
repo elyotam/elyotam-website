@@ -1551,38 +1551,20 @@ html[dir="ltr"] .op-line {
   }
 }
 
-/* operations 02-05: a two-up grid of compact files, the screenshot above the brief */
-.ops-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-}
-.op-file--compact .op-body {
-  grid-template-columns: 1fr;
-  align-items: start;
-  gap: clamp(1.3rem, 2.4vw, 2rem);
-}
-.op-file--compact .op-client {
-  font-size: clamp(1.4rem, 2vw, 1.9rem);
-}
-.op-file--compact .op-facts {
-  margin-top: 1.1rem;
-}
-.op-file--compact .op-cta {
-  margin-top: 1.4rem;
-}
-@media (max-width: 899px) {
-  .ops-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* ---------------------------------------------------- the hangar reveal */
 #operations {
   padding-top: 0;
+  overflow: clip;
 }
 .reveal-stage {
   position: relative;
+  --doors: 2.4;
+}
+@media (max-width: 1023px) {
+  .reveal-stage {
+    --doors: 2;
+  }
 }
 .reveal-pin {
   position: relative;
@@ -1591,20 +1573,21 @@ html[dir="ltr"] .op-line {
   overflow: hidden;
   background: #0c1016;
 }
-.reveal-canvas {
+.reveal-canvas,
+.reveal-cam {
   position: absolute;
   inset: 0;
-  display: block;
   width: 100%;
   height: 100%;
+  display: block;
 }
-/* the picture falls into the olive of the section below, so the files follow on without a seam */
+/* the picture falls into the olive of the section, so the map follows on without a seam */
 .reveal-scrim {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to top, var(--olive-900) 0%, rgba(18, 22, 15, 0.78) 16%, rgba(18, 22, 15, 0.25) 38%, transparent 55%),
+    linear-gradient(to top, var(--olive-900) 0%, rgba(18, 22, 15, 0.78) 14%, rgba(18, 22, 15, 0.25) 36%, transparent 54%),
     linear-gradient(to bottom, rgba(14, 17, 11, 0.45), transparent 18%);
 }
 .reveal-head {
@@ -1630,13 +1613,513 @@ html[dir="ltr"] .op-line {
   display: none;
 }
 .reveal-stage.is-static .reveal-pin {
-  background: #0c1016 url("reveal-frames/frame_0158.webp") center / cover no-repeat;
+  background: #0c1016 url("reveal-frames/frame_0158.webp") 50% 58% / cover no-repeat;
 }
 @media (max-width: 768px) {
   .reveal-stage.is-static .reveal-pin {
     background-image: url("reveal-frames-mobile/frame_0158.webp");
   }
 }
-#operations .ops-list {
-  margin-top: clamp(3rem, 6vw, 5rem);
+
+/* ============================================================
+   THE OPERATIONS MAP
+   A field sheet in the site's own colours: olive paper, darker olive contours,
+   a river and roads printed on it, and the objectives in signal orange, each
+   pinging like a contact on a sonar screen.
+   ============================================================ */
+.ops-map-stage {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: radial-gradient(90% 70% at 50% 46%, #14190e, #080b06 70%);
+}
+.ops-map {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2400px;
+  height: 1600px;
+  transform-origin: 0 0;
+  will-change: transform;
+  /* the printed sheet: olive paper with the grain of the press */
+  background:
+    repeating-linear-gradient(0deg, rgba(20, 30, 14, 0.05) 0 2px, transparent 2px 6px),
+    radial-gradient(120% 90% at 32% 28%, #9aa77e, #86956c 55%, #6f7e57);
+  box-shadow: inset 0 0 200px rgba(20, 28, 12, 0.55);
+}
+.ops-sheet {
+  position: absolute;
+  inset: 0;
+}
+/* the creases stay on the paper after it is opened */
+.ops-map::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 37.1%, rgba(238, 240, 220, 0.16) 37.4%, rgba(26, 34, 15, 0.18) 37.7%, transparent 38%),
+    linear-gradient(90deg, transparent 62%, rgba(26, 34, 15, 0.18) 62.3%, rgba(238, 240, 220, 0.16) 62.6%, transparent 62.9%),
+    linear-gradient(0deg, transparent 49.7%, rgba(26, 34, 15, 0.14) 50%, rgba(238, 240, 220, 0.12) 50.3%, transparent 50.6%);
+}
+/* the squares the frame arrives in */
+.ops-tiles {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 8), 1fr);
+  grid-template-rows: repeat(var(--rows, 5), 1fr);
+  pointer-events: none;
+}
+.ops-tiles i {
+  background: #0a0d07;
+  border: 1px solid rgba(255, 122, 26, 0.12);
+}
+.ops-map > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ops-contour {
+  fill: none;
+  stroke: rgba(46, 58, 30, 0.45);
+  stroke-width: 1.4;
+}
+.ops-contour.is-index {
+  stroke: rgba(38, 48, 24, 0.8);
+  stroke-width: 2.4;
+}
+.ops-grid {
+  stroke: rgba(30, 38, 20, 0.28);
+  stroke-width: 1;
+}
+.ops-ref {
+  fill: rgba(34, 44, 22, 0.65);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+.ops-river {
+  fill: none;
+  stroke: #5d7f86;
+  stroke-width: 8;
+  opacity: 0.75;
+}
+.ops-road {
+  fill: none;
+  stroke: rgba(72, 60, 34, 0.55);
+  stroke-width: 6;
+}
+.ops-road--b {
+  stroke-width: 4;
+  stroke-dasharray: 18 10;
+}
+/* the route, drawn on the sheet in grease pencil */
+.ops-route {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 5;
+  stroke-linecap: round;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 6px rgba(255, 122, 26, 0.45));
+}
+/* an objective: an orange contact that pings */
+.ops-pin {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.ops-pin i {
+  position: absolute;
+  left: -13px;
+  top: -13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 16px rgba(255, 122, 26, 0.9);
+}
+.ops-pin i::before,
+.ops-pin i::after {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border: 2px solid rgba(255, 122, 26, 0.55);
+  border-radius: 50%;
+  animation: ops-ping 2.6s ease-out infinite;
+}
+.ops-pin i::after {
+  animation-delay: 1.3s;
+}
+@keyframes ops-ping {
+  from { transform: scale(0.45); opacity: 1; }
+  to { transform: scale(2.6); opacity: 0; }
+}
+.ops-pin.is-on i {
+  box-shadow: 0 0 28px rgba(255, 122, 26, 1);
+}
+.ops-pin span {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: #232b14;
+}
+.ops-stamp {
+  position: absolute;
+  left: 1480px;
+  top: 150px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px 26px 10px;
+  color: rgba(255, 122, 26, 0.82);
+  border: 6px solid rgba(255, 122, 26, 0.6);
+  transform: rotate(-8deg);
+}
+.ops-stamp b {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 58px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  direction: ltr;
+}
+.ops-stamp i {
+  font-family: var(--font-text);
+  font-style: normal;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.24em;
+  padding-inline-start: 0.24em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ops-pin i::before,
+  .ops-pin i::after {
+    animation: none;
+  }
+}
+
+/* the readout over the sheet */
+.ops-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: rgba(232, 220, 192, 0.8);
+}
+html[lang="he"] .ops-hud {
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+.hud-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--signal);
+}
+.hud-corner:nth-of-type(1) { top: 16px; inset-inline-start: 16px; border-inline-end: 0; border-bottom: 0; }
+.hud-corner:nth-of-type(2) { top: 16px; inset-inline-end: 16px; border-inline-start: 0; border-bottom: 0; }
+.hud-corner:nth-of-type(3) { bottom: 16px; inset-inline-start: 16px; border-inline-end: 0; border-top: 0; }
+.hud-corner:nth-of-type(4) { bottom: 16px; inset-inline-end: 16px; border-inline-start: 0; border-top: 0; }
+.hud-tl,
+.hud-tr,
+.hud-bl {
+  position: absolute;
+  display: grid;
+  gap: 5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+.hud-tl { top: 74px; inset-inline-start: 34px; }
+.hud-tr { top: 74px; inset-inline-end: 34px; justify-items: end; text-align: end; }
+.hud-bl { bottom: 30px; inset-inline-start: 34px; }
+.hud-tl b { color: var(--signal); }
+.hud-coord { direction: ltr; font-family: var(--font-mono); letter-spacing: 0.12em; }
+.hud-live::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-inline-end: 7px;
+  border-radius: 50%;
+  background: #ff3b2f;
+  animation: hud-blink 1s steps(1) infinite;
+}
+@keyframes hud-blink {
+  50% { opacity: 0.15; }
+}
+.hud-scale {
+  display: flex;
+  width: 150px;
+  height: 7px;
+  border: 1px solid rgba(232, 220, 192, 0.7);
+}
+.hud-scale i { flex: 1; }
+.hud-scale i:nth-child(odd) { background: rgba(232, 220, 192, 0.7); }
+.hud-compass {
+  position: absolute;
+  bottom: 26px;
+  inset-inline-end: 34px;
+  width: 56px;
+  height: 56px;
+  color: rgba(232, 220, 192, 0.7);
+}
+.hud-reticle {
+  position: absolute;
+  inset-inline-start: 34%;
+  top: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+}
+html[dir="rtl"] .hud-reticle { margin-inline: -42px 0; }
+.hud-reticle::before,
+.hud-reticle::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 122, 26, 0.75);
+}
+.hud-reticle::before { left: 50%; top: -18px; bottom: -18px; width: 1px; }
+.hud-reticle::after { top: 50%; left: -18px; right: -18px; height: 1px; }
+.hud-reticle i { position: absolute; inset: 0; border: 1px solid rgba(255, 122, 26, 0.7); border-radius: 50%; }
+.hud-reticle b { position: absolute; inset: 28px; border: 2px solid var(--signal); }
+
+/* the objective card */
+.op-card {
+  position: absolute;
+  z-index: 6;
+  /* centred by margin, not by a transform: the scroll timeline owns the transform */
+  top: 0;
+  bottom: 0;
+  margin-block: auto;
+  height: max-content;
+  inset-inline-end: 5vw;
+  width: min(440px, 36vw);
+  max-height: 86vh;
+  overflow: hidden;
+  background: rgba(14, 17, 11, 0.95);
+  border: 1px solid var(--field-line-strong, rgba(232, 220, 192, 0.24));
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  visibility: hidden;
+}
+.op-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--signal);
+  color: var(--olive-950);
+  font-family: var(--font-text);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+.op-shot {
+  display: block;
+  border-bottom: 1px solid var(--field-line);
+}
+.op-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top;
+}
+.op-card-body {
+  padding: 1.1rem 1.2rem 1.3rem;
+}
+.op-card .op-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+}
+.op-card .op-type::before {
+  content: "";
+  width: 0.45em;
+  height: 0.45em;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+.op-card .op-client {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 1.9vw, 1.8rem);
+  line-height: 1.2;
+  color: var(--sand);
+}
+.op-card .op-desc {
+  margin: 0.6rem 0 0;
+  color: var(--sand-dim);
+  line-height: 1.7;
+  font-size: 0.93rem;
+}
+.op-card .op-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: 1.1rem;
+  padding: 0.8rem 1.4rem;
+  font-weight: 800;
+  color: var(--olive-950);
+  background: var(--signal);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  transition: background 0.3s;
+}
+.op-card .op-cta:hover {
+  background: #ff9445;
+}
+
+/* the objective index */
+.ops-index {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  inset-inline-start: var(--gutter);
+  display: grid;
+  gap: 0.45rem;
+  width: clamp(150px, 13vw, 200px);
+  transform: translateY(-50%);
+}
+.ops-index-title {
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--sand);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+  margin-bottom: 0.3rem;
+}
+.ops-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.75rem;
+  text-align: start;
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sand-dim);
+  background: rgba(14, 17, 11, 0.7);
+  border: 1px solid var(--field-line);
+  border-inline-start: 3px solid rgba(232, 220, 192, 0.18);
+  cursor: pointer;
+  transition: color 0.3s, border-color 0.3s, background 0.3s, transform 0.3s;
+}
+.ops-tab:hover {
+  color: var(--sand);
+  border-inline-start-color: rgba(255, 122, 26, 0.6);
+}
+.ops-tab-n {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sand-faint);
+}
+.ops-tab.is-done .ops-tab-n::after {
+  content: " ✓";
+  color: #6fae5e;
+}
+.ops-tab.is-active {
+  color: var(--sand);
+  background: linear-gradient(to left, rgba(255, 122, 26, 0.22), rgba(12, 15, 9, 0.94));
+  border-inline-start-color: var(--signal);
+  transform: translateX(0);
+}
+.ops-tab.is-active .ops-tab-n {
+  color: var(--signal);
+}
+
+/* reduced motion: the sheet sits still and the objectives are listed under it */
+.ops-map-stage.is-static {
+  height: auto;
+  padding-bottom: 3rem;
+}
+.ops-map-stage.is-static .ops-map {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+}
+.ops-map-stage.is-static .op-card {
+  position: relative;
+  inset: auto;
+  transform: none;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  visibility: visible;
+  margin: 1.5rem var(--gutter) 0;
+}
+.ops-map-stage.is-static .ops-index,
+.ops-map-stage.is-static .ops-hud {
+  display: none;
+}
+
+@media (max-width: 1099px) {
+  .ops-index {
+    display: none;
+  }
+}
+@media (max-width: 899px) {
+  .op-card {
+    top: auto;
+    bottom: 3vh;
+    margin-block: 0;
+    inset-inline: 4vw;
+    width: auto;
+    max-height: 62vh;
+  }
+  .op-card .op-shot {
+    display: none;
+  }
+  .op-card .op-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hud-bl,
+  .hud-compass {
+    display: none;
+  }
+  .hud-tl,
+  .hud-tr {
+    top: 66px;
+    max-width: 46vw;
+  }
+  html[lang="he"] .ops-hud {
+    font-size: 11px;
+  }
+  .hud-tl span:nth-of-type(1) {
+    display: none;
+  }
+  .hud-reticle {
+    inset-inline-start: 50%;
+    top: 30%;
+  }
+  .ops-stamp b {
+    font-size: 42px;
+  }
+  .ops-stamp i {
+    font-size: 18px;
+  }
 }

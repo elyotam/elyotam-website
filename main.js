@@ -532,21 +532,17 @@ function typeEyebrow(letters) {
 
 /* ============================================================
    THE HANGAR REVEAL (04 · תיק מבצעים)
-   A second frame scene, 158 frames of its own. The stage pins for a few
-   screens; the scroll opens the hangar doors and reveals the F-35, and once
-   the jet stands framed in the light the section title rises over it. A
-   ticker keeps easing toward the target frame while the stage is on screen,
-   so the doors never stop a few frames short of where the scroll left them.
+   A second frame scene of its own, 158 frames: the scroll slides the hangar
+   doors open, the F-35 is revealed in the light, and the section title rises
+   over it. Then the pin lets go and the operations map takes over.
    ============================================================ */
 function initHangarReveal(isReduced) {
   const stage = q("#reveal-stage");
   const canvas = q("#reveal-canvas");
   if (!stage || !canvas) return;
-  const pin = q(".reveal-pin", stage);
   const head = q(".reveal-head", stage);
 
   if (isReduced) {
-    // no scrub: the doors are simply open (the last frame, set in CSS), the title in place
     stage.classList.add("is-static");
     gsap.set(head, { opacity: 1, y: 0 });
     return;
@@ -556,55 +552,318 @@ function initHangarReveal(isReduced) {
     desktop: { folder: "reveal-frames", count: 158, ahead: 26, behind: 8, cap: 160, inflight: 4 },
     mobile: { folder: "reveal-frames-mobile", count: 158, ahead: 22, behind: 8, cap: 160, inflight: 3 },
   });
-  window.addEventListener("resize", () => seq.resize());
 
-  /* the doors are fully open around frame 112; the film ends at DOORS of the
-     pinned scroll and holds on the revealed jet under the title for the rest */
-  const DOORS = 0.8;
-  const state = { p: 0 };
+  /* the player eases toward its target, so it needs a few draws after the scroll
+     stops; it only draws while that settling is under way */
   let target = 0;
-  let onScreen = false;
+  let settle = 0;
+  const nudge = () => (settle = 45);
   gsap.ticker.add(() => {
-    if (onScreen) seq.drawAt(target);
+    if (settle <= 0) return;
+    seq.drawAt(target);
+    settle -= 1;
+  });
+  window.addEventListener("resize", () => {
+    seq.resize();
+    nudge();
   });
 
+  const state = { p: 0 };
   gsap.set(head, { opacity: 0, y: 40 });
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: stage,
-      start: "top top",
-      end: () => "+=" + Math.round(window.innerHeight * (narrow ? 2.2 : 2.6)),
-      pin,
-      scrub: 0.5,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-      onToggle: (self) => {
-        onScreen = self.isActive;
+  gsap
+    .timeline({
+      scrollTrigger: {
+        trigger: stage,
+        start: "top top",
+        end: () => "+=" + Math.round(window.innerHeight * (narrow ? 2 : 2.4)),
+        pin: q(".reveal-pin", stage),
+        scrub: 0.5,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
       },
-    },
-  });
-  tl.to(state, { p: 1, duration: DOORS, ease: "none", onUpdate: () => (target = state.p) }, 0)
-    .to(head, { opacity: 1, y: 0, duration: 0.12, ease: "power2.out" }, 0.62)
-    .to({}, { duration: 1 - DOORS }, DOORS);
+    })
+    .to(state, { p: 1, duration: 0.78, ease: "none", onUpdate: () => ((target = state.p), nudge()) }, 0)
+    .to(head, { opacity: 1, y: 0, duration: 0.1, ease: "power2.out" }, 0.6)
+    .to({}, { duration: 0.22 }, 0.78);
 
-  // start loading the first frames a couple of screens before the stage arrives
   ScrollTrigger.create({
     trigger: stage,
     start: "top 300%",
     once: true,
-    onEnter: () => seq.preloadAll(null, 30),
+    onEnter: () => seq.preloadAll(null, 30).then(nudge),
   });
-  // keep the canvas drawing while it is anywhere near the viewport, pinned or not
-  ScrollTrigger.create({
-    trigger: stage,
-    start: "top bottom",
-    end: "bottom top",
-    onToggle: (self) => {
-      if (self.isActive) onScreen = true;
+}
+
+/* ============================================================
+   THE OPERATIONS MAP (04 · תיק מבצעים)
+   A paper field map in the site's own colours. Every project is an objective
+   that pings on the sheet; the scroll flies the camera from one to the next,
+   the grease-pencil route draws itself behind it, and the objective's card
+   opens beside the map. The index jumps straight to any objective.
+   ============================================================ */
+function initOpsMap(isReduced, lenis) {
+  const stage = q("#ops-map-stage");
+  const map = q("#ops-map", stage || document);
+  if (!stage || !map) return;
+  const pins = qa(".ops-pin", stage);
+  const cards = qa(".op-card", stage);
+  const tabs = qa(".ops-tab", stage);
+  const routes = qa(".ops-route", stage);
+  const count = q("#ops-count", stage);
+  const status = q("#ops-status", stage);
+  const coord = q("#ops-coord", stage);
+  const n = cards.length;
+
+  // the contour hills are drawn once, from the same maths the site uses nowhere else
+  const art = q("#map-art", stage);
+  if (art) art.innerHTML = [
+    contourRings(700, 600, 11, 40, 38, 1),
+    contourRings(1780, 1040, 12, 30, 36, 3, 1.1, 0.72),
+    contourRings(1500, 300, 7, 40, 34, 5),
+    contourRings(360, 1290, 8, 30, 34, 2),
+    gridLines(200),
+  ].join("");
+
+  if (isReduced) {
+    stage.classList.add("is-static");
+    return;
+  }
+
+  const P = pins.map((pin) => [parseFloat(pin.style.left), parseFloat(pin.style.top)]);
+  const S = () => (narrow ? 0.66 : 0.95);
+  const FX = narrow ? 0.5 : 0.34;
+  const FY = narrow ? 0.34 : 0.5;
+  // the paper never leaves the frame: every shot is clamped to the edges of the sheet
+  const hold = (v, s, view, span) => Math.min(0, Math.max(view - span * s, v));
+  const cam = (p) => {
+    const s = S();
+    return {
+      x: hold(stage.clientWidth * FX - p[0] * s, s, stage.clientWidth, 2400),
+      y: hold(stage.clientHeight * FY - p[1] * s, s, stage.clientHeight, 1600),
+      scale: s,
+    };
+  };
+  const wide = () => {
+    const s = Math.max(stage.clientWidth / 2400, stage.clientHeight / 1600);
+    return { x: (stage.clientWidth - 2400 * s) / 2, y: (stage.clientHeight - 1600 * s) / 2, scale: s };
+  };
+  const sheet = q("#ops-sheet", stage);
+  const hud = q(".ops-hud", stage);
+  const index = q(".ops-index", stage);
+  gsap.set(map, wide());
+
+  /* the sheet comes up the way a satellite frame lands: a grid of blank squares
+     that fill in from the middle outwards until the whole sheet is there */
+  const tiles = q("#ops-tiles", stage);
+  const cols = narrow ? 4 : 8;
+  const rows = narrow ? 7 : 5;
+  if (tiles && !tiles.children.length) {
+    tiles.style.setProperty("--cols", cols);
+    tiles.style.setProperty("--rows", rows);
+    tiles.innerHTML = new Array(cols * rows).fill("<i></i>").join("");
+  }
+  gsap.set(sheet, { scale: 1.035, transformOrigin: "50% 50%" });
+  gsap.set([hud, index], { autoAlpha: 0 });
+  if (status) status.textContent = t("map.load", "סטטוס: קליטת לוויין");
+
+  routes.forEach((r) => {
+    const len = r.getTotalLength();
+    gsap.set(r, { strokeDasharray: len, strokeDashoffset: len });
+  });
+
+  const label = (i) => {
+    const [px, py] = P[i];
+    if (count) count.textContent = t("map.count", "יעד %N / 05").replace("%N", String(i + 1).padStart(2, "0"));
+    if (coord) coord.textContent = `${(31.7 + py / 20000).toFixed(4)}N ${(35.1 + px / 20000).toFixed(4)}E`;
+    pins.forEach((pin, k) => pin.classList.toggle("is-on", k === i));
+    tabs.forEach((tab, k) => {
+      tab.classList.toggle("is-active", k === i);
+      tab.classList.toggle("is-done", k < i);
+    });
+  };
+  label(0);
+
+  const tl = gsap.timeline({
+    defaults: { ease: "none" },
+    scrollTrigger: {
+      trigger: stage,
+      start: "top top",
+      end: () => "+=" + Math.round(window.innerHeight * n * (narrow ? 0.85 : 0.95)),
+      pin: true,
+      scrub: 0.7,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
     },
-    onLeave: () => (onScreen = false),
-    onLeaveBack: () => (onScreen = false),
   });
+  tl.to(sheet, { scale: 1, duration: 0.62, ease: "power2.out" }, 0)
+    .to(tiles ? tiles.children : {}, {
+      autoAlpha: 0,
+      scale: 0.84,
+      duration: 0.2,
+      ease: "power2.out",
+      stagger: { amount: 0.42, grid: [rows, cols], from: "center" },
+    }, 0)
+    .to([hud, index], { autoAlpha: 1, duration: 0.14 }, 0.4)
+    .call(() => status && (status.textContent = t("map.enroute", "סטטוס: בדרך")), null, 0.55);
+  P.forEach((p, i) => {
+    if (i > 0) tl.to(routes[i - 1], { strokeDashoffset: 0, duration: 0.55 });
+    tl.to(map, {
+      x: () => cam(p).x,
+      y: () => cam(p).y,
+      scale: () => S(),
+      duration: 0.55,
+      ease: "power2.inOut",
+      onStart: () => {
+        label(i);
+        if (status) status.textContent = t("map.enroute", "סטטוס: בדרך");
+      },
+    }, i > 0 ? "<" : ">")
+      .call(() => status && (status.textContent = t("map.secured", "סטטוס: הושלם")))
+      .fromTo(cards[i], { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.18, ease: "power2.out" })
+      .to({}, { duration: 0.55 })
+      .to(cards[i], { autoAlpha: 0, duration: 0.15 });
+  });
+  tl.to(map, {
+    x: () => wide().x,
+    y: () => wide().y,
+    scale: () => wide().scale,
+    duration: 0.6,
+    ease: "power2.inOut",
+    onStart: () => status && (status.textContent = t("map.done", "סטטוס: כל היעדים הושלמו")),
+  });
+
+  const st = tl.scrollTrigger;
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => {
+      const y = st.start + (st.end - st.start) * ((i + 0.72) / (n + 0.5));
+      if (lenis) lenis.scrollTo(y, { duration: 1.1 });
+      else window.scrollTo(0, y);
+    });
+  });
+}
+
+/** contour rings around a hill, drawn as slightly irregular closed paths */
+function contourRings(cx, cy, rings, r0, step, seed, rx = 1, ry = 0.75) {
+  let out = "";
+  for (let k = 0; k < rings; k++) {
+    const r = r0 + k * step;
+    let d = "";
+    for (let a = 0; a <= 64; a++) {
+      const t2 = (a / 64) * Math.PI * 2;
+      const w = 1 + 0.16 * Math.sin(3 * t2 + seed + k * 0.3) + 0.09 * Math.sin(5 * t2 + seed * 2) + 0.05 * Math.sin(9 * t2 + k);
+      d += (a ? "L" : "M") + (cx + Math.cos(t2) * r * w * rx).toFixed(1) + " " + (cy + Math.sin(t2) * r * w * ry).toFixed(1);
+    }
+    out += `<path class="ops-contour${k % 5 === 4 ? " is-index" : ""}" d="${d}Z" />`;
+  }
+  return out;
+}
+
+/** the sheet's grid, with its map references */
+function gridLines(step) {
+  let g = "";
+  for (let x = 0; x <= 2400; x += step) g += `<line class="ops-grid" x1="${x}" y1="0" x2="${x}" y2="1600" />`;
+  for (let y = 0; y <= 1600; y += step) g += `<line class="ops-grid" x1="0" y1="${y}" x2="2400" y2="${y}" />`;
+  for (let x = 0; x < 2400; x += step) for (let y = 0; y < 1600; y += step * 2)
+    g += `<text class="ops-ref" x="${x + 8}" y="${y + 22}">${36 + x / step}R ${740 + (y / step) * 3}</text>`;
+  return g;
+}
+
+/* ============================================================
+   SKIP
+   The film and the dossiers are long scrolls. While one of them holds the
+   screen, a button offers the way past it in one tap: a fast ride to the end
+   of that scene, never a jump cut.
+   ============================================================ */
+function initSkip(lenis) {
+  const btn = q("#skip-btn");
+  if (!btn) return;
+  const label = q(".skip-label", btn);
+  const scenes = [
+    { trigger: "#hero", to: "#whoweare", text: t("skip.film", "דלג על הסרט") },
+    { trigger: "#operations", to: "#consultation", text: t("skip.files", "דלג על המפה") },
+  ];
+  let current = null;
+  const show = (scene) => {
+    current = scene;
+    if (scene) {
+      label.textContent = scene.text;
+      btn.hidden = false;
+      requestAnimationFrame(() => btn.classList.add("is-on"));
+    } else {
+      btn.classList.remove("is-on");
+    }
+  };
+  btn.addEventListener("transitionend", () => {
+    if (!btn.classList.contains("is-on")) btn.hidden = true;
+  });
+  scenes.forEach((scene) => {
+    // a pinned scene is measured on its pin spacer, which carries the whole scroll length
+    let el = q(scene.trigger);
+    if (el && el.parentElement && el.parentElement.classList.contains("pin-spacer")) el = el.parentElement;
+    if (!el || !q(scene.to)) return;
+    ScrollTrigger.create({
+      trigger: el,
+      start: "top+=40 top",
+      end: "bottom bottom-=10",
+      refreshPriority: -2,
+      onToggle: (self) => {
+        if (self.isActive) show(scene);
+        else if (current === scene) show(null);
+      },
+    });
+  });
+  btn.addEventListener("click", () => {
+    if (!current) return;
+    const target = q(current.to);
+    show(null);
+    lenis.scrollTo(target, { duration: 1.6, easing: (x) => 1 - Math.pow(1 - x, 3) });
+  });
+}
+
+/* dust hanging in the hangar light: a handful of warm motes drifting up, drawn only while
+   the camera is inside and the stage is on screen */
+function initHangarDust() {
+  const canvas = q(".hangar-dust");
+  if (!canvas) return { set() {} };
+  const ctx = canvas.getContext("2d");
+  const motes = [];
+  const fit = () => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(canvas.clientWidth * dpr);
+    canvas.height = Math.round(canvas.clientHeight * dpr);
+  };
+  fit();
+  window.addEventListener("resize", fit);
+  const count = narrow ? 40 : 80;
+  for (let i = 0; i < count; i++) {
+    motes.push({ x: Math.random(), y: Math.random(), r: 0.6 + Math.random() * 1.8, v: 0.00015 + Math.random() * 0.0004, s: Math.random() * 6.28, a: 0.25 + Math.random() * 0.55 });
+  }
+  let running = false;
+  const tick = (time) => {
+    if (!running) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    for (const m of motes) {
+      m.y -= m.v;
+      if (m.y < -0.02) m.y = 1.02;
+      const x = (m.x + Math.sin(time / 4000 + m.s) * 0.015) * w;
+      const flicker = 0.6 + 0.4 * Math.sin(time / 700 + m.s * 3);
+      ctx.fillStyle = `rgba(255, 214, 160, ${m.a * flicker})`;
+      ctx.beginPath();
+      ctx.arc(x, m.y * h, m.r * (w / 1400 + 0.6), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  };
+  return {
+    set(on) {
+      if (on === running) return;
+      running = on;
+      if (on) requestAnimationFrame(tick);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    },
+  };
 }
 
 /** reduced-motion / no-JS-motion fallback: hold the final frame */
@@ -987,6 +1246,7 @@ async function boot() {
     initReveals(true);
     initVendorRun(true);
     initHangarReveal(true);
+    initOpsMap(true);
     initCounters(true);
     initFinale(true);
     await waitForFonts();
@@ -1011,11 +1271,15 @@ async function boot() {
   initReveals(false);
   initVendorRun(false);
   initHangarReveal(false);
+  initOpsMap(false, lenis);
   initCounters(false);
   initFinale(false);
   initAnchors(lenis);
+  initSkip(lenis);
   initMagnetics();
   if (!coarse && !narrow) initCursor();
+  // measure every trigger in page order, pins first, so the ones below a pin see its spacer
+  ScrollTrigger.sort();
 
   await waitForFonts();
   // the page always opens at the top of the film, whatever scroll the browser remembered

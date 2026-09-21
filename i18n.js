@@ -68,9 +68,6 @@
       [".offer-sub", 'Business websites, landing pages, apps, <bdi>AI</bdi> automation and online stores. <span class="nobr">Planned, built and launched in one place,</span> with one accountability for the result.'],
       [".hero-offer .btn-signal", "<span>Book an intro call</span><em>30 minutes, free</em>"],
       [".hero-offer .btn-ghost", "See our work"],
-      [".offer-proof .op-label", "Clients"],
-      [".offer-proof li:nth-child(1)", "Moshe Stern, CPA"],
-      [".offer-proof li:nth-child(2)", "Ahuvit Mor"],
       [".offer-scroll", "The film starts as you scroll<i></i>"],
 
       // the film

@@ -65,7 +65,7 @@
       // the offer
       [".offer-kicker", '<i aria-hidden="true"></i>All of your digital presence, from one place'],
       [".offer-title", '<span class="ot-line">This isn\u2019t just another website.</span><span class="ot-line ot-line--signal">It\u2019s an operation.</span>'],
-      [".offer-sub", 'Business websites, landing pages, apps, <bdi>AI</bdi> automation and online stores. <span class="nobr">Planned, built and launched in one place,</span> with one accountability for the result.'],
+      [".offer-sub", 'A business needs more than a website. <span class="nobr">Here we build everything it needs.</span>'],
       [".hero-offer .btn-signal", "<span>Book an intro call</span><em>30 minutes, free</em>"],
       [".hero-offer .btn-ghost", "See our work"],
       [".offer-scroll", "The film starts as you scroll<i></i>"],

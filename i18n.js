@@ -136,7 +136,7 @@
       // 03 · how we work
       ["#approach .section-index", "The process"],
       ["#approach .h-mega", "Scope. Build. Launch."],
-      ["#approach .house-head-note", "Three phases. None of them ends in a document."],
+      ["#approach .house-head-note", "We start only when it’s clear what’s being built."],
       ["#approach-steps .step:nth-child(1) .step-title", "Scope"],
       ["#approach-steps .step:nth-child(1) .step-desc", "What the business needs, who the customers are and what the goal is."],
       ["#approach-steps .step:nth-child(2) .step-title", "Build"],

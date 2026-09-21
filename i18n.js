@@ -58,7 +58,7 @@
       // the command bar
       ['.tb-nav a[href="#whoweserve"]', "Services"],
       ['.tb-nav a[href="#operations"]', "Work"],
-      ['.tb-nav a[href="#approach"]', "How we work"],
+      ['.tb-nav a[href="#approach"]', "The process"],
       ['.tb-nav a[href="#whoweare"]', "About"],
       [".tb-cta", "Intro call"],
 
@@ -134,15 +134,15 @@
       ["#operations .hud-tr", "<span id=\"ops-count\">OBJ 01 / 02</span><span id=\"ops-status\">Status: secured</span>"],
 
       // 03 · how we work
-      ["#approach .section-index", "How we work"],
-      ["#approach .h-mega", "Discovery. Build. Launch."],
-      ["#approach .house-head-note", "Three phases, and each one ends with something you can open in a browser."],
-      ["#approach-steps .step:nth-child(1) .step-title", "Discovery"],
-      ["#approach-steps .step:nth-child(1) .step-desc", "Where the money comes from today, who the competitors are and what the goal is. Before a single line of code."],
+      ["#approach .section-index", "The process"],
+      ["#approach .h-mega", "Scope. Build. Launch."],
+      ["#approach .house-head-note", "Three phases. None of them ends in a document."],
+      ["#approach-steps .step:nth-child(1) .step-title", "Scope"],
+      ["#approach-steps .step:nth-child(1) .step-desc", "What the business needs, who the customers are and what the goal is. Before a single line of code."],
       ["#approach-steps .step:nth-child(2) .step-title", "Build"],
-      ["#approach-steps .step:nth-child(2) .step-desc", "We get to work. A live version ships, so you see real progress, not reports."],
+      ["#approach-steps .step:nth-child(2) .step-desc", "We work in live versions, so you watch the product grow instead of waiting for the end."],
       ["#approach-steps .step:nth-child(3) .step-title", "Launch"],
-      ["#approach-steps .step:nth-child(3) .step-desc", "Go live, measure what works and correct. Support doesn\u2019t end on launch day."],
+      ["#approach-steps .step:nth-child(3) .step-desc", "Go live, measure what works and improve. Support continues afterwards."],
 
       // 04 · command and control
       ["#whoweare .section-index", "Command &amp; Control"],
@@ -165,7 +165,7 @@
       // footer
       ["#footer .footer-links a:nth-child(1)", "Services"],
       ["#footer .footer-links a:nth-child(2)", "Portfolio"],
-      ["#footer .footer-links a:nth-child(3)", "How we work"],
+      ["#footer .footer-links a:nth-child(3)", "The process"],
       ["#footer .footer-links a:nth-child(4)", "Command &amp; Control"],
       ["#footer .footer-links a:nth-child(5)", "HQ"],
       ["#footer .footer-fine span:nth-child(1)", "© 2026 ELYOTAM. All rights reserved."],

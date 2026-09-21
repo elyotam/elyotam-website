@@ -63,7 +63,7 @@
       [".tb-cta", "Intro call"],
 
       // the offer
-      [".offer-kicker", '<i aria-hidden="true"></i>All of your digital presence, from one place'],
+      [".offer-kicker", '<i aria-hidden="true"></i>All of your digital presence'],
       [".offer-title", '<span class="ot-line">This isn\u2019t just another website.</span><span class="ot-line ot-line--signal">It\u2019s an operation.</span>'],
       [".offer-sub", 'A business needs more than a website. <span class="nobr">Here we build everything it needs.</span>'],
       [".hero-offer .btn-signal", "<span>Book an intro call</span><em>30 minutes, free</em>"],

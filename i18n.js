@@ -138,7 +138,7 @@
       ["#approach .h-mega", "Scope. Build. Launch."],
       ["#approach .house-head-note", "Three phases. None of them ends in a document."],
       ["#approach-steps .step:nth-child(1) .step-title", "Scope"],
-      ["#approach-steps .step:nth-child(1) .step-desc", "What the business needs, who the customers are and what the goal is. Before a single line of code."],
+      ["#approach-steps .step:nth-child(1) .step-desc", "What the business needs, who the customers are and what the goal is."],
       ["#approach-steps .step:nth-child(2) .step-title", "Build"],
       ["#approach-steps .step:nth-child(2) .step-desc", "We work in live versions, so you watch the product grow instead of waiting for the end."],
       ["#approach-steps .step:nth-child(3) .step-title", "Launch"],

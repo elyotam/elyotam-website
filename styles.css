@@ -65,21 +65,21 @@ pre {
 
 /* ---------- tokens ---------- */
 :root {
-  --ink: #08080a;
-  --ink-800: #0d0d10;
-  --ink-700: #141418;
-  --ink-600: #1c1c20;
-  --chalk: #f6f3ec;
-  --chalk-dim: #c4bdac;
-  --chalk-faint: #9a9281;
-  --electric: #ead9b8;
-  --electric-soft: #f4ecdb;
-  --electric-deep: #c2a875;
-  --cyan: #fdf8ee;
-  --gold: #e9cda2;
-  --hairline: rgba(246, 243, 236, 0.08);
-  --hairline-strong: rgba(246, 243, 236, 0.18);
-  --glass: rgba(20, 18, 15, 0.55);
+  --ink: #11162a;
+  --ink-800: #141a32;
+  --ink-700: #181f3d;
+  --ink-600: #1d2648;
+  --chalk: #eff0f3;
+  --chalk-dim: #b1b6bf;
+  --chalk-faint: #838a98;
+  --electric: #cbcfd7;
+  --electric-soft: #e4e6eb;
+  --electric-deep: #9098a7;
+  --cyan: #f8f6f3;
+  --gold: #bec3cd;
+  --hairline: rgba(239, 240, 243, 0.08);
+  --hairline-strong: rgba(239, 240, 243, 0.18);
+  --glass: rgba(21, 28, 55, 0.55);
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   /* One display face, one text face, one brand face, one mono.
      Clash Display carries no Hebrew, so any stack that led with it dropped
@@ -135,7 +135,7 @@ html.is-loading body {
   touch-action: none;
 }
 ::selection {
-  background: rgba(234, 217, 184, 0.3);
+  background: rgba(203, 207, 215, 0.3);
   color: #fff;
 }
 
@@ -217,7 +217,7 @@ html.is-loading body {
   z-index: 120;
   display: grid;
   place-items: center;
-  background: radial-gradient(120% 120% at 50% 40%, #15120b, #08080a 70%);
+  background: radial-gradient(120% 120% at 50% 40%, #121937, #11162a 70%);
 }
 #loader .loader-inner {
   display: flex;
@@ -246,7 +246,7 @@ html.is-loading body {
   position: absolute;
   inset: 0 100% 0 0;
   background: linear-gradient(90deg, var(--electric), var(--cyan));
-  box-shadow: 0 0 18px rgba(234, 217, 184, 0.7);
+  box-shadow: 0 0 18px rgba(203, 207, 215, 0.7);
   transition: right 0.25s var(--ease-expo);
 }
 #loader .loader-row {
@@ -287,16 +287,16 @@ html.is-loading body {
 .cursor-ring {
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(244, 236, 219, 0.55);
-  box-shadow: 0 0 24px rgba(234, 217, 184, 0.25), inset 0 0 14px rgba(234, 217, 184, 0.12);
+  border: 1px solid rgba(228, 230, 235, 0.55);
+  box-shadow: 0 0 24px rgba(203, 207, 215, 0.25), inset 0 0 14px rgba(203, 207, 215, 0.12);
   transition: width 0.3s var(--ease-expo), height 0.3s var(--ease-expo),
     border-color 0.3s var(--ease-expo), background 0.3s var(--ease-expo);
 }
 .cursor-ring.is-active {
   width: 74px;
   height: 74px;
-  border-color: rgba(253, 248, 238, 0.6);
-  background: rgba(234, 217, 184, 0.06);
+  border-color: rgba(248, 246, 243, 0.6);
+  background: rgba(203, 207, 215, 0.06);
 }
 body.has-custom-cursor,
 body.has-custom-cursor a,
@@ -377,12 +377,12 @@ body.has-custom-cursor [data-magnetic-soft] {
   font-size: clamp(0.95rem, 1.25vw, 1.2rem);
   letter-spacing: 0.04em;
   color: #ffffff;
-  background: rgba(8, 10, 16, 0.78);
+  background: rgba(16, 22, 49, 0.78);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 0.9rem 2.2rem;
   border-radius: 50px;
-  border: 1px solid rgba(234, 217, 184, 0.3);
+  border: 1px solid rgba(203, 207, 215, 0.3);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85);
   display: inline-block;
 }
@@ -397,7 +397,7 @@ body.has-custom-cursor [data-magnetic-soft] {
   font-size: clamp(2.7rem, 8.8vw, 9.5rem);
   letter-spacing: 0.02em;
   color: #fff;
-  text-shadow: 0 0 60px rgba(234, 217, 184, 0.35), 0 0 120px rgba(253, 248, 238, 0.12);
+  text-shadow: 0 0 60px rgba(203, 207, 215, 0.35), 0 0 120px rgba(248, 246, 243, 0.12);
   clip-path: inset(0 100% 0 0);
 }
 .brand-reveal .brand-name {
@@ -428,12 +428,12 @@ body.has-custom-cursor [data-magnetic-soft] {
   letter-spacing: 0;
   line-height: 1.22;
   color: #fff;
-  background: rgba(8, 10, 16, 0.78);
+  background: rgba(16, 22, 49, 0.78);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 2rem 3rem;
   border-radius: 24px;
-  border: 1px solid rgba(234, 217, 184, 0.3);
+  border: 1px solid rgba(203, 207, 215, 0.3);
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
   display: inline-block;
 }
@@ -472,10 +472,10 @@ body.has-custom-cursor [data-magnetic-soft] {
   max-width: 36rem;
   text-align: right;
   padding: 2.2rem 2.6rem;
-  background: rgba(8, 10, 16, 0.78);
+  background: rgba(16, 22, 49, 0.78);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(234, 217, 184, 0.25);
+  border: 1px solid rgba(203, 207, 215, 0.25);
   border-radius: 24px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
@@ -514,7 +514,7 @@ body.has-custom-cursor [data-magnetic-soft] {
   width: clamp(120px, 18vw, 220px);
   margin: 1.2rem 0 1.2rem auto;
   background: linear-gradient(270deg, var(--electric), var(--cyan), transparent);
-  box-shadow: 0 0 14px rgba(234, 217, 184, 0.7);
+  box-shadow: 0 0 14px rgba(203, 207, 215, 0.7);
   transform-origin: right center;
 }
 .chapter-caption {
@@ -562,7 +562,7 @@ html.is-static .chapter-zone {
   width: 100%;
   height: 0%;
   background: linear-gradient(to bottom, var(--cyan), var(--electric));
-  box-shadow: 0 0 14px rgba(234, 217, 184, 0.7);
+  box-shadow: 0 0 14px rgba(203, 207, 215, 0.7);
 }
 .hero-rail .rail-node {
   position: absolute;
@@ -572,7 +572,7 @@ html.is-static .chapter-zone {
   height: 7px;
   border-radius: 50%;
   background: var(--cyan);
-  box-shadow: 0 0 16px rgba(253, 248, 238, 0.9);
+  box-shadow: 0 0 16px rgba(248, 246, 243, 0.9);
   transform: translate(-50%, -50%);
 }
 .hero-rail .rail-label {
@@ -770,7 +770,7 @@ html.is-static .chapter-zone {
   gap: 0.7rem;
   margin-top: 2.4rem;
   padding: 1rem 2.2rem;
-  border: 1px solid rgba(234, 217, 184, 0.35);
+  border: 1px solid rgba(203, 207, 215, 0.35);
   color: var(--chalk);
   font-family: var(--font-display);
   font-weight: 600;
@@ -783,7 +783,7 @@ html.is-static .chapter-zone {
 .consult-cta:hover {
   border-color: var(--electric);
   color: var(--electric-soft);
-  background: rgba(234, 217, 184, 0.06);
+  background: rgba(203, 207, 215, 0.06);
 }
 .consult-meta {
   margin-top: 1.2rem;
@@ -857,7 +857,7 @@ html.is-static .chapter-zone {
 .house-card:hover {
   border-color: var(--hairline-strong);
   transform: translateY(-7px);
-  background: linear-gradient(180deg, rgba(234, 217, 184, 0.05), transparent);
+  background: linear-gradient(180deg, rgba(203, 207, 215, 0.05), transparent);
 }
 .house-card:hover::before {
   transform: scaleX(1);
@@ -908,15 +908,15 @@ html.is-static .chapter-zone {
   place-items: center;
   padding-block: clamp(9rem, 22vh, 18rem);
   overflow: hidden;
-  background: radial-gradient(130% 100% at 50% 50%, #0c0b08, #08080a 60%, #050504);
+  background: radial-gradient(130% 100% at 50% 50%, #10162d, #11162a 60%, #0e1224);
 }
 .finale-aurora {
   position: absolute;
   inset: -20%;
   pointer-events: none;
-  background: radial-gradient(38% 50% at 30% 42%, rgba(240, 184, 120, 0.1), transparent 70%),
-    radial-gradient(42% 46% at 72% 60%, rgba(234, 217, 184, 0.1), transparent 72%),
-    radial-gradient(50% 40% at 50% 88%, rgba(240, 184, 120, 0.06), transparent 70%);
+  background: radial-gradient(38% 50% at 30% 42%, rgba(201, 186, 159, 0.1), transparent 70%),
+    radial-gradient(42% 46% at 72% 60%, rgba(203, 207, 215, 0.1), transparent 72%),
+    radial-gradient(50% 40% at 50% 88%, rgba(201, 186, 159, 0.06), transparent 70%);
   filter: blur(20px);
   opacity: 0.9;
   animation: auroraDrift 26s ease-in-out infinite alternate;
@@ -937,7 +937,7 @@ html.is-static .chapter-zone {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(70% 70% at 50% 50%, transparent 50%, rgba(5, 6, 9, 0.7) 100%);
+  background: radial-gradient(70% 70% at 50% 50%, transparent 50%, rgba(14, 19, 41, 0.7) 100%);
 }
 .finale-inner {
   position: relative;
@@ -970,7 +970,7 @@ html.is-static .chapter-zone {
   line-height: 1;
   letter-spacing: 0.02em;
   color: #fff;
-  text-shadow: 0 0 50px rgba(242, 244, 248, 0.18), 0 0 90px rgba(234, 217, 184, 0.26);
+  text-shadow: 0 0 50px rgba(242, 244, 248, 0.18), 0 0 90px rgba(203, 207, 215, 0.26);
   white-space: nowrap;
   max-width: 100%;
 }
@@ -1012,7 +1012,7 @@ html.is-static .chapter-zone {
   width: 100%;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--electric), transparent);
-  box-shadow: 0 0 14px rgba(234, 217, 184, 0.6);
+  box-shadow: 0 0 14px rgba(203, 207, 215, 0.6);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.6s var(--ease-expo);

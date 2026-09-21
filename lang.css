@@ -10,8 +10,8 @@
   display: inline-flex;
   align-items: stretch;
   direction: ltr;
-  border: 1px solid rgba(232, 220, 192, 0.3);
-  background: rgba(14, 17, 11, 0.72);
+  border: 1px solid rgba(207, 210, 217, 0.3);
+  background: rgba(18, 25, 51, 0.72);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
@@ -25,24 +25,24 @@
   font-weight: 500;
   font-size: 0.78rem;
   letter-spacing: 0.16em;
-  color: #bfb396;
+  color: #a1a7b4;
   background: transparent;
   cursor: pointer;
   transition: color 0.25s, background 0.25s;
 }
 .lang-switch button + button {
-  border-left: 1px solid rgba(232, 220, 192, 0.22);
+  border-left: 1px solid rgba(207, 210, 217, 0.22);
 }
 .lang-switch button:hover {
-  color: #e8dcc0;
+  color: #cfd2d9;
 }
 .lang-switch button[aria-pressed="true"] {
-  color: #0e110b;
-  background: #ff7a1a;
+  color: #121933;
+  background: #af966a;
   cursor: default;
 }
 .lang-switch button:focus-visible {
-  outline: 2px solid #ff7a1a;
+  outline: 2px solid #af966a;
   outline-offset: 2px;
 }
 /* on the contact page it floats in the corner; on the home page it rides in the bar */
@@ -53,7 +53,7 @@
   z-index: 100;
 }
 .topbar .lang-switch {
-  background: rgba(10, 13, 8, 0.6);
+  background: rgba(16, 22, 46, 0.6);
   box-shadow: none;
 }
 
@@ -64,7 +64,7 @@ html[dir="ltr"] .chapter-card {
 html[dir="ltr"] .chapter-rule {
   margin-left: 0;
   margin-right: auto;
-  background: linear-gradient(90deg, var(--signal, #ff7a1a), rgba(255, 122, 26, 0.45), transparent);
+  background: linear-gradient(90deg, var(--signal, #af966a), rgba(175, 150, 106, 0.45), transparent);
 }
 html[dir="ltr"] .stat-row > div::before {
   right: auto;

@@ -58,7 +58,7 @@
       // the command bar
       ['.tb-nav a[href="#whoweserve"]', "Services"],
       ['.tb-nav a[href="#operations"]', "Work"],
-      ['.tb-nav a[href="#approach"]', "How it works"],
+      ['.tb-nav a[href="#approach"]', "How we work"],
       ['.tb-nav a[href="#whoweare"]', "About"],
       [".tb-cta", "Intro call"],
 
@@ -66,7 +66,7 @@
       [".offer-kicker", '<i aria-hidden="true"></i>All of your digital presence'],
       [".offer-title", '<span class="ot-line">This isn\u2019t just another website.</span><span class="ot-line ot-line--signal">It\u2019s an operation.</span>'],
       [".offer-sub", 'A business needs more than a website. <span class="nobr">Here we build everything it needs.</span>'],
-      [".hero-offer .btn-signal", "<span>Book an intro call</span><em>30 minutes, free</em>"],
+      [".hero-offer .btn-signal", "Book an intro call"],
       [".hero-offer .btn-ghost", "See our work"],
       [".offer-scroll", "The film starts as you scroll<i></i>"],
 
@@ -133,16 +133,16 @@
       ["#operations .ops-stamp", "<b>02/02</b><i>objectives</i>"],
       ["#operations .hud-tr", "<span id=\"ops-count\">OBJ 01 / 02</span><span id=\"ops-status\">Status: secured</span>"],
 
-      // 03 · operation order
-      ["#approach .section-index", "Operation Order"],
-      ["#approach .h-mega", "Get to know. Execute. Launch."],
-      ["#approach .house-head-note", "Three phases. Each one ends with something live in the field, not a slide deck."],
-      ["#approach-steps .step:nth-child(1) .step-title", "Get to know"],
-      ["#approach-steps .step:nth-child(1) .step-desc", "Intelligence gathering: where the money comes from today, who the competitors are, and what the objective is. Before a single line of code."],
-      ["#approach-steps .step:nth-child(2) .step-title", "Execute"],
-      ["#approach-steps .step:nth-child(2) .step-desc", "The force goes into action. A live version ships, so you see progress in the field, not reports."],
+      // 03 · how we work
+      ["#approach .section-index", "How we work"],
+      ["#approach .h-mega", "Discovery. Build. Launch."],
+      ["#approach .house-head-note", "Three phases, and each one ends with something you can open in a browser."],
+      ["#approach-steps .step:nth-child(1) .step-title", "Discovery"],
+      ["#approach-steps .step:nth-child(1) .step-desc", "Where the money comes from today, who the competitors are and what the goal is. Before a single line of code."],
+      ["#approach-steps .step:nth-child(2) .step-title", "Build"],
+      ["#approach-steps .step:nth-child(2) .step-desc", "We get to work. A live version ships, so you see real progress, not reports."],
       ["#approach-steps .step:nth-child(3) .step-title", "Launch"],
-      ["#approach-steps .step:nth-child(3) .step-desc", "Go live, measure the hits and correct course. Support doesn\u2019t end on launch day."],
+      ["#approach-steps .step:nth-child(3) .step-desc", "Go live, measure what works and correct. Support doesn\u2019t end on launch day."],
 
       // 04 · command and control
       ["#whoweare .section-index", "Command &amp; Control"],
@@ -158,14 +158,14 @@
       ["#finale .finale-tagline",
         '<span class="reveal-line"><span>The idea won\u2019t wait at base forever.</span></span>' +
         '<span class="reveal-line"><span>Let\u2019s take it into the field.</span></span>'],
-      ["#finale .close-note", "A half-hour intro call, with no slide deck and no sales pitch. Tell us what\u2019s stuck and get an operation order: what to build, in what order, and when to go live. If it\u2019s not a fit, we\u2019ll say so."],
-      ["#finale .btn-signal", "<span>Book an intro call</span><em>30 minutes, free</em>"],
+      ["#finale .close-note", "A half-hour intro call, with no slide deck and no sales pitch. Tell us what\u2019s stuck and get a plan: what to build, in what order, and when to go live. If it\u2019s not a fit, we\u2019ll say so."],
+      ["#finale .btn-signal", "Book an intro call"],
       ["#finale .btn-ghost", "Message us on WhatsApp"],
 
       // footer
       ["#footer .footer-links a:nth-child(1)", "Services"],
       ["#footer .footer-links a:nth-child(2)", "Portfolio"],
-      ["#footer .footer-links a:nth-child(3)", "Operation Order"],
+      ["#footer .footer-links a:nth-child(3)", "How we work"],
       ["#footer .footer-links a:nth-child(4)", "Command &amp; Control"],
       ["#footer .footer-links a:nth-child(5)", "HQ"],
       ["#footer .footer-fine span:nth-child(1)", "© 2026 ELYOTAM. All rights reserved."],

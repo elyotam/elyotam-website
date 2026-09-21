@@ -2145,13 +2145,6 @@ html[dir="ltr"] .tb-nav a::after {
   font-size: clamp(0.98rem, 1.3vw, 1.08rem);
   letter-spacing: 0.02em;
 }
-.btn-signal em {
-  font-style: normal;
-  font-weight: 600;
-  font-size: 0.76rem;
-  letter-spacing: 0.06em;
-  opacity: 0.78;
-}
 .btn-signal:hover {
   background: #ff9445;
 }

@@ -841,11 +841,20 @@ function initCursor() {
   if (!dot || !ring) return;
   document.body.classList.add("has-custom-cursor");
 
+  const svg = ring.querySelector("svg");
   const dx = gsap.quickTo(dot, "x", { duration: 0.12, ease: "power3" });
   const dy = gsap.quickTo(dot, "y", { duration: 0.12, ease: "power3" });
-  const rx = gsap.quickTo(ring, "x", { duration: 0.55, ease: "power3" });
-  const ry = gsap.quickTo(ring, "y", { duration: 0.55, ease: "power3" });
+  const rx = gsap.quickTo(ring, "x", { duration: 0.42, ease: "power3" });
+  const ry = gsap.quickTo(ring, "y", { duration: 0.42, ease: "power3" });
+  /* the tilt is what makes it read as an object: the helmet leans into the
+     direction it is being thrown, and rights itself when the pointer stops */
+  const tiltY = svg && gsap.quickTo(svg, "rotationY", { duration: 0.5, ease: "power2" });
+  const tiltX = svg && gsap.quickTo(svg, "rotationX", { duration: 0.5, ease: "power2" });
+  const clamp = (v, n) => Math.max(-n, Math.min(n, v));
 
+  let lastX = 0;
+  let lastY = 0;
+  let idle = 0;
   window.addEventListener(
     "pointermove",
     (e) => {
@@ -853,6 +862,17 @@ function initCursor() {
       dy(e.clientY);
       rx(e.clientX);
       ry(e.clientY);
+      if (tiltY && !reduced) {
+        tiltY(clamp((e.clientX - lastX) * 1.6, 26));
+        tiltX(clamp((lastY - e.clientY) * 1.2, 18));
+        clearTimeout(idle);
+        idle = setTimeout(() => {
+          tiltY(0);
+          tiltX(0);
+        }, 90);
+      }
+      lastX = e.clientX;
+      lastY = e.clientY;
     },
     { passive: true }
   );

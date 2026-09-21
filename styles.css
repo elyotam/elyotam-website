@@ -267,37 +267,69 @@ html.is-loading body {
 }
 
 /* ---------- cursor ---------- */
+/* nothing is painted until initCursor says it is driving them: without it both
+   layers sit unpositioned in the top corner of the screen */
 .cursor-dot,
-.cursor-ring {
+.cursor-helm {
+  display: none;
+}
+body.has-custom-cursor .cursor-dot,
+body.has-custom-cursor .cursor-helm {
+  display: block;
+}
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 111;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: var(--chalk);
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+/* ---------- the helmet that follows the pointer ---------- */
+.cursor-helm {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 110;
   pointer-events: none;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
+  /* it trails below and right of the true pointer, the way the body of an
+     arrow cursor does, so it never sits on top of what is being pointed at */
+  margin: 10px 0 0 9px;
+  perspective: 260px;
   will-change: transform;
+  transition: opacity 0.3s;
 }
-.cursor-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--chalk);
-  mix-blend-mode: difference;
+.cursor-helm svg {
+  display: block;
+  transform-style: preserve-3d;
+  transition: transform 0.35s var(--ease-expo), filter 0.35s var(--ease-expo);
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
 }
-.cursor-ring {
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(228, 230, 235, 0.55);
-  box-shadow: 0 0 24px rgba(203, 207, 215, 0.25), inset 0 0 14px rgba(203, 207, 215, 0.12);
-  transition: width 0.3s var(--ease-expo), height 0.3s var(--ease-expo),
-    border-color 0.3s var(--ease-expo), background 0.3s var(--ease-expo);
+.helm-shadow {
+  fill: #05070f;
+  opacity: 0.55;
+  transform: translate(2px, 3px);
 }
-.cursor-ring.is-active {
-  width: 74px;
-  height: 74px;
-  border-color: rgba(248, 246, 243, 0.6);
-  background: rgba(203, 207, 215, 0.06);
+.helm-brim { fill: #0f1427; opacity: .55; }
+.helm-rail { fill: #af966a; opacity: 0.9; }
+.helm-mount { fill: #af966a; }
+/* over something clickable it leans in and lights up */
+.cursor-helm.is-active svg {
+  transform: scale(1.18);
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 0 10px rgba(175, 150, 106, 0.55));
 }
+@media (prefers-reduced-motion: reduce) {
+  .cursor-helm { perspective: none; }
+  .cursor-helm svg { transition: none; }
+}
+
 body.has-custom-cursor,
 body.has-custom-cursor a,
 body.has-custom-cursor button,

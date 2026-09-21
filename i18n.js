@@ -92,9 +92,9 @@
       ["#cap-apps .cap-note", '<span class="nobr">When your app is in the air,</span> <span class="nobr">your competitors have no sky.</span>'],
 
       // 01 · order of battle
-      ["#whoweserve .section-index", "Order of Battle"],
-      ["#whoweserve .h-mega", "Your Forces in the Field."],
-      ["#whoweserve .house-head-note", "No sector left open: presence, conversion, sales, retention and automation."],
+      ["#whoweserve .section-index", "Services"],
+      ["#whoweserve .h-mega", "Everything your business needs."],
+      ["#whoweserve .house-head-note", "Presence, conversion, sales, retention and automation, with nothing left uncovered."],
       ["#serve-grid .house-card:nth-child(1) .house-title", "Business Website"],
       ["#serve-grid .house-card:nth-child(1) .house-desc", "Taking the digital ground: a custom-designed website that presents your brand, a clear message for the customer and a contact form that sends every lead straight to HQ."],
       ["#serve-grid .house-card:nth-child(1) .house-arrow", "Holding the ground"],
@@ -163,7 +163,7 @@
       ["#finale .btn-ghost", "Message us on WhatsApp"],
 
       // footer
-      ["#footer .footer-links a:nth-child(1)", "Order of Battle"],
+      ["#footer .footer-links a:nth-child(1)", "Services"],
       ["#footer .footer-links a:nth-child(2)", "Portfolio"],
       ["#footer .footer-links a:nth-child(3)", "Operation Order"],
       ["#footer .footer-links a:nth-child(4)", "Command &amp; Control"],

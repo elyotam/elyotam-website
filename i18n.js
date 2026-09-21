@@ -63,12 +63,12 @@
       [".tb-cta", "Intro call"],
 
       // the offer
-      [".offer-kicker", '<i aria-hidden="true"></i>One digital unit, one command'],
+      [".offer-kicker", '<i aria-hidden="true"></i>All of your digital presence, from one place'],
       [".offer-title", '<span class="ot-line">This isn\u2019t just another website.</span><span class="ot-line ot-line--signal">It\u2019s an operation.</span>'],
-      [".offer-sub", 'Websites, landing pages, apps, <bdi>AI</bdi> automation and stores. <span class="nobr">All of it planned, built and launched</span> from one command post.'],
+      [".offer-sub", 'Business websites, landing pages, apps, <bdi>AI</bdi> automation and online stores. <span class="nobr">Planned, built and launched in one place,</span> with one accountability for the result.'],
       [".hero-offer .btn-signal", "<span>Book an intro call</span><em>30 minutes, free</em>"],
       [".hero-offer .btn-ghost", "See our work"],
-      [".offer-proof .op-label", "Already live"],
+      [".offer-proof .op-label", "Clients"],
       [".offer-proof li:nth-child(1)", "Moshe Stern, CPA"],
       [".offer-proof li:nth-child(2)", "Ahuvit Mor"],
       [".offer-scroll", "The film starts as you scroll<i></i>"],

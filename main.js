@@ -39,7 +39,18 @@ const FILM_END = 0.94;
 /* Scenes that get more scroll than the rest: inside a slow zone each frame takes
    `rate` times the scroll of a normal frame. The sunrise climb above the clouds
    carries "עליונות אווירית", so it plays at half speed and the card can be read. */
-const SLOW = [{ from: 1008, to: 1068, rate: 2.2 }];
+/* Scenes that get more scroll than the rest. The five with a service line on
+   them nearly stop in the middle, so the picture holds while the words are read;
+   the blast gets a gentler slowdown because there is nothing to read on it. */
+const SLOW = [
+  { from: 112, to: 152, rate: 5 },    // the drop
+  { from: 300, to: 345, rate: 5 },    // the name and what it does
+  { from: 438, to: 478, rate: 5 },    // the tanks
+  { from: 578, to: 618, rate: 5 },    // the scope
+  { from: 648, to: 706, rate: 1.4 },  // the blast, no text on it
+  { from: 742, to: 782, rate: 5 },    // the squad
+  { from: 1016, to: 1060, rate: 7 },  // above the clouds
+];
 const weight = (frame) =>
   SLOW.reduce((w, z) => w + (z.rate - 1) * Math.min(Math.max(frame - z.from, 0), z.to - z.from), frame);
 const TOTAL = weight(FRAMES - 1);
@@ -59,34 +70,14 @@ const frameAt = (pos) => {
   }
   return Math.min(frame + w, FRAMES - 1);
 };
-const CHAPTERS = [
-  { sel: "#chapter-drop", in: at(88), out: at(189) },
-  /* the lead tank kicks up its dust around 440-496 */
-  { sel: "#chapter-web", in: at(412), out: at(511) },
-  /* opens as the room comes into view and clears as the camera leaves
-     through the hole in the wall, before the blast */
-  { sel: "#chapter-landing", in: at(555), out: at(648) },
-  /* over the squad, clear before the jets come in over the wall */
-  { sel: "#chapter-ai", in: at(712), out: at(803) },
-  /* "air superiority" as the two F-35s climb out of the smoke above the clouds at sunrise */
-  { sel: "#chapter-apps", in: at(1010), out: at(1066) },
-];
-/* "לקוח" on its own, over the explosion: acquired as the charge goes off at
-   656, locked on the blast's peak, held through the dust, gone by 695 */
-const TARGET = { in: at(656), out: at(695) };
 /* the jets roll to a stop in front of the hangar, canopies lifting */
 const CLOSING_AT = at(1144);
 /* labels come through i18n.js, which sets window.t before this module runs */
 const t = window.t ?? ((key, hebrew) => hebrew);
 const RAIL_STOPS = [
-  { until: at(83), label: t("rail.zero", "שעת אפס") },
-  { until: at(220), label: t("rail.drop", "חנויות דרופשיפינג") },
-  { until: at(374), label: "ELYOTAM" },
-  { until: at(539), label: t("rail.web", "אתרי תדמית") },
-  { until: at(676), label: t("rail.landing", "דפי נחיתה") },
-  { until: at(818), label: t("rail.ai", "אוטומציות AI") },
-  { until: at(1070), label: t("rail.apps", "פיתוח אפליקציות") },
-  { until: Infinity, label: t("rail.done", "המשימה הושלמה") },
+  { until: at(238), label: t("rail.zero", "שעת אפס") },
+  { until: at(710), label: "ELYOTAM" },
+  { until: Infinity, label: t("rail.done", "הושלם") },
 ];
 const railLabel = (p) => (RAIL_STOPS.find((s) => p < s.until) ?? RAIL_STOPS.at(-1)).label;
 
@@ -210,33 +201,11 @@ function splitWords(el) {
 /* ============================================================
    HERO TIMELINE
    ============================================================ */
-function chapterTween(tl, cfg) {
-  const zone = q(cfg.sel);
-  if (!zone) return;
-  const index = q(".chapter-index", zone);
-  const word = q(".chapter-word", zone);
-  const rule = q(".chapter-rule", zone);
-  const caption = q(".chapter-caption", zone);
-
-  gsap.set(zone, { opacity: 0 });
-  gsap.set(index, { opacity: 0, x: -12 });
-  gsap.set(word, { yPercent: 110 });
-  gsap.set(rule, { scaleX: 0, transformOrigin: "left center" });
-  gsap.set(caption, { opacity: 0, y: 14 });
-
-  tl.to(zone, { opacity: 1, duration: 0.015 }, cfg.in)
-    .to(index, { opacity: 1, x: 0, duration: 0.03, ease: "power2.out" }, cfg.in + 0.004)
-    .to(word, { yPercent: 0, duration: 0.05, ease: "power3.out" }, cfg.in + 0.01)
-    .to(rule, { scaleX: 1, duration: 0.06, ease: "power3.out" }, cfg.in + 0.02)
-    .to(caption, { opacity: 1, y: 0, duration: 0.04, ease: "power2.out" }, cfg.in + 0.03)
-    .to(zone, { opacity: 0, duration: 0.03, ease: "power2.in" }, cfg.out - 0.018);
-}
-
-function buildHeroTimeline(scene, eyebrowLetters) {
+function buildHeroTimeline(scene) {
   const hero = q("#hero");
   if (!hero) return;
 
-  const zoneEyebrow = q("#zone-eyebrow");
+  const offer = q("#hero-offer");
   const zoneName = q("#zone-name");
   const zoneClosing = q("#zone-closing");
   const brand = q("#brand-reveal");
@@ -245,22 +214,17 @@ function buildHeroTimeline(scene, eyebrowLetters) {
   const railFill = q("#rail-fill");
   const railNode = q("#rail-node");
   const railText = q("#rail-label");
-  const hint = q("#scroll-hint");
-  const cue = q(".mobile-scroll-cue");
 
-  // the eyebrow greets the visitor on load, so it is already up at scroll 0
-  gsap.set(zoneEyebrow, { opacity: 1 });
-  gsap.set(eyebrowLetters, { opacity: 0 });
   gsap.set(brandSub, { opacity: 0, y: 16 });
   gsap.set(zoneClosing, { opacity: 0, y: 30 });
   if (rail) gsap.to(rail, { opacity: 1, duration: 0.8, delay: 0.2 });
 
-  // one screen of scroll per chapter, plus room for the descent between them
-  // scroll length grows with the film, so each scene keeps its pace (1175 frames)
-  const length = Math.round(window.innerHeight * (narrow ? 5.5 : 7.2));
+  /* The film used to cost seven screens of scrolling before the page began.
+     It now runs as a sizzle: two and a half screens, three beats, and the
+     offer is readable before any of it moves. */
+  const length = Math.round(window.innerHeight * (narrow ? 2.9 : 3.4));
   const prog = { v: 0 };
   let last = -1;
-  let hintHidden = false;
 
   const tl = gsap.timeline({
     scrollTrigger: {
@@ -281,13 +245,7 @@ function buildHeroTimeline(scene, eyebrowLetters) {
           const label = railLabel(p);
           if (railText.textContent !== label) railText.textContent = label;
         }
-        if (rail) rail.style.opacity = p > 0.985 ? "0" : "1";
-        const hide = p > 0.02;
-        if (hide !== hintHidden) {
-          hintHidden = hide;
-          if (hint) gsap.to(hint, { opacity: hide ? 0 : 1, duration: 0.5 });
-          if (cue) gsap.to(cue, { opacity: hide ? 0 : 0.85, duration: 0.5 });
-        }
+        if (rail) rail.style.opacity = p > 0.985 || p < 0.03 ? "0" : "1";
       },
     },
   });
@@ -302,296 +260,67 @@ function buildHeroTimeline(scene, eyebrowLetters) {
       onUpdate: () => {
         if (Math.abs(prog.v - last) < 0.0004) return;
         last = prog.v;
-        // the film runs to its last frame at FILM_END, slower through the slow zones, then holds
         scene.render(frameAt(prog.v) / (FRAMES - 1));
       },
     },
     0
   );
 
-  // I · the eyebrow lifts away as the first paratrooper leaves the ramp
-  tl.to(zoneEyebrow, { opacity: 0, y: -26, duration: 0.03, ease: "power2.in" }, at(55));
+  // I · the offer hands the screen over to the film as the first paratrooper drops
+  tl.to(offer, { opacity: 0, y: -40, duration: 0.05, ease: "power2.in" }, at(40));
 
   // II · the name, as the helicopters come out of the smoke
-  tl.to(zoneName, { opacity: 1, duration: 0.02 }, at(244))
+  /* written quickly and then held, the same as the service lines: the window
+     is for reading what this place does, not for watching letters arrive */
+  tl.to(zoneName, { opacity: 1, duration: 0.012 }, at(244))
     .fromTo(
       brand,
       { clipPath: "inset(0 100% 0 0)" },
-      { clipPath: "inset(0 0% 0 0)", duration: 0.05, ease: "power3.inOut" },
-      at(253)
+      { clipPath: "inset(0 0% 0 0)", duration: 0.026, ease: "power3.inOut" },
+      at(250)
     )
-    .to(brandSub, { opacity: 1, y: 0, duration: 0.03, ease: "power2.out" }, at(291))
-    .to(zoneName, { opacity: 0, duration: 0.025 }, at(346));
+    .to(brandSub, { opacity: 1, y: 0, duration: 0.014, ease: "power2.out" }, at(276))
+    .to(zoneName, { opacity: 0, duration: 0.014 }, at(378));
 
-  // III-VII · the five services
-  CHAPTERS.forEach((c) => chapterTween(tl, c));
-  // V½ · "לקוח", locked on in the middle of the blast
-  targetLockTween(tl, "#zone-target", TARGET.in, TARGET.out);
+  // III · the five services, each on its own scene
+  capTween(tl, "#cap-drop", 90, 180);      // the supply drop, in freefall
+  capTween(tl, "#cap-web", 416, 500);      // the tanks holding the street
+  capTween(tl, "#cap-landing", 556, 644);  // the climb and the scope, clear before the blast
+  capTween(tl, "#cap-ai", 718, 806);       // the squad under the drones
+  capTween(tl, "#cap-apps", 1014, 1064);   // above the clouds at sunrise
 
-  // VII · the line that ties them together
+  // IV · the line that hands over to the page
   tl.to(zoneClosing, { opacity: 1, y: 0, duration: 0.05, ease: "power2.out" }, CLOSING_AT);
 }
 
-/* "לקוח" is confirmed as the charge goes off: a reticle hunts in and snaps on,
-   the hit marker X strikes with a flash and a short shake, and a stamp slams
-   in underneath. Scrubbed, so scrolling back plays it in reverse. */
-function targetLockTween(tl, sel, at, out) {
-  const zone = q(sel);
-  if (!zone) return;
-  const mark = q(".kill-mark", zone);
-  const reticle = q(".km-reticle", mark);
-  const word = q(".km-word", mark);
-  const flash = q(".km-flash", mark);
-  const stamp = q(".km-stamp", mark);
-  const slashes = qa(".km-hit b", mark);
-  const hit = at + 0.01; // the moment of impact, on the blast's peak
 
-  gsap.set(zone, { opacity: 0 });
-  gsap.set(reticle, { opacity: 0, scale: 2.8, rotate: -140, transformOrigin: "50% 50%" });
-  gsap.set(word, { opacity: 0, scale: 1.7, filter: "blur(14px)" });
-  gsap.set(slashes, { opacity: 0, scaleY: 0 });
-  gsap.set(stamp, { opacity: 0, scale: 3, rotate: -24, xPercent: -50 });
-  gsap.set(flash, { opacity: 0, scale: 0.4 });
+/* Each service card rides the scene that earns it: the kicker arrives, the line
+   rises out from behind its own edge, the rule draws under it, the note follows,
+   and the whole block clears before the camera leaves the scene. Scrubbed, so
+   scrolling back plays it in reverse. */
+function capTween(tl, sel, from, to) {
+  const cap = q(sel);
+  if (!cap) return;
+  const kicker = q(".cap-kicker", cap);
+  const word = q(".cap-word", cap);
+  const rule = q(".cap-rule", cap);
+  const note = q(".cap-note", cap);
+  const a = at(from);
+  const b = at(to);
 
-  // the reticle hunts in and snaps on
-  tl.to(zone, { opacity: 1, duration: 0.003 }, at)
-    .to(reticle, { opacity: 1, scale: 1, rotate: 0, duration: 0.01, ease: "power3.in" }, at)
-    .to(word, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.008, ease: "expo.out" }, at + 0.003)
-    // impact: the X strikes, the flash blooms, the reticle kicks
-    .to(slashes, { opacity: 1, scaleY: 1, duration: 0.002, ease: "none" }, hit)
-    .to(flash, { opacity: 0.9, scale: 1, duration: 0.002, ease: "none" }, hit)
-    .to(reticle, { scale: 1.1, duration: 0.002, ease: "none" }, hit)
-    .to(reticle, { scale: 1, duration: 0.006, ease: "back.out(4)" }, hit + 0.002)
-    .to(flash, { opacity: 0, scale: 1.5, duration: 0.008, ease: "power2.out" }, hit + 0.002)
-    .to(slashes, { opacity: 0.35, duration: 0.01, ease: "power1.out" }, hit + 0.004)
-    // a short shake
-    .to(mark, { x: -12, y: 7, duration: 0.0012, ease: "none" }, hit)
-    .to(mark, { x: 10, y: -6, duration: 0.0012, ease: "none" }, hit + 0.0012)
-    .to(mark, { x: -5, y: 3, duration: 0.0012, ease: "none" }, hit + 0.0024)
-    .to(mark, { x: 0, y: 0, duration: 0.0016, ease: "none" }, hit + 0.0036)
-    // the stamp slams in
-    .to(stamp, { opacity: 1, scale: 1, rotate: -7, duration: 0.005, ease: "back.out(2.2)" }, hit + 0.004)
-    .to(zone, { opacity: 0, duration: 0.01, ease: "power2.in" }, out);
-}
+  gsap.set(cap, { opacity: 0 });
+  gsap.set(kicker, { opacity: 0, y: 10 });
+  gsap.set(word, { yPercent: 115 });
+  gsap.set(rule, { scaleX: 0 });
+  gsap.set(note, { opacity: 0, y: 12 });
 
-/* ============================================================
-   OPENING TITLE CREDIT · field typewriter with an impact
-   The picture fades up from black as the letterbox closes in, the operation
-   name flickers on, then an orange block cursor runs ahead while the stencil
-   letters strike on at an uneven, human typing rhythm, each key nudging the
-   line. The full stop is the hit: the camera shakes, dust rolls out, an
-   orange flash, the bars kick, the rule snaps open. Resolves once the hit has
-   settled, which is when the page lets go of the scroll.
-   ============================================================ */
-function typeEyebrow(letters) {
-  const kicker = q("#zone-eyebrow .credit-kicker");
-  const rule = q("#zone-eyebrow .credit-rule");
-  const credit = q("#zone-eyebrow .credit");
-  const line = q("#zone-eyebrow .eyebrow");
-  const fx = q("#intro-fx");
-  if (!line || !letters.length) return Promise.resolve();
-
-  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  const camera = [q("#hero-canvas"), q(".hero-overlays")].filter(Boolean);
-
-  /* a small particle system on its own canvas; the loop only runs while there is something to draw */
-  const ctx = fx?.getContext("2d");
-  let parts = [];
-  let running = false;
-  const fit = () => {
-    if (!fx) return;
-    fx.width = fx.clientWidth * devicePixelRatio;
-    fx.height = fx.clientHeight * devicePixelRatio;
-  };
-  fit();
-  window.addEventListener("resize", fit);
-  const tick = () => {
-    const d = devicePixelRatio;
-    ctx.clearRect(0, 0, fx.width, fx.height);
-    parts = parts.filter((p) => p.life > 0);
-    for (const p of parts) {
-      p.vx *= p.drag;
-      p.vy = p.vy * p.drag + p.g;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= p.decay;
-      const a = Math.max(0, p.life) * p.alpha;
-      ctx.globalCompositeOperation = p.soft ? "source-over" : "lighter";
-      if (p.soft) {
-        // dust: a soft puff that swells as it thins, never a hard disc
-        const rad = p.size * d * (2 - p.life);
-        const g = ctx.createRadialGradient(p.x * d, p.y * d, 0, p.x * d, p.y * d, rad);
-        g.addColorStop(0, `rgba(${p.color},${a})`);
-        g.addColorStop(1, `rgba(${p.color},0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x * d, p.y * d, rad, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = `rgba(${p.color},${a})`;
-        ctx.beginPath();
-        ctx.arc(p.x * d, p.y * d, p.size * d, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-    if (parts.length) requestAnimationFrame(tick);
-    else {
-      running = false;
-      ctx.clearRect(0, 0, fx.width, fx.height);
-    }
-  };
-  const emit = (p) => {
-    if (!ctx) return;
-    parts.push({ vx: 0, vy: 0, life: 1, decay: 0.02, size: 1, drag: 0.97, g: 0, color: "255,255,255", alpha: 1, ...p });
-    if (!running) {
-      running = true;
-      requestAnimationFrame(tick);
-    }
-  };
-  const centre = (el) => {
-    const r = el.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height };
-  };
-
-  const shakeHit = (power, dur) => {
-    const t = gsap.timeline();
-    t.set(camera, { scale: 1.03 });
-    for (let i = 0; i < 8; i++) {
-      t.to(camera, { x: (Math.random() - 0.5) * power, y: (Math.random() - 0.5) * power, duration: dur / 8, ease: "none" });
-    }
-    t.to(camera, { x: 0, y: 0, scale: 1, duration: dur / 2, ease: "power2.out", clearProps: "transform" });
-  };
-
-  const run = async () => {
-    gsap.to("#intro-veil", { opacity: 0, duration: 1.8, ease: "power2.inOut" });
-    gsap.to("#letterbox i", { scaleY: 1, duration: 1.6, ease: "expo.out" });
-    await wait(1100);
-    if (kicker) {
-      // the operation name comes on like a faulty sign, then holds
-      gsap.timeline()
-        .to(kicker, { opacity: 1, duration: 0.06, repeat: 5, yoyo: true, ease: "none" })
-        .set(kicker, { opacity: 1 });
-      await wait(750);
-    }
-
-    // the cursor blinks on the empty line for a beat, then runs ahead of the keys
-    const cursor = document.createElement("span");
-    cursor.className = "type-cursor is-idle";
-    cursor.setAttribute("aria-hidden", "true");
-    letters[0].before(cursor);
-    await wait(700);
-    cursor.classList.remove("is-idle");
-    const between = (a, b) => a + Math.random() * (b - a);
-    for (const letter of letters) {
-      const endOfWord = letter === letter.parentElement?.lastElementChild;
-      gsap.set(letter, { opacity: 1 });
-      letter.after(cursor);
-      gsap.fromTo(letter, { y: -4 }, { y: 0, duration: 0.08 });
-      gsap.fromTo(line, { x: 1.5 }, { x: 0, duration: 0.06 });
-      // at the end of the first sentence the cursor stops and blinks for a beat before the second
-      if (endOfWord && letter.parentElement.nextSibling?.nodeName === "BR") {
-        cursor.classList.add("is-idle");
-        await wait(850);
-        cursor.classList.remove("is-idle");
-        continue;
-      }
-      await wait(/\s/.test(letter.textContent) ? between(160, 240) : endOfWord ? between(200, 300) : between(50, 130));
-    }
-    cursor.classList.add("is-idle");
-    gsap.to(cursor, { opacity: 0, duration: 0.3, delay: 1.2, onComplete: () => cursor.remove() });
-    await wait(150);
-
-    // the hit
-    await wait(100);
-    shakeHit(narrow ? 16 : 26, 0.6);
-    const r = centre(line);
-    for (let k = 0; k < (narrow ? 40 : 70); k++) {
-      const a = Math.random() * Math.PI * 2;
-      const s = Math.random() * 9 + 1;
-      emit({
-        x: r.x + (Math.random() - 0.5) * r.w * 0.8, y: r.y + r.h * 0.45, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.5 - 1.5,
-        drag: 0.94, g: 0.02, size: Math.random() * 60 + 30, decay: 0.007 + Math.random() * 0.008, color: "120,108,90", alpha: 0.22, soft: true,
-      });
-    }
-    for (let k = 0; k < (narrow ? 36 : 60); k++) {
-      const a = Math.random() * Math.PI * 2;
-      const s = Math.random() * 12 + 3;
-      emit({
-        x: r.x, y: r.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 2, drag: 0.96, g: 0.18,
-        size: Math.random() * 1.8 + 0.6, decay: 0.015 + Math.random() * 0.02, color: "255,140,40",
-      });
-    }
-    gsap.fromTo("#intro-flash", { opacity: 0 }, { opacity: 1, duration: 0.07, yoyo: true, repeat: 1 });
-    gsap.fromTo("#letterbox i", { scaleY: 1.35 }, { scaleY: 1, duration: 0.5, ease: "power3.out" });
-    if (rule) gsap.to(rule, { scaleX: 1, duration: 0.7, delay: 0.25, ease: "expo.out" });
-    if (credit) gsap.fromTo(credit, { scale: 1 }, { scale: narrow ? 1.02 : 1.04, duration: 12, ease: "sine.out" });
-    await wait(900);
-  };
-  return run();
-}
-
-/* ============================================================
-   THE HANGAR REVEAL (04 · תיק מבצעים)
-   A second frame scene of its own, 158 frames: the scroll slides the hangar
-   doors open, the F-35 is revealed in the light, and the section title rises
-   over it. Then the pin lets go and the operations map takes over.
-   ============================================================ */
-function initHangarReveal(isReduced) {
-  const stage = q("#reveal-stage");
-  const canvas = q("#reveal-canvas");
-  if (!stage || !canvas) return;
-  const head = q(".reveal-head", stage);
-
-  if (isReduced) {
-    stage.classList.add("is-static");
-    gsap.set(head, { opacity: 1, y: 0 });
-    return;
-  }
-
-  const seq = createFrameSequence(canvas, {
-    desktop: { folder: "reveal-frames", count: 158, ahead: 26, behind: 8, cap: 160, inflight: 4 },
-    mobile: { folder: "reveal-frames-mobile", count: 158, ahead: 22, behind: 8, cap: 160, inflight: 3 },
-  });
-
-  /* the player eases toward its target, so it needs a few draws after the scroll
-     stops; it only draws while that settling is under way */
-  let target = 0;
-  let settle = 0;
-  const nudge = () => (settle = 45);
-  gsap.ticker.add(() => {
-    if (settle <= 0) return;
-    seq.drawAt(target);
-    settle -= 1;
-  });
-  window.addEventListener("resize", () => {
-    seq.resize();
-    nudge();
-  });
-
-  const state = { p: 0 };
-  gsap.set(head, { opacity: 0, y: 40 });
-  gsap
-    .timeline({
-      scrollTrigger: {
-        trigger: stage,
-        start: "top top",
-        end: () => "+=" + Math.round(window.innerHeight * (narrow ? 2 : 2.4)),
-        pin: q(".reveal-pin", stage),
-        scrub: 0.5,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      },
-    })
-    .to(state, { p: 1, duration: 0.78, ease: "none", onUpdate: () => ((target = state.p), nudge()) }, 0)
-    .to(head, { opacity: 1, y: 0, duration: 0.1, ease: "power2.out" }, 0.6)
-    .to({}, { duration: 0.22 }, 0.78);
-
-  ScrollTrigger.create({
-    trigger: stage,
-    start: "top 300%",
-    once: true,
-    onEnter: () => seq.preloadAll(null, 30).then(nudge),
-  });
+  /* built quickly and held: the window is for reading, not for animating */
+  tl.to(cap, { opacity: 1, duration: 0.003 }, a)
+    .to(kicker, { opacity: 1, y: 0, duration: 0.007, ease: "power2.out" }, a)
+    .to(word, { yPercent: 0, duration: 0.011, ease: "power3.out" }, a + 0.002)
+    .to(rule, { scaleX: 1, duration: 0.012, ease: "power3.out" }, a + 0.006)
+    .to(note, { opacity: 1, y: 0, duration: 0.009, ease: "power2.out" }, a + 0.008)
+    .to(cap, { opacity: 0, duration: 0.008, ease: "power2.in" }, b - 0.008);
 }
 
 /* ============================================================
@@ -601,28 +330,29 @@ function initHangarReveal(isReduced) {
    the grease-pencil route draws itself behind it, and the objective's card
    opens beside the map. The index jumps straight to any objective.
    ============================================================ */
-function initOpsMap(isReduced, lenis) {
+/* ============================================================
+   THE OPERATIONS MAP
+   One screen, and the visitor steers it. Pick an objective — on the paper, in
+   the index, or with the arrows — and the camera flies there and opens the
+   file. Until someone takes over it walks the route by itself, so the section
+   is alive the moment it comes into view.
+   ============================================================ */
+function initOpsMap(isReduced) {
   const stage = q("#ops-map-stage");
   const map = q("#ops-map", stage || document);
   if (!stage || !map) return;
+  const sheet = q("#ops-sheet", stage);
   const pins = qa(".ops-pin", stage);
   const cards = qa(".op-card", stage);
   const tabs = qa(".ops-tab", stage);
   const routes = qa(".ops-route", stage);
+  const dots = q("#ops-dots", stage);
   const count = q("#ops-count", stage);
   const status = q("#ops-status", stage);
-  const coord = q("#ops-coord", stage);
   const n = cards.length;
 
-  // the contour hills are drawn once, from the same maths the site uses nowhere else
   const art = q("#map-art", stage);
-  if (art) art.innerHTML = [
-    contourRings(700, 600, 11, 40, 38, 1),
-    contourRings(1780, 1040, 12, 30, 36, 3, 1.1, 0.72),
-    contourRings(1500, 300, 7, 40, 34, 5),
-    contourRings(360, 1290, 8, 30, 34, 2),
-    gridLines(200),
-  ].join("");
+  if (art) art.innerHTML = graticule();
 
   if (isReduced) {
     stage.classList.add("is-static");
@@ -630,10 +360,11 @@ function initOpsMap(isReduced, lenis) {
   }
 
   const P = pins.map((pin) => [parseFloat(pin.style.left), parseFloat(pin.style.top)]);
-  const S = () => (narrow ? 0.66 : 0.95);
-  const FX = narrow ? 0.5 : 0.34;
+  const S = () => (narrow ? 0.95 : 1.25);
+  /* where the objective sits in the frame: on a wide screen the file opens over
+     the inline start, so the objective is held clear of it on the other side */
+  const FX = narrow ? 0.5 : 0.66;
   const FY = narrow ? 0.34 : 0.5;
-  // the paper never leaves the frame: every shot is clamped to the edges of the sheet
   const hold = (v, s, view, span) => Math.min(0, Math.max(view - span * s, v));
   const cam = (p) => {
     const s = S();
@@ -643,17 +374,63 @@ function initOpsMap(isReduced, lenis) {
       scale: s,
     };
   };
-  const wide = () => {
-    const s = Math.max(stage.clientWidth / 2400, stage.clientHeight / 1600);
-    return { x: (stage.clientWidth - 2400 * s) / 2, y: (stage.clientHeight - 1600 * s) / 2, scale: s };
-  };
-  const sheet = q("#ops-sheet", stage);
-  const hud = q(".ops-hud", stage);
-  const index = q(".ops-index", stage);
-  gsap.set(map, wide());
 
-  /* the sheet comes up the way a satellite frame lands: a grid of blank squares
-     that fill in from the middle outwards until the whole sheet is there */
+  if (dots && !dots.children.length)
+    dots.innerHTML = new Array(n).fill("<i></i>").join("");
+  const beads = dots ? Array.from(dots.children) : [];
+
+  // the route is drawn once, up to the objective in view
+  routes.forEach((r) => {
+    const len = r.getTotalLength();
+    r.dataset.len = len;
+    gsap.set(r, { strokeDasharray: len, strokeDashoffset: len });
+  });
+
+  let cur = -1;
+  let auto = true;
+  const go = (i, first) => {
+    i = (i + n) % n;
+    if (i === cur) return;
+    cur = i;
+    const [px, py] = P[i];
+    if (count) count.textContent = t("map.count", "יעד %N / 02").replace("%N", String(i + 1).padStart(2, "0"));
+    if (status) status.textContent = t("map.secured", "סטטוס: הושלם");
+    pins.forEach((pin, k) => pin.classList.toggle("is-on", k === i));
+    tabs.forEach((tab, k) => {
+      tab.classList.toggle("is-active", k === i);
+      tab.classList.toggle("is-done", k !== i);
+    });
+    beads.forEach((b, k) => b.classList.toggle("is-on", k === i));
+    routes.forEach((r, k) => {
+      const len = +r.dataset.len;
+      gsap.to(r, { strokeDashoffset: k < i ? 0 : len, duration: 0.7, ease: "power2.inOut" });
+    });
+    gsap.to(map, { ...cam(P[i]), duration: first ? 0 : 1.15, ease: "power2.inOut", overwrite: true });
+    cards.forEach((c, k) => {
+      if (k === i) gsap.fromTo(c, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out", delay: first ? 0 : 0.35 });
+      else gsap.to(c, { autoAlpha: 0, duration: 0.25, overwrite: true });
+    });
+  };
+
+  const stop = () => {
+    auto = false;
+    clearInterval(timer);
+  };
+  const pick = (i) => {
+    stop();
+    go(i);
+  };
+  pins.forEach((pin, i) => pin.addEventListener("click", () => pick(i)));
+  tabs.forEach((tab, i) => tab.addEventListener("click", () => pick(i)));
+  const prev = q(".ops-prev", stage);
+  const next = q(".ops-next", stage);
+  if (prev) prev.addEventListener("click", () => pick(cur - 1));
+  if (next) next.addEventListener("click", () => pick(cur + 1));
+  stage.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".op-cta, .op-shot")) stop();
+  });
+
+  let timer = 0;
   const tiles = q("#ops-tiles", stage);
   const cols = narrow ? 4 : 8;
   const rows = narrow ? 7 : 5;
@@ -662,109 +439,53 @@ function initOpsMap(isReduced, lenis) {
     tiles.style.setProperty("--rows", rows);
     tiles.innerHTML = new Array(cols * rows).fill("<i></i>").join("");
   }
-  gsap.set(sheet, { scale: 1.035, transformOrigin: "50% 50%" });
-  gsap.set([hud, index], { autoAlpha: 0 });
-  if (status) status.textContent = t("map.load", "סטטוס: קליטת לוויין");
-
-  routes.forEach((r) => {
-    const len = r.getTotalLength();
-    gsap.set(r, { strokeDasharray: len, strokeDashoffset: len });
-  });
-
-  const label = (i) => {
-    const [px, py] = P[i];
-    if (count) count.textContent = t("map.count", "יעד %N / 05").replace("%N", String(i + 1).padStart(2, "0"));
-    if (coord) coord.textContent = `${(31.7 + py / 20000).toFixed(4)}N ${(35.1 + px / 20000).toFixed(4)}E`;
-    pins.forEach((pin, k) => pin.classList.toggle("is-on", k === i));
-    tabs.forEach((tab, k) => {
-      tab.classList.toggle("is-active", k === i);
-      tab.classList.toggle("is-done", k < i);
-    });
+  /* the frame arrives on the whole world; go(0) then flies it down to the
+     objectives, so the globe is seen once and the region after that */
+  const world = () => {
+    const s = Math.max(stage.clientWidth / 2400, stage.clientHeight / 1600);
+    return { x: (stage.clientWidth - 2400 * s) / 2, y: (stage.clientHeight - 1600 * s) / 2, scale: s };
   };
-  label(0);
+  gsap.set(map, world());
+  gsap.set(sheet, { scale: 1.04, transformOrigin: "50% 50%" });
+  gsap.set(cards, { autoAlpha: 0 });
 
-  const tl = gsap.timeline({
-    defaults: { ease: "none" },
-    scrollTrigger: {
-      trigger: stage,
-      start: "top top",
-      end: () => "+=" + Math.round(window.innerHeight * n * (narrow ? 0.85 : 0.95)),
-      pin: true,
-      scrub: 0.7,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
+  /* the sheet lands the way a satellite frame does, the first time the section
+     is reached, and the walk starts as the last square fills in */
+  ScrollTrigger.create({
+    trigger: stage,
+    start: "top 70%",
+    once: true,
+    onEnter: () => {
+      gsap.to(sheet, { scale: 1, duration: 1.4, ease: "power2.out" });
+      gsap.to(tiles ? tiles.children : {}, {
+        autoAlpha: 0,
+        scale: 0.84,
+        duration: 0.42,
+        ease: "power2.out",
+        stagger: { amount: 0.85, grid: [rows, cols], from: "center" },
+        onComplete: () => {
+          go(0);
+          timer = setInterval(() => auto && go(cur + 1), 3000);
+        },
+      });
     },
   });
-  tl.to(sheet, { scale: 1, duration: 0.62, ease: "power2.out" }, 0)
-    .to(tiles ? tiles.children : {}, {
-      autoAlpha: 0,
-      scale: 0.84,
-      duration: 0.2,
-      ease: "power2.out",
-      stagger: { amount: 0.42, grid: [rows, cols], from: "center" },
-    }, 0)
-    .to([hud, index], { autoAlpha: 1, duration: 0.14 }, 0.4)
-    .call(() => status && (status.textContent = t("map.enroute", "סטטוס: בדרך")), null, 0.55);
-  P.forEach((p, i) => {
-    if (i > 0) tl.to(routes[i - 1], { strokeDashoffset: 0, duration: 0.55 });
-    tl.to(map, {
-      x: () => cam(p).x,
-      y: () => cam(p).y,
-      scale: () => S(),
-      duration: 0.55,
-      ease: "power2.inOut",
-      onStart: () => {
-        label(i);
-        if (status) status.textContent = t("map.enroute", "סטטוס: בדרך");
-      },
-    }, i > 0 ? "<" : ">")
-      .call(() => status && (status.textContent = t("map.secured", "סטטוס: הושלם")))
-      .fromTo(cards[i], { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.18, ease: "power2.out" })
-      .to({}, { duration: 0.55 })
-      .to(cards[i], { autoAlpha: 0, duration: 0.15 });
-  });
-  tl.to(map, {
-    x: () => wide().x,
-    y: () => wide().y,
-    scale: () => wide().scale,
-    duration: 0.6,
-    ease: "power2.inOut",
-    onStart: () => status && (status.textContent = t("map.done", "סטטוס: כל היעדים הושלמו")),
-  });
-
-  const st = tl.scrollTrigger;
-  tabs.forEach((tab, i) => {
-    tab.addEventListener("click", () => {
-      const y = st.start + (st.end - st.start) * ((i + 0.72) / (n + 0.5));
-      if (lenis) lenis.scrollTo(y, { duration: 1.1 });
-      else window.scrollTo(0, y);
-    });
-  });
 }
 
-/** contour rings around a hill, drawn as slightly irregular closed paths */
-function contourRings(cx, cy, rings, r0, step, seed, rx = 1, ry = 0.75) {
-  let out = "";
-  for (let k = 0; k < rings; k++) {
-    const r = r0 + k * step;
-    let d = "";
-    for (let a = 0; a <= 64; a++) {
-      const t2 = (a / 64) * Math.PI * 2;
-      const w = 1 + 0.16 * Math.sin(3 * t2 + seed + k * 0.3) + 0.09 * Math.sin(5 * t2 + seed * 2) + 0.05 * Math.sin(9 * t2 + k);
-      d += (a ? "L" : "M") + (cx + Math.cos(t2) * r * w * rx).toFixed(1) + " " + (cy + Math.sin(t2) * r * w * ry).toFixed(1);
-    }
-    out += `<path class="ops-contour${k % 5 === 4 ? " is-index" : ""}" d="${d}Z" />`;
-  }
-  return out;
-}
-
-/** the sheet's grid, with its map references */
-function gridLines(step) {
+/** the graticule: meridians and parallels every fifteen degrees, which is what
+    a world sheet carries instead of contour rings */
+function graticule() {
+  const X0 = 70, X1 = 2330, Y0 = 250, Y1 = 1350;
+  const LAT_TOP = 83, LAT_BOT = -56;
+  const x = (lon) => X0 + ((lon + 180) / 360) * (X1 - X0);
+  const y = (lat) => Y0 + ((LAT_TOP - lat) / (LAT_TOP - LAT_BOT)) * (Y1 - Y0);
   let g = "";
-  for (let x = 0; x <= 2400; x += step) g += `<line class="ops-grid" x1="${x}" y1="0" x2="${x}" y2="1600" />`;
-  for (let y = 0; y <= 1600; y += step) g += `<line class="ops-grid" x1="0" y1="${y}" x2="2400" y2="${y}" />`;
-  for (let x = 0; x < 2400; x += step) for (let y = 0; y < 1600; y += step * 2)
-    g += `<text class="ops-ref" x="${x + 8}" y="${y + 22}">${36 + x / step}R ${740 + (y / step) * 3}</text>`;
+  for (let lon = -180; lon <= 180; lon += 15)
+    g += `<line class="ops-grid" x1="${x(lon).toFixed(1)}" y1="${Y0}" x2="${x(lon).toFixed(1)}" y2="${Y1}" />`;
+  for (let lat = 75; lat >= -45; lat -= 15)
+    g += `<line class="ops-grid" x1="${X0}" y1="${y(lat).toFixed(1)}" x2="${X1}" y2="${y(lat).toFixed(1)}" />`;
+  // the equator reads a shade stronger, the way it is printed
+  g += `<line class="ops-grid is-major" x1="${X0}" y1="${y(0).toFixed(1)}" x2="${X1}" y2="${y(0).toFixed(1)}" />`;
   return g;
 }
 
@@ -778,24 +499,27 @@ function initSkip(lenis) {
   const btn = q("#skip-btn");
   if (!btn) return;
   const label = q(".skip-label", btn);
-  const scenes = [
-    { trigger: "#hero", to: "#whoweare", text: t("skip.film", "דלג על הסרט") },
-    { trigger: "#operations", to: "#consultation", text: t("skip.files", "דלג על המפה") },
-  ];
+  const scenes = [{ trigger: "#hero", to: "#whoweserve", text: t("skip.film", "דילוג על הסרט") }];
   let current = null;
+  let hideTimer = 0;
+  const park = () => {
+    if (!btn.classList.contains("is-on")) btn.hidden = true;
+  };
   const show = (scene) => {
     current = scene;
+    clearTimeout(hideTimer);
     if (scene) {
       label.textContent = scene.text;
       btn.hidden = false;
       requestAnimationFrame(() => btn.classList.add("is-on"));
     } else {
       btn.classList.remove("is-on");
+      // transitionend does the tidy-up, but it never fires where transitions are
+      // off, so a timer parks the button either way
+      hideTimer = setTimeout(park, 450);
     }
   };
-  btn.addEventListener("transitionend", () => {
-    if (!btn.classList.contains("is-on")) btn.hidden = true;
-  });
+  btn.addEventListener("transitionend", park);
   scenes.forEach((scene) => {
     // a pinned scene is measured on its pin spacer, which carries the whole scroll length
     let el = q(scene.trigger);
@@ -820,62 +544,50 @@ function initSkip(lenis) {
   });
 }
 
-/* dust hanging in the hangar light: a handful of warm motes drifting up, drawn only while
-   the camera is inside and the stage is on screen */
-function initHangarDust() {
-  const canvas = q(".hangar-dust");
-  if (!canvas) return { set() {} };
-  const ctx = canvas.getContext("2d");
-  const motes = [];
-  const fit = () => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(canvas.clientWidth * dpr);
-    canvas.height = Math.round(canvas.clientHeight * dpr);
-  };
-  fit();
-  window.addEventListener("resize", fit);
-  const count = narrow ? 40 : 80;
-  for (let i = 0; i < count; i++) {
-    motes.push({ x: Math.random(), y: Math.random(), r: 0.6 + Math.random() * 1.8, v: 0.00015 + Math.random() * 0.0004, s: Math.random() * 6.28, a: 0.25 + Math.random() * 0.55 });
-  }
-  let running = false;
-  const tick = (time) => {
-    if (!running) return;
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-    for (const m of motes) {
-      m.y -= m.v;
-      if (m.y < -0.02) m.y = 1.02;
-      const x = (m.x + Math.sin(time / 4000 + m.s) * 0.015) * w;
-      const flicker = 0.6 + 0.4 * Math.sin(time / 700 + m.s * 3);
-      ctx.fillStyle = `rgba(255, 214, 160, ${m.a * flicker})`;
-      ctx.beginPath();
-      ctx.arc(x, m.y * h, m.r * (w / 1400 + 0.6), 0, Math.PI * 2);
-      ctx.fill();
-    }
-    requestAnimationFrame(tick);
-  };
-  return {
-    set(on) {
-      if (on === running) return;
-      running = on;
-      if (on) requestAnimationFrame(tick);
-      else ctx.clearRect(0, 0, canvas.width, canvas.height);
-    },
-  };
-}
-
-/** reduced-motion / no-JS-motion fallback: hold the final frame */
+/** reduced-motion fallback: hold the last frame, with the name already up */
 function staticHero(scene) {
   document.documentElement.classList.add("is-static");
   scene.render(1);
   gsap.set("#zone-name", { opacity: 1 });
   gsap.set("#brand-reveal", { clipPath: "inset(0 0% 0 0)" });
   gsap.set(".brand-sub", { opacity: 1, y: 0 });
-  gsap.set(["#zone-eyebrow", "#letterbox", "#intro-veil"], { opacity: 0 });
+  gsap.set("#zone-closing", { opacity: 1, y: 0 });
+  gsap.set("#letterbox", { opacity: 0 });
   // no pinned descent here, so the scroll chrome has nothing to report
-  gsap.set(["#scroll-hint", ".mobile-scroll-cue"], { display: "none" });
+  gsap.set("#hero-rail", { display: "none" });
+  document.querySelector("#topbar")?.classList.add("is-on");
+}
+
+/* ============================================================
+   THE COMMAND BAR
+   Hidden over the opening frame so nothing competes with the offer, then it
+   comes down and stays, with the section you are in marked.
+   ============================================================ */
+function initTopbar() {
+  const bar = q("#topbar");
+  const hero = q("#hero");
+  if (!bar || !hero) return;
+  const links = qa(".tb-nav a", bar);
+
+  ScrollTrigger.create({
+    trigger: hero,
+    start: "top+=140 top",
+    onToggle: (self) => bar.classList.toggle("is-on", self.isActive || self.progress >= 1),
+    onLeave: () => bar.classList.add("is-on"),
+    onEnterBack: () => bar.classList.add("is-on"),
+    onLeaveBack: () => bar.classList.remove("is-on"),
+  });
+
+  links.forEach((a) => {
+    const target = q(a.getAttribute("href"));
+    if (!target) return;
+    ScrollTrigger.create({
+      trigger: target,
+      start: "top center",
+      end: "bottom center",
+      onToggle: (self) => a.classList.toggle("is-here", self.isActive),
+    });
+  });
 }
 
 /* ============================================================
@@ -1085,7 +797,7 @@ function initFinale(isReduced) {
   const wordmark = q(".finale-wordmark");
   const eyebrow = q(".finale-eyebrow");
   const tagline = qa(".finale-tagline .reveal-line > span");
-  const cta = q(".finale-cta");
+  const cta = qa(".close-note, .close-cta");
   const section = q("#finale");
   if (!wordmark || !section) return;
 
@@ -1093,7 +805,7 @@ function initFinale(isReduced) {
   letters.forEach((l) => l.classList.add("fw-letter"));
 
   if (isReduced) {
-    gsap.set([eyebrow, cta], { opacity: 1, y: 0 });
+    gsap.set([eyebrow, ...cta], { opacity: 1, y: 0 });
     gsap.set(letters, { opacity: 1, filter: "blur(0px)" });
     gsap.set(tagline, { yPercent: 0 });
     return;
@@ -1109,15 +821,15 @@ function initFinale(isReduced) {
       scrollTrigger: { trigger: section, start: "top 58%", once: true },
       defaults: { ease: EASE },
     })
-    .to(eyebrow, { opacity: 1, y: 0, duration: 1.8 }, 0)
-    .to(letters, { opacity: 1, filter: "blur(0px)", duration: 2, stagger: 0.055 }, 0.35)
+    .to(eyebrow, { opacity: 1, y: 0, duration: 1 }, 0)
+    .to(letters, { opacity: 1, filter: "blur(0px)", duration: 1.2, stagger: 0.04 }, 0.2)
     .to(
       wordmark,
-      { letterSpacing: narrow ? "0.06em" : "0.14em", duration: 3, ease: "power2.out" },
-      0.35
+      { letterSpacing: narrow ? "0.06em" : "0.14em", duration: 1.8, ease: "power2.out" },
+      0.2
     )
-    .to(tagline, { yPercent: 0, duration: 1.6, stagger: 0.16 }, 1.5)
-    .to(cta, { opacity: 1, y: 0, duration: 1.6 }, 2.2);
+    .to(tagline, { yPercent: 0, duration: 1, stagger: 0.12 }, 0.7)
+    .to(cta, { opacity: 1, y: 0, duration: 1, stagger: 0.12 }, 1);
 }
 
 /* ============================================================
@@ -1245,7 +957,6 @@ async function boot() {
     staticHero(scene);
     initReveals(true);
     initVendorRun(true);
-    initHangarReveal(true);
     initOpsMap(true);
     initCounters(true);
     initFinale(true);
@@ -1265,13 +976,11 @@ async function boot() {
   scene.render(0);
   setProgress(1);
 
-  const eyebrowLetters = splitLetters(q("[data-split-letters]"));
-  buildHeroTimeline(scene, eyebrowLetters);
-
+  buildHeroTimeline(scene);
+  initTopbar();
   initReveals(false);
   initVendorRun(false);
-  initHangarReveal(false);
-  initOpsMap(false, lenis);
+  initOpsMap(false);
   initCounters(false);
   initFinale(false);
   initAnchors(lenis);
@@ -1282,59 +991,20 @@ async function boot() {
   ScrollTrigger.sort();
 
   await waitForFonts();
-  // the page always opens at the top of the film, whatever scroll the browser remembered
+  // the page always opens on the offer, whatever scroll the browser remembered
   window.scrollTo(0, 0);
   lenis.resize();
   await hideLoader();
   const html = document.documentElement;
   html.classList.remove("is-loading");
+  lenis.resize();
+  scrollHeld = false;
+  ScrollTrigger.refresh();
 
-  /* The opening credit is a one-time show: the first visit in a tab types it and holds the
-     scroll until it lands. After that (a reload, a return from the contact page) the credit is
-     simply there, finished, and the page scrolls freely from the first moment. */
-  const SEEN_KEY = "introSeen";
-  let seen = false;
-  try {
-    seen = sessionStorage.getItem(SEEN_KEY) === "1";
-  } catch (e) {
-    /* storage blocked: play the intro */
-  }
-  const unlock = () => {
-    try {
-      sessionStorage.setItem(SEEN_KEY, "1");
-    } catch (e) {
-      /* storage blocked: nothing to remember */
-    }
-    if (!html.classList.contains("is-intro")) return;
-    html.classList.remove("is-intro");
-    window.scrollTo(0, 0);
-    lenis.resize();
-    scrollHeld = false;
-    ScrollTrigger.refresh();
-  };
-  if (seen) {
-    gsap.set(eyebrowLetters, { opacity: 1 });
-    gsap.set("#zone-eyebrow .credit-kicker", { opacity: 1 });
-    gsap.set("#zone-eyebrow .credit-rule", { scaleX: 1 });
-    gsap.set("#intro-veil", { opacity: 0 });
-    gsap.set("#letterbox i", { scaleY: 1 });
-    lenis.resize();
-    scrollHeld = false;
-    ScrollTrigger.refresh();
-  } else {
-    // the opening credit holds the page: no scrolling until the whole line is written
-    html.classList.add("is-intro");
-    ScrollTrigger.refresh();
-    typeEyebrow(eyebrowLetters).then(unlock, unlock);
-    // a safety net, in case a background tab stalls the timers
-    setTimeout(unlock, 20000);
-  }
-
-  // like the first shot of a film widening out: the letterbox opens to full frame the moment
-  // the scroll starts, and closes again only when the page is back at the very top
+  /* like the first shot of a film widening out: the letterbox opens to full frame
+     the moment the scroll starts, and closes again at the very top */
   let barsOn = true;
   lenis.on("scroll", ({ scroll }) => {
-    if (html.classList.contains("is-intro")) return;
     const want = scroll < 4;
     if (want === barsOn) return;
     barsOn = want;

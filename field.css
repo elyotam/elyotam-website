@@ -352,7 +352,9 @@
   color: var(--sand);
   background: radial-gradient(80% 60% at 70% 0%, #232b1c 0%, var(--olive-900) 55%, var(--olive-950) 100%);
   position: relative;
-  overflow-x: hidden;
+  /* clip, never hidden: hidden makes body a scroll container and the wheel
+     stops reaching the viewport, so this page could not be scrolled at all */
+  overflow-x: clip;
 }
 .field-page::before {
   content: "";
@@ -785,27 +787,6 @@
 }
 
 /* ---------------------------------------------------- "לקוח" in the blast */
-.target-lock {
-  --lock: var(--signal);
-}
-.target-lock::before {
-  background: rgba(14, 17, 11, 0.6);
-  box-shadow: inset 0 0 40px rgba(255, 122, 26, 0.2), 0 20px 60px rgba(0, 0, 0, 0.55);
-}
-.target-lock::after {
-  border-color: rgba(255, 122, 26, 0.6);
-}
-.tl-word {
-  color: var(--sand);
-  text-shadow: 0 0 28px rgba(255, 122, 26, 0.75), 0 0 3px rgba(232, 220, 192, 0.9);
-}
-.tl-corner {
-  filter: drop-shadow(0 0 10px rgba(255, 122, 26, 0.9));
-}
-.tl-scan {
-  background: linear-gradient(180deg, transparent, rgba(255, 150, 70, 0.95), transparent);
-  box-shadow: 0 0 16px rgba(255, 122, 26, 0.9);
-}
 
 /* --------------------------------------------------- rail and scroll cues */
 .hero-rail {
@@ -831,133 +812,6 @@
 }
 .scroll-hint .scroll-bead {
   background: linear-gradient(to bottom, transparent, var(--signal));
-}
-
-/* ============================================================
-   KILL MARK · "לקוח" confirmed in the blast
-   A reticle that snaps on, a hit marker X, a flash and a stamp. Sizes are
-   one square that scales with the viewport; everything inside is relative.
-   ============================================================ */
-#zone-target {
-  display: grid;
-  place-items: center;
-}
-.kill-mark {
-  --km: clamp(250px, 32vw, 460px);
-  position: relative;
-  width: var(--km);
-  height: var(--km);
-  display: grid;
-  place-items: center;
-}
-.km-veil {
-  /* a dark pool behind the mark, so it reads over bright dust */
-  position: absolute;
-  inset: -18%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(14, 17, 11, 0.72), rgba(14, 17, 11, 0.35) 60%, transparent);
-}
-.km-flash {
-  position: absolute;
-  inset: -40%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 190, 120, 0.95), rgba(255, 122, 26, 0.55) 40%, transparent 72%);
-  opacity: 0;
-  mix-blend-mode: screen;
-}
-.km-reticle {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  fill: none;
-  stroke: var(--signal);
-  stroke-linecap: square;
-  filter: drop-shadow(0 0 8px rgba(255, 122, 26, 0.85));
-}
-.km-ring {
-  stroke-width: 3;
-}
-.km-ring--dash {
-  stroke-width: 2;
-  stroke-dasharray: 6 14;
-  opacity: 0.7;
-}
-.km-spin {
-  transform-origin: 200px 200px;
-  animation: km-spin 9s linear infinite;
-}
-@keyframes km-spin {
-  to { transform: rotate(360deg); }
-}
-.km-ticks line {
-  stroke-width: 4;
-}
-.km-marks line {
-  stroke-width: 3;
-  opacity: 0.8;
-}
-.km-hit {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.km-hit i {
-  /* four arms of the hit marker along the diagonals, with a gap in the middle
-     for the word. The <i> holds the angle; the <b> inside is what animates, so
-     the scroll tween never overwrites the rotation. */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: calc(var(--km) * 0.022);
-  height: calc(var(--km) * 0.2);
-  margin-left: calc(var(--km) * -0.011);
-  transform-origin: 50% 0;
-}
-.km-hit b {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: #fff4e3;
-  box-shadow: 0 0 12px rgba(255, 122, 26, 1), 0 0 26px rgba(255, 122, 26, 0.7);
-  transform-origin: 50% 0;
-}
-.km-hit i:nth-child(1) { transform: rotate(45deg) translateY(calc(var(--km) * 0.36)); }
-.km-hit i:nth-child(2) { transform: rotate(135deg) translateY(calc(var(--km) * 0.36)); }
-.km-hit i:nth-child(3) { transform: rotate(225deg) translateY(calc(var(--km) * 0.36)); }
-.km-hit i:nth-child(4) { transform: rotate(315deg) translateY(calc(var(--km) * 0.36)); }
-.km-word {
-  position: relative;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: calc(var(--km) * 0.2);
-  line-height: 1;
-  color: var(--sand);
-  text-shadow: 0 0 22px rgba(255, 122, 26, 0.8), 0 3px 0 rgba(0, 0, 0, 0.35);
-}
-.km-stamp {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-top: calc(var(--km) * 0.04);
-  padding: 0.18em 0.6em 0.1em;
-  font-family: var(--font-stencil);
-  font-weight: 700;
-  font-size: calc(var(--km) * 0.13);
-  line-height: 1;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  color: var(--signal);
-  border: calc(var(--km) * 0.012) solid var(--signal);
-  background: rgba(14, 17, 11, 0.7);
-  box-shadow: 0 0 24px rgba(255, 122, 26, 0.35), inset 0 0 18px rgba(255, 122, 26, 0.18);
-  /* centring and tilt are set by the scroll tween (xPercent -50, rotate -7) */
-}
-@media (prefers-reduced-motion: reduce) {
-  .km-spin {
-    animation: none;
-  }
 }
 
 /* a service name never breaks inside itself (E-commerce used to split at its
@@ -1551,74 +1405,9 @@ html[dir="ltr"] .op-line {
   }
 }
 
-
-/* ---------------------------------------------------- the hangar reveal */
+/* ------------------------------------------------------ the operations map */
 #operations {
-  padding-top: 0;
   overflow: clip;
-}
-.reveal-stage {
-  position: relative;
-  --doors: 2.4;
-}
-@media (max-width: 1023px) {
-  .reveal-stage {
-    --doors: 2;
-  }
-}
-.reveal-pin {
-  position: relative;
-  height: 100vh;
-  height: 100svh;
-  overflow: hidden;
-  background: #0c1016;
-}
-.reveal-canvas,
-.reveal-cam {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-/* the picture falls into the olive of the section, so the map follows on without a seam */
-.reveal-scrim {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(to top, var(--olive-900) 0%, rgba(18, 22, 15, 0.78) 14%, rgba(18, 22, 15, 0.25) 36%, transparent 54%),
-    linear-gradient(to bottom, rgba(14, 17, 11, 0.45), transparent 18%);
-}
-.reveal-head {
-  position: absolute;
-  inset-inline: 0;
-  bottom: clamp(2.2rem, 7vh, 4.5rem);
-  display: grid;
-  justify-items: center;
-  gap: clamp(0.7rem, 1.4vw, 1.1rem);
-  padding: 0 var(--gutter);
-  text-align: center;
-}
-.reveal-head .h-mega {
-  font-size: clamp(2.6rem, 6.4vw, 6.4rem);
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.85);
-}
-.reveal-head .house-head-note {
-  max-width: 34rem;
-  color: var(--sand);
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
-}
-.reveal-stage.is-static .reveal-canvas {
-  display: none;
-}
-.reveal-stage.is-static .reveal-pin {
-  background: #0c1016 url("reveal-frames/frame_0158.webp") 50% 58% / cover no-repeat;
-}
-@media (max-width: 768px) {
-  .reveal-stage.is-static .reveal-pin {
-    background-image: url("reveal-frames-mobile/frame_0158.webp");
-  }
 }
 
 /* ============================================================
@@ -1629,8 +1418,8 @@ html[dir="ltr"] .op-line {
    ============================================================ */
 .ops-map-stage {
   position: relative;
-  height: 100vh;
-  height: 100svh;
+  height: min(100vh, 860px);
+  height: min(100svh, 860px);
   overflow: hidden;
   background: radial-gradient(90% 70% at 50% 46%, #14190e, #080b06 70%);
 }
@@ -1642,11 +1431,12 @@ html[dir="ltr"] .op-line {
   height: 1600px;
   transform-origin: 0 0;
   will-change: transform;
-  /* the printed sheet: olive paper with the grain of the press */
+  /* the sheet in the site's own olive, so the section does not read as a
+     green rectangle dropped into the page */
   background:
-    repeating-linear-gradient(0deg, rgba(20, 30, 14, 0.05) 0 2px, transparent 2px 6px),
-    radial-gradient(120% 90% at 32% 28%, #9aa77e, #86956c 55%, #6f7e57);
-  box-shadow: inset 0 0 200px rgba(20, 28, 12, 0.55);
+    repeating-linear-gradient(0deg, rgba(232, 220, 192, 0.022) 0 2px, transparent 2px 6px),
+    radial-gradient(120% 90% at 32% 28%, #12170e, #0d1109 52%, #080b05);
+  box-shadow: inset 0 0 220px rgba(0, 0, 0, 0.6);
 }
 .ops-sheet {
   position: absolute;
@@ -1659,9 +1449,9 @@ html[dir="ltr"] .op-line {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, transparent 37.1%, rgba(238, 240, 220, 0.16) 37.4%, rgba(26, 34, 15, 0.18) 37.7%, transparent 38%),
-    linear-gradient(90deg, transparent 62%, rgba(26, 34, 15, 0.18) 62.3%, rgba(238, 240, 220, 0.16) 62.6%, transparent 62.9%),
-    linear-gradient(0deg, transparent 49.7%, rgba(26, 34, 15, 0.14) 50%, rgba(238, 240, 220, 0.12) 50.3%, transparent 50.6%);
+    linear-gradient(90deg, transparent 37.1%, rgba(232, 220, 192, 0.07) 37.4%, rgba(0, 0, 0, 0.3) 37.7%, transparent 38%),
+    linear-gradient(90deg, transparent 62%, rgba(0, 0, 0, 0.3) 62.3%, rgba(232, 220, 192, 0.07) 62.6%, transparent 62.9%),
+    linear-gradient(0deg, transparent 49.7%, rgba(0, 0, 0, 0.26) 50%, rgba(232, 220, 192, 0.06) 50.3%, transparent 50.6%);
 }
 /* the squares the frame arrives in */
 .ops-tiles {
@@ -1674,8 +1464,8 @@ html[dir="ltr"] .op-line {
   pointer-events: none;
 }
 .ops-tiles i {
-  background: #0a0d07;
-  border: 1px solid rgba(255, 122, 26, 0.12);
+  background: #080b05;
+  border: 1px solid rgba(255, 122, 26, 0.22);
 }
 .ops-map > svg {
   position: absolute;
@@ -1684,38 +1474,23 @@ html[dir="ltr"] .op-line {
   height: 100%;
   overflow: visible;
 }
-.ops-contour {
-  fill: none;
-  stroke: rgba(46, 58, 30, 0.45);
-  stroke-width: 1.4;
-}
-.ops-contour.is-index {
-  stroke: rgba(38, 48, 24, 0.8);
-  stroke-width: 2.4;
-}
 .ops-grid {
-  stroke: rgba(30, 38, 20, 0.28);
+  stroke: rgba(232, 220, 192, 0.07);
   stroke-width: 1;
 }
-.ops-ref {
-  fill: rgba(34, 44, 22, 0.65);
-  font-family: var(--font-mono);
-  font-size: 14px;
+.ops-grid.is-major {
+  stroke: rgba(232, 220, 192, 0.14);
 }
-.ops-river {
-  fill: none;
-  stroke: #5d7f86;
-  stroke-width: 8;
-  opacity: 0.75;
+/* the land, raised off the sheet: twelve offset copies make the wall, and the
+   top face sits on them with a lit coast */
+.ops-relief use {
+  fill: #060804;
 }
-.ops-road {
-  fill: none;
-  stroke: rgba(72, 60, 34, 0.55);
-  stroke-width: 6;
-}
-.ops-road--b {
-  stroke-width: 4;
-  stroke-dasharray: 18 10;
+.ops-land {
+  fill: #333d28;
+  stroke: rgba(232, 220, 192, 0.34);
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 /* the route, drawn on the sheet in grease pencil */
 .ops-route {
@@ -1836,40 +1611,13 @@ html[lang="he"] .ops-hud {
 .hud-corner:nth-of-type(2) { top: 16px; inset-inline-end: 16px; border-inline-start: 0; border-bottom: 0; }
 .hud-corner:nth-of-type(3) { bottom: 16px; inset-inline-start: 16px; border-inline-end: 0; border-top: 0; }
 .hud-corner:nth-of-type(4) { bottom: 16px; inset-inline-end: 16px; border-inline-start: 0; border-top: 0; }
-.hud-tl,
-.hud-tr,
-.hud-bl {
+.hud-tr {
   position: absolute;
   display: grid;
   gap: 5px;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
 }
-.hud-tl { top: 74px; inset-inline-start: 34px; }
 .hud-tr { top: 74px; inset-inline-end: 34px; justify-items: end; text-align: end; }
-.hud-bl { bottom: 30px; inset-inline-start: 34px; }
-.hud-tl b { color: var(--signal); }
-.hud-coord { direction: ltr; font-family: var(--font-mono); letter-spacing: 0.12em; }
-.hud-live::before {
-  content: "";
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  margin-inline-end: 7px;
-  border-radius: 50%;
-  background: #ff3b2f;
-  animation: hud-blink 1s steps(1) infinite;
-}
-@keyframes hud-blink {
-  50% { opacity: 0.15; }
-}
-.hud-scale {
-  display: flex;
-  width: 150px;
-  height: 7px;
-  border: 1px solid rgba(232, 220, 192, 0.7);
-}
-.hud-scale i { flex: 1; }
-.hud-scale i:nth-child(odd) { background: rgba(232, 220, 192, 0.7); }
 .hud-compass {
   position: absolute;
   bottom: 26px;
@@ -2035,10 +1783,6 @@ html[dir="rtl"] .hud-reticle { margin-inline: -42px 0; }
   font-size: 0.78rem;
   color: var(--sand-faint);
 }
-.ops-tab.is-done .ops-tab-n::after {
-  content: " ✓";
-  color: #6fae5e;
-}
 .ops-tab.is-active {
   color: var(--sand);
   background: linear-gradient(to left, rgba(255, 122, 26, 0.22), rgba(12, 15, 9, 0.94));
@@ -2079,10 +1823,88 @@ html[dir="rtl"] .hud-reticle { margin-inline: -42px 0; }
     display: none;
   }
 }
+/* a pin is a control now, not a marker */
+.ops-pin {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.ops-pin i {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.ops-pin:hover i {
+  transform: scale(1.18);
+}
+.ops-pin:focus-visible {
+  outline: none;
+}
+.ops-pin:focus-visible i {
+  box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.45), 0 0 26px rgba(255, 122, 26, 0.9);
+}
+.ops-pin.is-on i {
+  transform: scale(1.12);
+}
+.ops-pin span {
+  transition: opacity 0.3s;
+}
+.ops-pin:not(.is-on) span {
+  opacity: 0.55;
+}
+
+/* stepping between objectives */
+.ops-step {
+  position: absolute;
+  z-index: 7;
+  inset-inline: 0;
+  bottom: clamp(1rem, 3vh, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.ops-step button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  color: var(--sand);
+  background: rgba(12, 15, 9, 0.82);
+  border: 1px solid var(--field-line-strong, rgba(232, 220, 192, 0.24));
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s, background 0.25s;
+}
+.ops-step button:hover {
+  color: var(--signal);
+  border-color: var(--signal);
+}
+.ops-dots {
+  display: flex;
+  gap: 8px;
+}
+.ops-dots i {
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(232, 220, 192, 0.5);
+  background: rgba(12, 15, 9, 0.7);
+  transform: rotate(45deg);
+  transition: background 0.3s, border-color 0.3s;
+}
+.ops-dots i.is-on {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+@media (min-width: 1100px) {
+  .ops-step {
+    bottom: clamp(1.2rem, 4vh, 2.4rem);
+  }
+}
 @media (max-width: 899px) {
   .op-card {
     top: auto;
-    bottom: 3vh;
+    bottom: 5.4rem;
     margin-block: 0;
     inset-inline: 4vw;
     width: auto;
@@ -2097,20 +1919,15 @@ html[dir="rtl"] .hud-reticle { margin-inline: -42px 0; }
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .hud-bl,
   .hud-compass {
     display: none;
   }
-  .hud-tl,
   .hud-tr {
     top: 66px;
     max-width: 46vw;
   }
   html[lang="he"] .ops-hud {
     font-size: 11px;
-  }
-  .hud-tl span:nth-of-type(1) {
-    display: none;
   }
   .hud-reticle {
     inset-inline-start: 50%;
@@ -2121,5 +1938,579 @@ html[dir="rtl"] .hud-reticle { margin-inline: -42px 0; }
   }
   .ops-stamp i {
     font-size: 18px;
+  }
+}
+
+/* ============================================================
+   THE COMMAND BAR
+   ============================================================ */
+.topbar {
+  position: fixed;
+  z-index: 90;
+  inset-inline: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.8rem, 2vw, 2rem);
+  padding: 0.75rem clamp(0.9rem, 2.4vw, 2rem);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background 0.4s, border-color 0.4s, backdrop-filter 0.4s, padding 0.4s;
+}
+.topbar.is-on {
+  padding-block: 0.6rem;
+  background: rgba(10, 13, 8, 0.86);
+  border-bottom-color: var(--field-line);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.tb-brand {
+  direction: ltr;
+  font-family: var(--font-brand, var(--font-display));
+  font-weight: 600;
+  font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+  letter-spacing: 0.14em;
+  color: var(--sand);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
+}
+.tb-nav {
+  display: flex;
+  gap: clamp(0.8rem, 1.8vw, 1.8rem);
+  margin-inline: auto;
+}
+.tb-nav a {
+  position: relative;
+  padding: 0.35rem 0;
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--sand-dim);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+  transition: color 0.25s;
+}
+.tb-nav a::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: var(--edge-start, right);
+  transition: transform 0.35s var(--ease, ease);
+}
+html[dir="ltr"] .tb-nav a::after {
+  transform-origin: left;
+}
+.tb-nav a:hover,
+.tb-nav a.is-here {
+  color: var(--sand);
+}
+.tb-nav a:hover::after,
+.tb-nav a.is-here::after {
+  transform: scaleX(1);
+}
+.tb-right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.tb-cta {
+  padding: 0.62rem 1.2rem;
+  font-family: var(--font-text);
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--olive-950);
+  background: var(--signal);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: background 0.3s;
+}
+.tb-cta:hover {
+  background: #ff9445;
+}
+@media (max-width: 1023px) {
+  .tb-nav {
+    display: none;
+  }
+  .tb-right {
+    margin-inline-start: auto;
+  }
+  .lang-switch button {
+    padding: 0.42rem 0.6rem 0.38rem;
+    font-size: 0.7rem;
+  }
+  .tb-cta {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.8rem;
+  }
+}
+@media (max-width: 359px) {
+  .tb-cta {
+    display: none;
+  }
+}
+
+/* ============================================================
+   THE OFFER · the whole pitch on the opening frame
+   ============================================================ */
+.hero-offer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(0.7rem, 1.5vh, 1.3rem);
+  padding: clamp(4.5rem, 11vh, 7rem) var(--gutter) clamp(3rem, 8vh, 5rem);
+  text-align: center;
+  pointer-events: auto;
+}
+.hero-offer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(62% 52% at 50% 46%, rgba(6, 8, 13, 0.82), rgba(6, 8, 13, 0.45) 62%, transparent 86%);
+}
+.hero-offer > * {
+  position: relative;
+}
+.offer-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: clamp(0.68rem, 1.1vw, 0.82rem);
+  letter-spacing: 0.14em;
+  color: var(--sand);
+  padding: 0.42rem 1rem;
+  border: 1px solid rgba(255, 122, 26, 0.45);
+  background: rgba(10, 13, 8, 0.6);
+}
+.offer-kicker i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.9);
+  animation: offerPulse 2.2s ease-in-out infinite;
+}
+@keyframes offerPulse {
+  50% { opacity: 0.25; }
+}
+.offer-title {
+  display: grid;
+  gap: 0.06em;
+  margin: 0;
+  font-family: var(--font-stencil, var(--font-display));
+  font-weight: 700;
+  font-size: clamp(2.6rem, 9vw, 7.4rem);
+  line-height: 0.94;
+  color: #fff;
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.9);
+}
+.ot-line--signal {
+  color: var(--signal);
+}
+.offer-sub {
+  max-width: 44ch;
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: clamp(0.95rem, 1.35vw, 1.12rem);
+  line-height: 1.7;
+  color: var(--sand);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9);
+}
+.offer-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.7rem, 1.6vw, 1.2rem);
+  margin-top: 0.3rem;
+}
+.btn-signal {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.95rem 1.9rem;
+  font-family: var(--font-text);
+  color: var(--olive-950);
+  background: var(--signal);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  transition: background 0.3s, transform 0.3s;
+}
+.btn-signal span {
+  font-weight: 800;
+  font-size: clamp(0.98rem, 1.3vw, 1.08rem);
+  letter-spacing: 0.02em;
+}
+.btn-signal em {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  opacity: 0.78;
+}
+.btn-signal:hover {
+  background: #ff9445;
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.95rem 1.4rem;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: clamp(0.92rem, 1.2vw, 1rem);
+  color: var(--sand);
+  border: 1px solid var(--field-line-strong, rgba(232, 220, 192, 0.24));
+  background: rgba(10, 13, 8, 0.5);
+  transition: border-color 0.3s, color 0.3s, background 0.3s;
+}
+.btn-ghost:hover {
+  color: var(--signal);
+  border-color: var(--signal);
+  background: rgba(255, 122, 26, 0.08);
+}
+.offer-proof {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.4rem;
+}
+.offer-proof .op-label {
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--signal);
+}
+.offer-proof ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.offer-proof li {
+  font-family: var(--font-text);
+  font-size: 0.8rem;
+  color: var(--sand-dim);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+.offer-proof li:not(:last-child)::after {
+  content: ",";
+  color: var(--sand-faint);
+}
+.offer-scroll {
+  display: inline-grid;
+  justify-items: center;
+  gap: 0.5rem;
+  margin-top: clamp(0.4rem, 2vh, 1.4rem);
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--sand-faint);
+}
+.offer-scroll i {
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, var(--signal), transparent);
+  animation: offerDrop 2s ease-in-out infinite;
+}
+@keyframes offerDrop {
+  0%, 100% { opacity: 0.25; transform: scaleY(0.6); transform-origin: top; }
+  50% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+@media (max-height: 700px), (max-width: 380px) {
+  .offer-proof,
+  .offer-scroll {
+    display: none;
+  }
+}
+
+/* ============================================================
+   THE STEP LINE · three beats, one strip
+   ============================================================ */
+.section--tight {
+  padding-block: clamp(4rem, 9vh, 7rem);
+}
+.step-line {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.2rem, 3vw, 3rem);
+  margin: clamp(2rem, 5vh, 3.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.step {
+  position: relative;
+  padding-top: 2.2rem;
+  border-top: 1px solid var(--field-line);
+}
+.step::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  inset-inline-start: 0;
+  width: 9px;
+  height: 9px;
+  background: var(--signal);
+  transform: rotate(45deg);
+}
+.step-n {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  color: var(--signal);
+}
+.step-title {
+  margin: 0.5rem 0 0.6rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  color: var(--sand);
+}
+.step-desc {
+  margin: 0;
+  color: var(--sand-dim);
+  line-height: 1.75;
+}
+@media (max-width: 767px) {
+  .step-line {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+}
+
+/* ============================================================
+   ONE UNIT
+   ============================================================ */
+.unit-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+@media (max-width: 899px) {
+  .unit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   THE CLOSE
+   ============================================================ */
+.close-note {
+  max-width: 54ch;
+  margin: 0;
+  color: var(--sand-dim);
+  line-height: 1.8;
+}
+.close-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+}
+#finale.close {
+  min-height: auto;
+  padding-block: clamp(5rem, 14vh, 10rem);
+}
+
+/* ============================================================
+   ONE TAP TO THE UNIT
+   ============================================================ */
+.wa-float {
+  position: fixed;
+  z-index: 80;
+  inset-inline-end: clamp(0.9rem, 2vw, 1.6rem);
+  bottom: clamp(0.9rem, 2vw, 1.6rem);
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #0e110b;
+  background: #25d366;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.wa-float svg {
+  width: 30px;
+  height: 30px;
+  fill: currentColor;
+}
+.wa-float:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 18px 40px rgba(37, 211, 102, 0.35);
+}
+@media (max-width: 767px) {
+  .wa-float {
+    width: 48px;
+    height: 48px;
+  }
+  .wa-float svg {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* the command bar sits over the page, so an anchor stops below it */
+#hero,
+#whoweserve,
+#operations,
+#approach,
+#whoweare,
+#finale {
+  scroll-margin-top: 64px;
+}
+
+/* ============================================================
+   THE FILM CAPTIONS
+   Five services, one per scene, low in the frame like a subtitle. No box and no
+   border this time: a kicker, one display line, a rule that draws itself under
+   it, and a note. The scrim is part of the block, so it travels with it.
+   ============================================================ */
+.film-cap {
+  position: absolute;
+  z-index: 2;
+  inset-inline-start: clamp(1.4rem, 6vw, 5rem);
+  bottom: clamp(3rem, 11vh, 6.5rem);
+  width: min(34rem, 62vw);
+  text-align: start;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+.film-cap::before {
+  content: "";
+  position: absolute;
+  inset: -34vh -22vw -28vh -22vw;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(56% 58% at 50% 64%, rgba(14, 17, 11, 0.72), transparent 72%);
+}
+.cap-kicker {
+  display: block;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: clamp(0.72rem, 1vw, 0.85rem);
+  letter-spacing: 0.14em;
+  color: var(--signal);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95);
+}
+/* the line rises out from behind this edge */
+.cap-mask {
+  display: block;
+  overflow: clip;
+  margin-top: 0.4rem;
+  padding-bottom: 0.12em;
+}
+.cap-word {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 4.6vw, 3.6rem);
+  line-height: 1.04;
+  color: var(--sand);
+  text-shadow: 0 8px 34px rgba(0, 0, 0, 0.9);
+}
+.cap-rule {
+  display: block;
+  height: 2px;
+  margin: 0.85rem 0 0.75rem;
+  background: linear-gradient(to left, var(--signal), rgba(255, 122, 26, 0));
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.45);
+  transform-origin: right center;
+}
+html[dir="ltr"] .cap-rule {
+  background: linear-gradient(to right, var(--signal), rgba(255, 122, 26, 0));
+  transform-origin: left center;
+}
+.cap-note {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: clamp(0.9rem, 1.15vw, 1.05rem);
+  line-height: 1.7;
+  color: var(--sand-dim);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95);
+}
+/* without the descent there is no scene to caption */
+html.is-static .film-cap {
+  display: none;
+}
+
+/* ---------------------------------------------------------- the way past */
+/* stacked above the WhatsApp button so the two never sit on each other */
+.skip-btn {
+  position: fixed;
+  z-index: 79;
+  inset-inline-end: clamp(0.9rem, 2vw, 1.6rem);
+  bottom: calc(54px + clamp(0.9rem, 2vw, 1.6rem) + 0.7rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(232, 220, 192, 0.28);
+  border-radius: 3px;
+  background: rgba(14, 17, 11, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--sand-dim);
+  font-family: var(--font-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  /* down and out of the way unless the film is on screen; the script waits for
+     this transition to finish before it takes the button out of the page */
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-expo), transform 0.35s var(--ease-expo),
+    color 0.3s, border-color 0.3s, background 0.3s;
+}
+.skip-btn.is-on {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.skip-btn:hover {
+  color: var(--sand);
+  border-color: var(--signal);
+  background: rgba(14, 17, 11, 0.9);
+}
+.skip-arrow {
+  color: var(--signal);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+@media (max-width: 860px) {
+  /* the caption takes the full width and sits above the skip button and the
+     WhatsApp button, which stack in the corner below it */
+  .film-cap {
+    inset-inline: clamp(1rem, 5vw, 2rem);
+    width: auto;
+    bottom: 7.6rem;
+  }
+  .cap-word {
+    font-size: clamp(1.75rem, 8.4vw, 2.5rem);
+  }
+  .cap-note {
+    font-size: 0.92rem;
+  }
+  .skip-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
   }
 }

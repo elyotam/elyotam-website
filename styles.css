@@ -111,7 +111,10 @@ body {
   color: var(--chalk);
   font-family: var(--font-text);
   font-feature-settings: "ss01", "cv01";
-  overflow-x: hidden;
+  /* clip, not hidden, for the same reason as <html>: hidden makes body a scroll
+     container, and with <html> already clipped the overflow never reaches the
+     viewport, so the wheel stops working on any page without Lenis */
+  overflow-x: clip;
   line-height: inherit;
 }
 html.lenis,
@@ -528,106 +531,15 @@ html.is-static .chapter-zone {
 }
 
 /* ---------- "לקוח" locked on in the middle of the blast ---------- */
-.target-lock {
-  --lock: #ff3b2f;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  isolation: isolate;
-}
-.target-lock::before {
-  /* a dark field inside the box, so the word holds up against bright dust */
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background: rgba(8, 8, 10, 0.55);
-  backdrop-filter: blur(6px);
-  box-shadow: inset 0 0 40px rgba(255, 59, 47, 0.22), 0 20px 60px rgba(0, 0, 0, 0.55);
-}
-.target-lock::after {
-  /* the ring that keeps pulsing once the target is held */
-  content: "";
-  position: absolute;
-  inset: -16px;
-  z-index: -3;
-  border: 2px solid rgba(255, 59, 47, 0.6);
-  opacity: 0;
-  animation: lock-pulse 1.4s ease-out infinite;
-}
+
 @keyframes lock-pulse {
   0% { opacity: 0.8; transform: scale(0.96); }
   100% { opacity: 0; transform: scale(1.18); }
 }
-.tl-word {
-  position: relative;
-  font-family: var(--font-display);
-  font-weight: 800;
-  line-height: 1;
-  color: #fff;
-  text-shadow: 0 0 28px rgba(255, 59, 47, 0.9), 0 0 3px rgba(255, 255, 255, 0.95);
-}
-.tl-corner {
-  position: absolute;
-  border-color: var(--lock);
-  border-style: solid;
-  border-width: 0;
-  filter: drop-shadow(0 0 10px rgba(255, 59, 47, 0.95));
-}
-.tl-tl { top: 0; left: 0; }
-.tl-tr { top: 0; right: 0; }
-.tl-bl { bottom: 0; left: 0; }
-.tl-br { bottom: 0; right: 0; }
-.tl-flash {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--lock);
-  opacity: 0;
-}
-.tl-scan {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 3px;
-  z-index: -1;
-  background: linear-gradient(180deg, transparent, rgba(255, 90, 80, 0.95), transparent);
-  box-shadow: 0 0 16px rgba(255, 59, 47, 0.95);
-  animation: lock-scan 1.6s ease-in-out infinite;
-}
+
 @keyframes lock-scan {
   0%, 100% { left: 3%; }
   50% { left: 96%; }
-}
-
-/* the large version that sits over the explosion */
-#zone-target {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.target-lock--hero {
-  padding: 0.3em 0.62em 0.36em;
-  font-size: clamp(3.4rem, 9vw, 8.5rem);
-}
-.target-lock--hero .tl-word {
-  font-size: 1em;
-}
-.target-lock--hero .tl-corner {
-  width: clamp(26px, 3.4vw, 54px);
-  height: clamp(26px, 3.4vw, 54px);
-}
-.target-lock--hero .tl-tl { border-top-width: 5px; border-left-width: 5px; }
-.target-lock--hero .tl-tr { border-top-width: 5px; border-right-width: 5px; }
-.target-lock--hero .tl-bl { border-bottom-width: 5px; border-left-width: 5px; }
-.target-lock--hero .tl-br { border-bottom-width: 5px; border-right-width: 5px; }
-@media (prefers-reduced-motion: reduce) {
-  .target-lock::after,
-  .tl-scan {
-    animation: none;
-  }
 }
 
 /* hero chrome */
@@ -665,7 +577,9 @@ html.is-static .chapter-zone {
 }
 .hero-rail .rail-label {
   position: absolute;
-  left: 18px;
+  /* the rail hugs the right edge, so the label reads inward from it: on the
+     other side it ran off the screen and was cut in half */
+  right: 18px;
   top: 0%;
   transform: translateY(-50%);
   white-space: nowrap;

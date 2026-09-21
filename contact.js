@@ -38,8 +38,8 @@
 
   const servicesBox = document.getElementById("f-services");
 
-  /** every field is required except the business name: a name, a plausible
-      phone, a valid email, at least one service, and a few words of brief */
+  /** what is needed to call someone back: a name, a plausible phone, a valid
+      email and a service. The business name and the message are optional. */
   function validate() {
     clearInvalid();
     const problems = [];
@@ -50,7 +50,6 @@
     if (!email) problems.push(["email", t("form.emailMissing", "חסר מייל")]);
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) problems.push(["email", t("form.emailInvalid", "כתובת מייל לא תקינה")]);
     if (!services().length) problems.push(["services", t("form.services", "לא נבחר תחום")]);
-    if (value("message").length < 3) problems.push(["message", t("form.message", "חסר תדריך")]);
 
     problems.forEach(([name]) =>
       (name === "services" ? servicesBox : field(name))?.setAttribute("aria-invalid", "true")
@@ -74,7 +73,7 @@
 
   function briefText() {
     const lines = [
-      t("wa.hello", "היי, הגעתי מהאתר ואשמח לתדריך."),
+      t("wa.hello", "היי, הגעתי מהאתר ואשמח לשיחת היכרות."),
       `${t("wa.name", "שם")}: ${value("name")}`,
       `${t("wa.phone", "טלפון")}: ${value("phone")}`,
     ];
@@ -125,12 +124,12 @@
       if (/activat/i.test(message)) {
         console.info("FormSubmit:", message);
         form.reset();
-        show("ok", t("form.ok", "הפקודה התקבלה בחמ״ל. חוזרים אליך בהקדם לתיאום התדריך."));
+        show("ok", t("form.ok", "הפקודה התקבלה בחמ״ל. חוזרים בהקדם לתיאום שיחת היכרות."));
         return;
       }
       if (!res.ok || String(data.success) === "false") throw new Error(message || res.statusText);
       form.reset();
-      show("ok", t("form.ok", "הפקודה התקבלה בחמ״ל. חוזרים אליך בהקדם לתיאום התדריך."));
+      show("ok", t("form.ok", "הפקודה התקבלה בחמ״ל. חוזרים בהקדם לתיאום שיחת היכרות."));
     } catch (err) {
       console.warn("brief form:", err);
       show("error", t("form.error", "השידור לא עבר. אפשר לשלוח את אותם פרטים בוואטסאפ, בכפתור שליד."));
@@ -146,6 +145,6 @@
   });
 
   if (waDirect) {
-    waDirect.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t("wa.hello", "היי, הגעתי מהאתר ואשמח לתדריך."))}`;
+    waDirect.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t("wa.hello", "היי, הגעתי מהאתר ואשמח לשיחת היכרות."))}`;
   }
 })();

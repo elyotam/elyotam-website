@@ -45,12 +45,16 @@
   outline: 2px solid #ff7a1a;
   outline-offset: 2px;
 }
-/* on the home page it floats in the corner, on the side opposite the text start */
+/* on the contact page it floats in the corner; on the home page it rides in the bar */
 .lang-switch--float {
   position: fixed;
   top: clamp(0.9rem, 2vw, 1.6rem);
   inset-inline-end: clamp(0.9rem, 2vw, 1.6rem);
   z-index: 100;
+}
+.topbar .lang-switch {
+  background: rgba(10, 13, 8, 0.6);
+  box-shadow: none;
 }
 
 /* ------------------------------------------------------------- mirroring */

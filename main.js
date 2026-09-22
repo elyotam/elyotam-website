@@ -835,6 +835,79 @@ function initFinale(isReduced) {
 /* ============================================================
    CURSOR + MAGNETICS
    ============================================================ */
+/* ---------------------------------------------------------------------------
+   THE GROUND FOLLOWS THE FILM
+   The shadows of the footage were measured every eighth frame, and that curve
+   is what the page stands on: the whole document is mapped onto the whole film,
+   so the last screen lands on the last frame, which is the sunrise. Hue and
+   saturation are the measurement; lightness is not, because a ground has to
+   stay inside the band where pale type on it can be read.
+   Only the ground moves. The type and the gold are fixed - they are what makes
+   the movement visible. If the file does not load, the palette in the
+   stylesheet stands, which is this same graphite at the middle of the curve.
+--------------------------------------------------------------------------- */
+async function initFilmGround() {
+  const hero = q("#hero");
+  if (!hero) return;
+  let curve;
+  try {
+    const res = await fetch("./film-curve.json");
+    curve = (await res.json()).curve;
+  } catch (err) {
+    return;
+  }
+  if (!Array.isArray(curve) || curve.length < 2) return;
+
+  const root = document.documentElement;
+  /* the ladder the design already has, as offsets from the section colour, so
+     every panel stays exactly as far above the ground as it was drawn */
+  const LADDER = [
+    ["--olive-950", -0.012],
+    ["--olive-900", 0],
+    ["--olive-850", 0.008],
+    ["--olive-800", 0.016],
+    ["--olive-700", 0.034],
+    ["--olive-600", 0.056],
+  ];
+  /* hue is an angle: interpolated the long way round, the cold blue of the
+     night drop travels through green to reach the dawn instead of through the
+     purple it actually passes through */
+  const hue = (a, b, t) => (a + ((((b - a + 540) % 360) - 180) * t) + 360) % 360;
+  const hsl = (h, s, l) =>
+    `hsl(${h.toFixed(1)} ${(s * 100).toFixed(1)}% ${(l * 100).toFixed(1)}%)`;
+
+  let queued = false;
+  const paint = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    const x = p * (curve.length - 1);
+    const i = Math.min(curve.length - 2, Math.floor(x));
+    const t = x - i;
+    const a = curve[i];
+    const b = curve[i + 1];
+    const h = hue(a[1], b[1], t);
+    const s = a[2] + (b[2] - a[2]) * t;
+    const l = a[3] + (b[3] - a[3]) * t;
+    LADDER.forEach(([name, d]) => root.style.setProperty(name, hsl(h, s, l + d)));
+    root.style.setProperty("--ink", hsl(h, s, l - 0.01));
+    document.body.style.background = hsl(h, s, l);
+  };
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!queued) {
+        queued = true;
+        requestAnimationFrame(paint);
+      }
+    },
+    { passive: true }
+  );
+  window.addEventListener("resize", paint);
+  paint();
+}
+
 function initCursor() {
   const dot = q("#cursor-dot");
   const ring = q("#cursor-ring");
@@ -986,6 +1059,7 @@ async function boot() {
   initSkip(lenis);
   initMagnetics();
   if (!coarse && !narrow) initCursor();
+  initFilmGround();
   // measure every trigger in page order, pins first, so the ones below a pin see its spacer
   ScrollTrigger.sort();
 

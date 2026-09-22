@@ -1,0 +1,263 @@
+/* ---------------------------------------------------------------------------
+   THE TUBE, WHERE IT BELONGS
+
+   The first version treated the whole site as something seen through a device.
+   That is a great first impression and a bad website: the speckle, the
+   honeycomb and the eyepiece sit in front of every word on the page, and a
+   visitor who has decided to read is fighting the effect.
+
+   So this one puts the device where the device makes sense and takes it away
+   where it does not:
+
+   - THE TUBE IS INSIDE THE FILM. Its layer is mounted between the footage and
+     the captions, inside the hero, rather than over the whole document. The
+     captions are painted on top of it, not through it, which is the single
+     biggest thing that makes them readable again.
+   - THE PHOSPHOR IS MIXED, NOT IMPOSED. The gradient map is blended with the
+     original footage at `strength`, so the picture is unmistakably green but
+     keeps the contrast and the detail the frames actually have. At full
+     strength a night drop is a green silhouette; at 0.7 it is still a night
+     drop.
+   - THE HALATION IS LEASHED. Bloom is what eats captions: a lamp behind a word
+     grows until it swallows it. It is much smaller here, and it is applied
+     before the captions are drawn rather than over them.
+   - THE PAGE AFTER THE FILM IS CLEAN. The device fades out as the footage ends.
+     Whatever is left is set deliberately per look, and can be nothing at all.
+
+   The pool of dark a caption sits on is set in the stylesheet rather than from
+   here, because it belongs to the caption, not to the device.
+--------------------------------------------------------------------------- */
+(() => {
+  const cfg = Object.assign(
+    {
+      ramp: null,
+      strength: 0.72, // how much of the footage becomes phosphor
+      bloom: 1.2,
+      grainFilm: 0.055,
+      hexFilm: 0.03,
+      hexSize: 7,
+      vigFilm: 0.42,
+      grainPage: 0,
+      hexPage: 0,
+      vigPage: 0,
+      gain: 0.022,
+      media: ".op-shot img, .shot img",
+    },
+    window.NVG || {}
+  );
+
+  if (!cfg.ramp) return;
+
+  const hero = document.querySelector("#hero");
+  const filmCanvas = document.querySelector("#hero-canvas");
+  const overlays = document.querySelector(".hero-overlays");
+  const emission = cfg.ramp[cfg.ramp.length - 1];
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- the phosphor, mixed with the picture rather than replacing it ---- */
+  const table = (i) => cfg.ramp.map((c) => (c[i] / 255).toFixed(4)).join(" ");
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("aria-hidden", "true");
+  svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
+  svg.innerHTML = `
+    <filter id="tube" color-interpolation-filters="sRGB"
+            x="-2%" y="-2%" width="104%" height="104%">
+      <feColorMatrix type="matrix" result="mono"
+        values="0.2126 0.7152 0.0722 0 0
+                0.2126 0.7152 0.0722 0 0
+                0.2126 0.7152 0.0722 0 0
+                0      0      0      1 0"/>
+      <feComponentTransfer in="mono" result="phos">
+        <feFuncR type="table" tableValues="${table(0)}"/>
+        <feFuncG type="table" tableValues="${table(1)}"/>
+        <feFuncB type="table" tableValues="${table(2)}"/>
+      </feComponentTransfer>
+      <!-- the mix: at strength 1 this is the tube, at 0.7 the frame's own
+           contrast is still carrying most of the picture -->
+      <feComposite in="phos" in2="SourceGraphic" operator="arithmetic"
+                   k1="0" k2="${cfg.strength}" k3="${(1 - cfg.strength).toFixed(3)}" k4="0"
+                   result="mixed"/>
+      <feComponentTransfer in="mixed" result="hot">
+        <feFuncR type="linear" slope="1.5" intercept="-0.74"/>
+        <feFuncG type="linear" slope="1.5" intercept="-0.74"/>
+        <feFuncB type="linear" slope="1.5" intercept="-0.74"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="hot" stdDeviation="${cfg.bloom}" result="halo"/>
+      <feComposite in="halo" in2="mixed" operator="arithmetic"
+                   k1="0" k2="0.45" k3="1" k4="0"/>
+    </filter>`;
+  document.body.appendChild(svg);
+
+  const style = document.createElement("style");
+  style.textContent = `
+    #hero-canvas, ${cfg.media} { filter: url(#tube); }
+  `;
+  document.head.appendChild(style);
+
+  /* ---- the grain layer, mounted under the captions ---- */
+  const make = (z, fixed) => {
+    const c = document.createElement("canvas");
+    c.setAttribute("aria-hidden", "true");
+    Object.assign(c.style, {
+      position: fixed ? "fixed" : "absolute",
+      inset: "0",
+      width: "100%",
+      height: "100%",
+      zIndex: String(z),
+      pointerEvents: "none",
+      mixBlendMode: "screen",
+    });
+    return c;
+  };
+
+  const filmLayer = make(1, false);
+  filmLayer.className = "nvg-layer nvg-film";
+  if (hero && overlays) hero.insertBefore(filmLayer, overlays);
+  else return;
+
+  /* what is left of the device once the film is behind you */
+  const pageOn = cfg.grainPage > 0 || cfg.hexPage > 0;
+  const pageLayer = pageOn ? make(58, true) : null;
+  if (pageLayer) {
+    pageLayer.className = "nvg-layer nvg-page";
+    document.body.appendChild(pageLayer);
+  }
+
+  /* the eyepiece darkening, also only over the film */
+  const shade = document.createElement("div");
+  shade.setAttribute("aria-hidden", "true");
+  Object.assign(shade.style, {
+    position: "absolute",
+    inset: "0",
+    zIndex: "1",
+    pointerEvents: "none",
+    background:
+      `radial-gradient(120% 100% at 50% 40%, rgba(0,0,0,0) 40%, rgba(0,0,0,${cfg.vigFilm}) 100%)`,
+  });
+  if (hero && overlays) hero.insertBefore(shade, overlays);
+
+  /* the honeycomb, drawn once */
+  const comb = document.createElement("canvas");
+  const combCtx = comb.getContext("2d");
+  const buildComb = (ctx, s) => {
+    const w = Math.round(s * Math.sqrt(3));
+    const h = Math.round(s * 3);
+    comb.width = w;
+    comb.height = h;
+    combCtx.clearRect(0, 0, w, h);
+    combCtx.strokeStyle = `rgb(${emission[0]},${emission[1]},${emission[2]})`;
+    combCtx.lineWidth = 1;
+    const hexAt = (cx, cy) => {
+      combCtx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI / 180) * (60 * i - 30);
+        const x = cx + s * Math.cos(a);
+        const y = cy + s * Math.sin(a);
+        i ? combCtx.lineTo(x, y) : combCtx.moveTo(x, y);
+      }
+      combCtx.closePath();
+      combCtx.stroke();
+    };
+    hexAt(w / 2, s);
+    hexAt(0, s * 2.5);
+    hexAt(w, s * 2.5);
+    return ctx.createPattern(comb, "repeat");
+  };
+
+  const SPECK = 180;
+  const speck = document.createElement("canvas");
+  speck.width = speck.height = SPECK;
+  const speckCtx = speck.getContext("2d");
+  const reseed = () => {
+    const img = speckCtx.createImageData(SPECK, SPECK);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = Math.random();
+      const a = v > 0.88 ? (v - 0.88) / 0.12 : 0;
+      img.data[i] = emission[0];
+      img.data[i + 1] = emission[1];
+      img.data[i + 2] = emission[2];
+      img.data[i + 3] = a * 255;
+    }
+    speckCtx.putImageData(img, 0, 0);
+  };
+  reseed();
+
+  const layers = [];
+  const register = (canvas, grain, hexAmount) => {
+    if (!canvas) return;
+    layers.push({ canvas, ctx: canvas.getContext("2d"), grain, hexAmount, pattern: null });
+  };
+  register(filmLayer, cfg.grainFilm, cfg.hexFilm);
+  register(pageLayer, cfg.grainPage, cfg.hexPage);
+
+  const size = () => {
+    for (const L of layers) {
+      const r = L.canvas.getBoundingClientRect();
+      L.canvas.width = Math.max(2, Math.round(r.width || window.innerWidth));
+      L.canvas.height = Math.max(2, Math.round(r.height || window.innerHeight));
+      L.pattern = buildComb(L.ctx, cfg.hexSize);
+    }
+  };
+
+  /* how much of the page is still the film */
+  let filmLevel = 1;
+  const gauge = () => {
+    if (!hero) return;
+    const end = hero.getBoundingClientRect().top + window.scrollY + hero.offsetHeight;
+    const t = (window.scrollY - (end - window.innerHeight * 1.4)) / (window.innerHeight * 1.4);
+    filmLevel = Math.max(0, Math.min(1, 1 - t));
+    if (pageLayer) pageLayer.style.opacity = String(1 - filmLevel);
+    shade.style.opacity = String(filmLevel);
+  };
+
+  let frames = 0;
+  const draw = (t) => {
+    const gain = 1 + Math.sin(t * 1.7) * cfg.gain + Math.sin(t * 0.37) * cfg.gain * 0.6;
+    if (frames % 3 === 0) reseed();
+    frames++;
+    for (const L of layers) {
+      const { ctx, canvas } = L;
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      if (L.hexAmount > 0 && L.pattern) {
+        ctx.globalAlpha = L.hexAmount * gain;
+        ctx.fillStyle = L.pattern;
+        ctx.fillRect(0, 0, w, h);
+      }
+      if (L.grain > 0) {
+        ctx.globalAlpha = L.grain * gain;
+        const ox = -Math.floor(Math.random() * SPECK);
+        const oy = -Math.floor(Math.random() * SPECK);
+        for (let x = ox; x < w; x += SPECK) {
+          for (let y = oy; y < h; y += SPECK) ctx.drawImage(speck, x, y);
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+  };
+
+  let raf = 0;
+  const frame = (ms) => {
+    raf = 0;
+    if (!document.hidden) {
+      draw(ms / 1000);
+      raf = requestAnimationFrame(frame);
+    }
+  };
+
+  size();
+  gauge();
+  if (reduced) draw(0);
+  else raf = requestAnimationFrame(frame);
+
+  window.addEventListener("scroll", gauge, { passive: true });
+  window.addEventListener("resize", () => {
+    size();
+    gauge();
+    if (reduced) draw(0);
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (!raf && !document.hidden && !reduced) raf = requestAnimationFrame(frame);
+  });
+})();

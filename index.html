@@ -8,7 +8,7 @@
       name="description"
       content="Elyotam בונה אתרי תדמית, דפי נחיתה, אפליקציות, אוטומציות AI וחנויות E-commerce ו-Dropshipping. יחידה אחת, פיקוד אחד, אחריות מלאה לתוצאה."
     />
-    <meta name="theme-color" content="#151311" />
+    <meta name="theme-color" content="#0c170f" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Elyotam | הבית לבניית העסק המושלם שלך" />
     <meta
@@ -31,9 +31,9 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Rubik:wght@400;500;600;700;800;900&family=Karantina:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=16" />
-    <link rel="stylesheet" href="./field.css?v=79" />
-    <link rel="stylesheet" href="./lang.css?v=8" />
+    <link rel="stylesheet" href="./styles.css?v=17" />
+    <link rel="stylesheet" href="./field.css?v=80" />
+    <link rel="stylesheet" href="./lang.css?v=9" />
     <!-- language: set direction before first paint, hide until English is applied -->
     <script>
       // the film always starts at its first frame, never at a remembered scroll position
@@ -471,6 +471,23 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js"></script>
     <script src="./i18n.js?v=73"></script>
-    <script type="module" src="./main.js?v=72"></script>
+    <script type="module" src="./main.js?v=73"></script>
+    <script>
+      /* the tube lives inside the film: its layer is mounted between the
+         footage and the captions, so the captions are painted on top of it */
+      window.NVG = {
+        ramp: [[0, 3, 1], [6, 40, 16], [18, 108, 44], [54, 190, 96], [150, 245, 170], [226, 255, 232]],
+        strength: 0.92,
+        bloom: 1.9,
+        grainFilm: 0.085,
+        hexFilm: 0.05,
+        vigFilm: 0.55,
+        grainPage: 0.02,
+        hexPage: 0.008,
+      };
+      window.SMOKE = { core: [29, 53, 35], rim: [41, 214, 84], alpha: 0.7, scale: 1.1, speed: 0.7 };
+    </script>
+    <script src="./nvg2.js?v=1"></script>
+    <script src="./smoke-gl.js?v=1"></script>
   </body>
 </html>

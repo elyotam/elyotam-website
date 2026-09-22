@@ -485,9 +485,23 @@
         grainPage: 0.02,
         hexPage: 0.008,
       };
-      window.SMOKE = { core: [29, 53, 35], rim: [41, 214, 84], alpha: 0.7, scale: 1.1, speed: 0.7 };
+      /* fine dust hanging in the air rather than a plume: small, fast, thin,
+         and barely warped - what is left behind after something took off */
+      window.SMOKE = {
+        core: [29, 53, 35],
+        rim: [41, 214, 84],
+        alpha: 0.5,
+        scale: 0.55,
+        speed: 1.5,
+        mask: 0,
+        stretch: 1,
+        age: 2.2,
+        warp: 0.45,
+        drift: [0.02, 0.1],
+        surge: 0,
+      };
     </script>
     <script src="./nvg2.js?v=1"></script>
-    <script src="./smoke-gl.js?v=1"></script>
+    <script src="./smoke-gl.js?v=2"></script>
   </body>
 </html>

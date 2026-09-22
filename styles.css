@@ -270,11 +270,11 @@ html.is-loading body {
 /* nothing is painted until initCursor says it is driving them: without it both
    layers sit unpositioned in the top corner of the screen */
 .cursor-dot,
-.cursor-helm {
+.cursor-scope {
   display: none;
 }
 body.has-custom-cursor .cursor-dot,
-body.has-custom-cursor .cursor-helm {
+body.has-custom-cursor .cursor-scope {
   display: block;
 }
 .cursor-dot {
@@ -291,45 +291,56 @@ body.has-custom-cursor .cursor-helm {
   mix-blend-mode: difference;
   will-change: transform;
 }
-/* ---------- the helmet that follows the pointer ---------- */
-.cursor-helm {
+/* ---------- the scope that follows the pointer ---------- */
+.cursor-scope {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 110;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
   pointer-events: none;
-  /* it trails below and right of the true pointer, the way the body of an
-     arrow cursor does, so it never sits on top of what is being pointed at */
-  margin: 10px 0 0 9px;
-  perspective: 260px;
   will-change: transform;
-  transition: opacity 0.3s;
 }
-.cursor-helm svg {
+.cursor-scope svg {
   display: block;
-  transform-style: preserve-3d;
-  transition: transform 0.35s var(--ease-expo), filter 0.35s var(--ease-expo);
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+  transition: transform 0.35s var(--ease-expo), opacity 0.35s var(--ease-expo);
 }
-.helm-shadow {
-  fill: #05070f;
-  opacity: 0.55;
-  transform: translate(2px, 3px);
+.sc-glass {
+  fill: rgba(18, 25, 51, 0.3);
+  stroke: var(--chalk);
+  stroke-opacity: 0.7;
+  stroke-width: 1.4;
 }
-.helm-brim { fill: #0f1427; opacity: .55; }
-.helm-rail { fill: #af966a; opacity: 0.9; }
-.helm-mount { fill: #af966a; }
-/* over something clickable it leans in and lights up */
-.cursor-helm.is-active svg {
-  transform: scale(1.18);
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.6))
-    drop-shadow(0 0 10px rgba(175, 150, 106, 0.55));
+.sc-ring {
+  fill: none;
+  stroke: var(--signal);
+  stroke-opacity: 0.45;
+  stroke-width: 1;
+  stroke-dasharray: 4 7;
+  transform-origin: 28px 28px;
+}
+.sc-ticks {
+  stroke: var(--chalk);
+  stroke-opacity: 0.75;
+  stroke-width: 1.4;
+}
+/* over something clickable it opens up and turns onto its corners */
+.cursor-scope.is-active svg {
+  transform: scale(1.3) rotate(45deg);
+}
+.cursor-scope.is-active .sc-ring {
+  stroke-opacity: 0.85;
+}
+/* clear, so it never dims the thing it is sitting on */
+.cursor-scope.is-active .sc-glass {
+  fill: transparent;
+  stroke-opacity: 0.9;
 }
 @media (prefers-reduced-motion: reduce) {
-  .cursor-helm { perspective: none; }
-  .cursor-helm svg { transition: none; }
+  .cursor-scope svg { transition: none; }
 }
-
 body.has-custom-cursor,
 body.has-custom-cursor a,
 body.has-custom-cursor button,

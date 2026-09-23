@@ -54,12 +54,37 @@
   const emission = cfg.ramp[cfg.ramp.length - 1];
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---- the phosphor, mixed with the picture rather than replacing it ---- */
+  /* ---- the phosphor, mixed with the picture rather than replacing it ----
+
+     The halation is built as a separate stage on purpose. Measured under a weak
+     GPU - software rendering, which is the closest thing to a phone available
+     here - the film ran at 34fps with the full filter and 60 with the blur
+     taken out, while everything else in the effect cost nothing at all. A
+     full-screen gaussian blur recomputed on every repaint is simply not
+     affordable on a phone, and the frame sequence repaints on every scroll
+     event, so it was being recomputed constantly.
+
+     The gradient map is what makes it read as a tube. The bloom is a garnish.
+     So the bloom is dropped where it cannot be afforded and the tube stays. */
   const table = (i) => cfg.ramp.map((c) => (c[i] / 255).toFixed(4)).join(" ");
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
   svg.setAttribute("aria-hidden", "true");
   svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
-  svg.innerHTML = `
+
+  const buildFilter = (withBloom) => {
+    const bloom = withBloom
+      ? `
+      <feComponentTransfer in="mixed" result="hot">
+        <feFuncR type="linear" slope="1.5" intercept="-0.74"/>
+        <feFuncG type="linear" slope="1.5" intercept="-0.74"/>
+        <feFuncB type="linear" slope="1.5" intercept="-0.74"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="hot" stdDeviation="${cfg.bloom}" result="halo"/>
+      <feComposite in="halo" in2="mixed" operator="arithmetic"
+                   k1="0" k2="0.45" k3="1" k4="0"/>`
+      : "";
+    svg.innerHTML = `
     <filter id="tube" color-interpolation-filters="sRGB"
             x="-2%" y="-2%" width="104%" height="104%">
       <feColorMatrix type="matrix" result="mono"
@@ -76,22 +101,18 @@
            contrast is still carrying most of the picture -->
       <feComposite in="phos" in2="SourceGraphic" operator="arithmetic"
                    k1="0" k2="${cfg.strength}" k3="${(1 - cfg.strength).toFixed(3)}" k4="0"
-                   result="mixed"/>
-      <feComponentTransfer in="mixed" result="hot">
-        <feFuncR type="linear" slope="1.5" intercept="-0.74"/>
-        <feFuncG type="linear" slope="1.5" intercept="-0.74"/>
-        <feFuncB type="linear" slope="1.5" intercept="-0.74"/>
-      </feComponentTransfer>
-      <feGaussianBlur in="hot" stdDeviation="${cfg.bloom}" result="halo"/>
-      <feComposite in="halo" in2="mixed" operator="arithmetic"
-                   k1="0" k2="0.45" k3="1" k4="0"/>
+                   result="mixed"/>${bloom}
     </filter>`;
+  };
+
+  /* a phone, or anything driven by a finger, never gets the blur */
+  const small = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches;
+  let bloomOn = !small && cfg.bloom > 0;
+  buildFilter(bloomOn);
   document.body.appendChild(svg);
 
   const style = document.createElement("style");
-  style.textContent = `
-    #hero-canvas, ${cfg.media} { filter: url(#tube); }
-  `;
+  style.textContent = `#hero-canvas, ${cfg.media} { filter: url(#tube); }`;
   document.head.appendChild(style);
 
   /* ---- the grain layer, mounted under the captions ---- */
@@ -250,6 +271,68 @@
   gauge();
   if (reduced) draw(0);
   else raf = requestAnimationFrame(frame);
+
+  /* A weak GPU in a laptop is not caught by a media query, so the machine is
+     measured while it runs, and the effect steps down a rung at a time until it
+     can be afforded. Measured on a software renderer at 1440x900, which is the
+     closest thing to a slow GPU available here:
+
+       full filter           21 fps
+       without the halation  21 fps   (at this size the map itself is the cost)
+       a plain css chain     32 fps
+       no filter at all      51 fps
+
+     On a phone-sized viewport the map costs nothing, which is why the media
+     query only takes the bloom: the picture stays a real gradient map there.
+     A chain of fixed-function css filters cannot reproduce a phosphor curve
+     exactly, but it is close enough that the difference is hard to see, and it
+     is the last rung before the tube would have to go entirely. */
+  const CHAIN =
+    "grayscale(1) sepia(1) hue-rotate(62deg) saturate(3.4) contrast(1.18) brightness(0.92)";
+  if (!reduced) {
+    /* Only frames where the page actually moved are counted, and only their own
+       time is added up. The first version of this measured from load and
+       downgraded a perfectly fast phone, because what it had really measured
+       was the frame sequence fetching and decoding its first frames - nothing
+       to do with the filter. Idle gaps are skipped for the same reason: a long
+       pause between two scrolls is not a slow frame. */
+    let moved = 0;
+    let spent = 0;
+    let last = performance.now();
+    let lastY = window.scrollY;
+    let stage = 0;
+    const watch = () => {
+      const now = performance.now();
+      const dt = now - last;
+      last = now;
+      if (window.scrollY !== lastY && dt < 100) {
+        moved++;
+        spent += dt;
+      }
+      lastY = window.scrollY;
+
+      /* Judge sooner the worse it looks: 45 scrolled frames is a reliable
+         sample at a healthy rate, but a machine running at 10fps would take
+         nine seconds to produce that many - and it is precisely the machine
+         that needs the downgrade first. */
+      const rough = spent > 0 ? moved / (spent / 1000) : 60;
+      if (moved >= 45 || (moved >= 18 && rough < 25)) {
+        const fps = moved / (spent / 1000);
+        moved = 0;
+        spent = 0;
+        if (fps < 45 && stage === 0 && bloomOn) {
+          stage = 1;
+          bloomOn = false;
+          buildFilter(false);
+        } else if (fps < 42 && stage <= 1) {
+          stage = 2;
+          style.textContent = `#hero-canvas, ${cfg.media} { filter: ${CHAIN}; }`;
+        }
+      }
+      if (stage < 2) requestAnimationFrame(watch);
+    };
+    requestAnimationFrame(watch);
+  }
 
   window.addEventListener("scroll", gauge, { passive: true });
   window.addEventListener("resize", () => {

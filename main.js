@@ -4,7 +4,7 @@
    and the canvas descent pinned across the top of the page.
    ============================================================ */
 
-import { createFrameSequence } from "./hero-frames.js?v=5";
+import { createFrameSequence } from "./hero-frames.js?v=6";
 
 const { gsap, ScrollTrigger, Lenis } = window;
 gsap.registerPlugin(ScrollTrigger);

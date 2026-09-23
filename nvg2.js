@@ -92,7 +92,17 @@
                 0.2126 0.7152 0.0722 0 0
                 0.2126 0.7152 0.0722 0 0
                 0      0      0      1 0"/>
-      <feComponentTransfer in="mono" result="phos">
+      <!-- A curve before the ramp. Without it the tube's gain sits too high and
+           a bright, dusty frame comes out milky rather than deep - which is what
+           it looked like on a phone, where the film is a tight crop of exactly
+           those frames. The same curve is baked into the mobile frames, so both
+           end up with the same picture. -->
+      <feComponentTransfer in="mono" result="curved">
+        <feFuncR type="gamma" amplitude="1" exponent="1.25" offset="-0.024"/>
+        <feFuncG type="gamma" amplitude="1" exponent="1.25" offset="-0.024"/>
+        <feFuncB type="gamma" amplitude="1" exponent="1.25" offset="-0.024"/>
+      </feComponentTransfer>
+      <feComponentTransfer in="curved" result="phos">
         <feFuncR type="table" tableValues="${table(0)}"/>
         <feFuncG type="table" tableValues="${table(1)}"/>
         <feFuncB type="table" tableValues="${table(2)}"/>
@@ -105,14 +115,23 @@
     </filter>`;
   };
 
-  /* a phone, or anything driven by a finger, never gets the blur */
-  const small = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches;
+  /* A phone gets no filter on the canvas at all: its frames are pre-baked with
+     the phosphor map and the halation already in them, so the picture arrives
+     green and the device costs nothing per frame. The honeycomb and the speckle
+     were left out of the bake on purpose - they are noise, and noise does not
+     compress, so baking them cost +96% and +118% of the film's weight against
+     +16% for the two smooth parts. They are drawn here instead, as tiled
+     layers that the compositor moves rather than anything that repaints. */
+  const baked = window.matchMedia("(max-width: 768px)").matches;
+  const small = baked || window.matchMedia("(pointer: coarse)").matches;
   let bloomOn = !small && cfg.bloom > 0;
-  buildFilter(bloomOn);
-  document.body.appendChild(svg);
+  if (!baked) {
+    buildFilter(bloomOn);
+    document.body.appendChild(svg);
+  }
 
   const style = document.createElement("style");
-  style.textContent = `#hero-canvas, ${cfg.media} { filter: url(#tube); }`;
+  style.textContent = baked ? "" : `#hero-canvas, ${cfg.media} { filter: url(#tube); }`;
   document.head.appendChild(style);
 
   /* ---- the grain layer, mounted under the captions ---- */
@@ -131,13 +150,91 @@
     return c;
   };
 
-  const filmLayer = make(1, false);
-  filmLayer.className = "nvg-layer nvg-film";
-  if (hero && overlays) hero.insertBefore(filmLayer, overlays);
-  else return;
+  if (!hero || !overlays) return;
+
+  /* ---- on a phone: tiled layers, moved, never redrawn ---- */
+  const tile = (draw, w, h) => {
+    const c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    draw(c.getContext("2d"));
+    return c.toDataURL("image/png");
+  };
+
+  if (baked) {
+    /* One layer, not three, and no blend mode on it.
+       Measured on a weak GPU with a throttled CPU: three full-screen
+       screen-blended layers cost 34fps against 50 with none, and a blend mode
+       on a full-screen layer is the expensive part of that. So the honeycomb
+       and the speckle are drawn into a single tile that already carries its own
+       colour, laid on at low opacity with ordinary compositing - over a picture
+       this dark the difference from a screen blend is not visible - and moved
+       by transform, which the compositor does without repainting anything. */
+    const TW = cfg.hexSize * 10;        // a whole number of honeycomb tiles
+    const TH = cfg.hexSize * 3 * 6;
+    const tileUrl = tile((k) => {
+      const img = k.createImageData(TW, TH);
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = Math.random();
+        const a2 = v > 0.86 ? ((v - 0.86) / 0.14) * 255 : 0;
+        img.data[i] = emission[0];
+        img.data[i + 1] = emission[1];
+        img.data[i + 2] = emission[2];
+        /* the strength lives in the tile now: there is no layer opacity left
+           to scale it down, which is what made the first attempt look like a
+           wire screen laid over the film */
+        img.data[i + 3] = a2 * cfg.grainFilm;
+      }
+      k.putImageData(img, 0, 0);
+
+      k.strokeStyle = `rgba(${emission[0]},${emission[1]},${emission[2]},${cfg.hexFilm * 0.55})`;
+      k.lineWidth = 1;
+      const s2 = cfg.hexSize;
+      const w = Math.round(s2 * Math.sqrt(3));
+      const hexAt = (cx, cy) => {
+        k.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const ang = (Math.PI / 180) * (60 * i - 30);
+          const x = cx + s2 * Math.cos(ang);
+          const y = cy + s2 * Math.sin(ang);
+          i ? k.lineTo(x, y) : k.moveTo(x, y);
+        }
+        k.closePath();
+        k.stroke();
+      };
+      for (let y = 0; y < TH + s2 * 3; y += s2 * 3) {
+        for (let x = 0; x < TW + w; x += w) {
+          hexAt(x + w / 2, y + s2);
+          hexAt(x, y + s2 * 2.5);
+        }
+      }
+    }, TW, TH);
+
+    const sheet = document.createElement("style");
+    sheet.textContent = `
+      @keyframes nvg-drift { to { transform: translate3d(-${TW}px, -${TH}px, 0); } }
+      .nvg-tile {
+        position: absolute; inset: -${TH}px -${TW}px; z-index: 1;
+        pointer-events: none; will-change: transform;
+        background: url(${tileUrl}) repeat;
+        animation: nvg-drift .5s steps(4) infinite;
+      }
+      @media (prefers-reduced-motion: reduce) { .nvg-tile { animation: none; } }`;
+    document.head.appendChild(sheet);
+    const d = document.createElement("div");
+    d.className = "nvg-tile";
+    d.setAttribute("aria-hidden", "true");
+    hero.insertBefore(d, overlays);
+  }
+
+  const filmLayer = baked ? null : make(1, false);
+  if (filmLayer) {
+    filmLayer.className = "nvg-layer nvg-film";
+    hero.insertBefore(filmLayer, overlays);
+  }
 
   /* what is left of the device once the film is behind you */
-  const pageOn = cfg.grainPage > 0 || cfg.hexPage > 0;
+  const pageOn = !baked && (cfg.grainPage > 0 || cfg.hexPage > 0);
   const pageLayer = pageOn ? make(58, true) : null;
   if (pageLayer) {
     pageLayer.className = "nvg-layer nvg-page";
@@ -155,7 +252,7 @@
     background:
       `radial-gradient(120% 100% at 50% 40%, rgba(0,0,0,0) 40%, rgba(0,0,0,${cfg.vigFilm}) 100%)`,
   });
-  if (hero && overlays) hero.insertBefore(shade, overlays);
+  hero.insertBefore(shade, overlays);
 
   /* the honeycomb, drawn once */
   const comb = document.createElement("canvas");
@@ -269,8 +366,8 @@
 
   size();
   gauge();
-  if (reduced) draw(0);
-  else raf = requestAnimationFrame(frame);
+  if (layers.length && !reduced) raf = requestAnimationFrame(frame);
+  else if (layers.length) draw(0);
 
   /* A weak GPU in a laptop is not caught by a media query, so the machine is
      measured while it runs, and the effect steps down a rung at a time until it
@@ -289,7 +386,7 @@
      is the last rung before the tube would have to go entirely. */
   const CHAIN =
     "grayscale(1) sepia(1) hue-rotate(62deg) saturate(3.4) contrast(1.18) brightness(0.92)";
-  if (!reduced) {
+  if (!reduced && !baked) {
     /* Only frames where the page actually moved are counted, and only their own
        time is added up. The first version of this measured from load and
        downgraded a perfectly fast phone, because what it had really measured

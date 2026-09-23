@@ -17,10 +17,18 @@ export function createFrameSequence(canvas, options = {}) {
   if (!ctx) throw new Error("createFrameSequence: 2D context unavailable");
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
-  // the hero film by default; another scene passes its own folder and count per device
+  // The hero film by default; another scene passes its own folder and count per
+  // device. The mobile set is pre-baked with the night vision in it, so a phone
+  // draws ordinary pictures and needs no filter on the canvas at all.
+  //
+  // Its cache is also much smaller than it was. Each mobile frame is 432x768,
+  // which is 1.3MB once decoded, so the old cap of 140 meant asking a phone to
+  // hold about 180MB of decoded bitmaps - which it answers by evicting and
+  // re-decoding them, over and over, exactly while scrolling. Sixty is around
+  // 80MB and still more than a second of film either side of the playhead.
   const config = {
     ...(isMobile
-      ? { folder: "frames-mobile", count: 1175, ahead: 22, behind: 8, cap: 140, inflight: 4 }
+      ? { folder: "frames-nv-mobile", count: 1175, ahead: 14, behind: 6, cap: 60, inflight: 4 }
       : { folder: "frames", count: 1175, ahead: 28, behind: 10, cap: 120, inflight: 6 }),
     ...(isMobile ? options.mobile : options.desktop),
   };
